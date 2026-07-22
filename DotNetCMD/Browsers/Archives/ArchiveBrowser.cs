@@ -93,6 +93,17 @@ namespace DotNetCommander
             .Select(ToBrowserItemInfo)
             .ToArray();
         public override BrowserPanelCapabilities Capabilities => BrowserPanelCapabilities.ReadOnlyVirtual;
+        public string CurrentItemName
+        {
+            get
+            {
+                ListViewItem current = archiveView.FocusedItem?.Selected == true
+                    ? archiveView.FocusedItem
+                    : archiveView.SelectedItems.Cast<ListViewItem>().FirstOrDefault();
+                ArchiveViewItem item = current?.Tag as ArchiveViewItem;
+                return item == null || item.IsParent ? null : item.Name;
+            }
+        }
 
         public string[] SelectedEntryNames => archiveView.SelectedItems
             .Cast<ListViewItem>()

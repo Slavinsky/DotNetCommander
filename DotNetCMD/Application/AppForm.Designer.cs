@@ -45,6 +45,9 @@
       this.fileBrowserLeft = new DotNetCommander.FileBrowser();
       this.fileBrowserRight = new DotNetCommander.FileBrowser();
       this.toolStripButtons = new System.Windows.Forms.ToolStrip();
+      this.toolStripCommandLine = new System.Windows.Forms.ToolStrip();
+      this.toolStripLabelCommandPath = new System.Windows.Forms.ToolStripLabel();
+      this.toolStripTextBoxCommand = new System.Windows.Forms.ToolStripTextBox();
       this.statusStripMain = new System.Windows.Forms.StatusStrip();
       this.toolStripStatusLabelInfo = new System.Windows.Forms.ToolStripStatusLabel();
       this.menuStrip1.SuspendLayout();
@@ -53,6 +56,7 @@
       this.splitContainer1.Panel2.SuspendLayout();
       this.splitContainer1.SuspendLayout();
       this.statusStripMain.SuspendLayout();
+      this.toolStripCommandLine.SuspendLayout();
       this.SuspendLayout();
       // 
       // menuStrip1
@@ -197,6 +201,36 @@
       this.toolStripButtons.TabIndex = 6;
       this.toolStripButtons.Text = "toolStripCommands";
       // 
+      // toolStripCommandLine
+      // 
+      this.toolStripCommandLine.AutoSize = false;
+      this.toolStripCommandLine.CanOverflow = false;
+      this.toolStripCommandLine.Dock = System.Windows.Forms.DockStyle.Bottom;
+      this.toolStripCommandLine.GripStyle = System.Windows.Forms.ToolStripGripStyle.Hidden;
+      this.toolStripCommandLine.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.toolStripLabelCommandPath,
+            this.toolStripTextBoxCommand});
+      this.toolStripCommandLine.Location = new System.Drawing.Point(0, 432);
+      this.toolStripCommandLine.Name = "toolStripCommandLine";
+      this.toolStripCommandLine.Padding = new System.Windows.Forms.Padding(4, 0, 4, 0);
+      this.toolStripCommandLine.RenderMode = System.Windows.Forms.ToolStripRenderMode.System;
+      this.toolStripCommandLine.Size = new System.Drawing.Size(756, 27);
+      this.toolStripCommandLine.TabIndex = 7;
+      // 
+      // toolStripLabelCommandPath
+      // 
+      this.toolStripLabelCommandPath.Name = "toolStripLabelCommandPath";
+      this.toolStripLabelCommandPath.Size = new System.Drawing.Size(14, 24);
+      this.toolStripLabelCommandPath.Text = ">";
+      // 
+      // toolStripTextBoxCommand
+      // 
+      this.toolStripTextBoxCommand.AutoSize = false;
+      this.toolStripTextBoxCommand.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+      this.toolStripTextBoxCommand.Name = "toolStripTextBoxCommand";
+      this.toolStripTextBoxCommand.Size = new System.Drawing.Size(680, 23);
+      this.toolStripTextBoxCommand.KeyDown += new System.Windows.Forms.KeyEventHandler(this.toolStripTextBoxCommand_KeyDown);
+      // 
       // statusStripMain
       // 
       this.statusStripMain.ImageScalingSize = new System.Drawing.Size(24, 24);
@@ -225,6 +259,7 @@
       this.Controls.Add(this.toolStripDrivers);
       this.Controls.Add(this.toolStripButtons);
       this.Controls.Add(this.statusStripMain);
+      this.Controls.Add(this.toolStripCommandLine);
       this.Controls.Add(this.splitContainer1);
       this.Controls.Add(this.menuStrip1);
       this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
@@ -243,6 +278,8 @@
       this.splitContainer1.ResumeLayout(false);
       this.statusStripMain.ResumeLayout(false);
       this.statusStripMain.PerformLayout();
+      this.toolStripCommandLine.ResumeLayout(false);
+      this.toolStripCommandLine.PerformLayout();
       this.ResumeLayout(false);
       this.PerformLayout();
 
@@ -258,6 +295,9 @@
         private System.Windows.Forms.ImageList imageListDrivers;
         private System.Windows.Forms.SplitContainer splitContainer1;
         private System.Windows.Forms.ToolStrip toolStripButtons;
+        private System.Windows.Forms.ToolStrip toolStripCommandLine;
+        private System.Windows.Forms.ToolStripLabel toolStripLabelCommandPath;
+        private System.Windows.Forms.ToolStripTextBox toolStripTextBoxCommand;
         private FileBrowser fileBrowserLeft;
         private FileBrowser fileBrowserRight;
         private System.Windows.Forms.ToolStripMenuItem dateiToolStripMenuItem1;

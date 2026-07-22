@@ -1658,22 +1658,21 @@ editBox.Focus();*/
     {
       if (archiveMode)
       {
-        return archiveBrowser.SelectedItems.Count == 1
-          ? archiveBrowser.SelectedItems[0].Name
-          : null;
+        return archiveBrowser.CurrentItemName;
       }
       if (gedcomMode)
       {
-        return gedcomBrowser.SelectedItems.Count == 1
-          ? gedcomBrowser.SelectedItems[0].Name
-          : null;
+        return gedcomBrowser.CurrentItemName;
       }
 
       if (browserView.SelectedItems.Count == 0)
         return null;
 
-      string itemName = browserView.SelectedItems[0].SubItems.Count > 1
-        ? browserView.SelectedItems[0].SubItems[1].Text
+      ListViewItem currentItem = browserView.FocusedItem?.Selected == true
+        ? browserView.FocusedItem
+        : browserView.SelectedItems[0];
+      string itemName = currentItem.SubItems.Count > 1
+        ? currentItem.SubItems[1].Text
         : null;
 
       if (string.IsNullOrWhiteSpace(itemName) || itemName == "..")

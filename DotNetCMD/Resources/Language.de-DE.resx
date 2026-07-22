@@ -772,4 +772,9 @@
   <data name="gedcomReadingCatalog" xml:space="preserve"><value>GEDCOM-Personen werden gelesen...</value></data>
   <data name="virtualPanelReadOnly" xml:space="preserve"><value>Diese virtuelle Ansicht ist schreibgeschützt.</value></data>
   <data name="quickViewGedcomSelectPerson" xml:space="preserve"><value>Wählen Sie eine Person aus, um den Familiengraphen anzuzeigen.</value></data>
+  <data name="commandLineToolTip" xml:space="preserve"><value>Programm oder Befehl mit Parametern eingeben. Eingabe führt ihn aus; Umschalt+Eingabe lässt die Konsole geöffnet; Pfeil hoch/runter durchsucht den Verlauf; Strg+L fokussiert dieses Feld; Strg+Eingabe fügt den Namen des aktuellen Elements ein.</value></data>
+  <data name="commandLineExecutionFailedFormat" xml:space="preserve"><value>Der Befehl konnte nicht ausgeführt werden: {0}</value></data>
+  <data name="helpFocusCommandLine" xml:space="preserve"><value>Befehlszeile fokussieren</value></data>
+  <data name="helpPersistentConsole" xml:space="preserve"><value>Ausgewähltes Skript/Programm oder eingegebenen Befehl in einer geöffnet bleibenden Konsole starten</value></data>
+  <data name="helpCopyNameToCommandLine" xml:space="preserve"><value>Namen des aktuellen Elements in die Befehlszeile einfügen</value></data>
 </root>

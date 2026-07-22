@@ -772,4 +772,9 @@
   <data name="gedcomReadingCatalog" xml:space="preserve"><value>Читання осіб із GEDCOM...</value></data>
   <data name="virtualPanelReadOnly" xml:space="preserve"><value>Ця віртуальна панель доступна лише для читання.</value></data>
   <data name="quickViewGedcomSelectPerson" xml:space="preserve"><value>Виберіть особу для відображення родинного графа.</value></data>
+  <data name="commandLineToolTip" xml:space="preserve"><value>Введіть програму або команду з параметрами. Enter запускає; Shift+Enter залишає консоль відкритою; стрілки вгору/вниз переглядають історію; Ctrl+L переводить фокус сюди; Ctrl+Enter вставляє назву поточного елемента.</value></data>
+  <data name="commandLineExecutionFailedFormat" xml:space="preserve"><value>Не вдалося виконати команду: {0}</value></data>
+  <data name="helpFocusCommandLine" xml:space="preserve"><value>Перейти до командного рядка</value></data>
+  <data name="helpPersistentConsole" xml:space="preserve"><value>Запустити вибраний скрипт/програму або введену команду в консолі, що не закривається</value></data>
+  <data name="helpCopyNameToCommandLine" xml:space="preserve"><value>Вставити назву поточного елемента в командний рядок</value></data>
 </root>

@@ -939,4 +939,9 @@
   <data name="gedcomReadingCatalog" xml:space="preserve"><value>Reading GEDCOM people...</value></data>
   <data name="virtualPanelReadOnly" xml:space="preserve"><value>This virtual panel is read-only.</value></data>
   <data name="quickViewGedcomSelectPerson" xml:space="preserve"><value>Select a person to display the family graph.</value></data>
+  <data name="commandLineToolTip" xml:space="preserve"><value>Enter a program or command with parameters. Enter runs it; Shift+Enter keeps the console open; Up/Down browse history; Ctrl+L focuses this field; Ctrl+Enter inserts the current item name.</value></data>
+  <data name="commandLineExecutionFailedFormat" xml:space="preserve"><value>Could not execute the command: {0}</value></data>
+  <data name="helpFocusCommandLine" xml:space="preserve"><value>Focus the command line</value></data>
+  <data name="helpPersistentConsole" xml:space="preserve"><value>Run the selected script/program, or the entered command, in a console that stays open</value></data>
+  <data name="helpCopyNameToCommandLine" xml:space="preserve"><value>Insert the current item name into the command line</value></data>
 </root>

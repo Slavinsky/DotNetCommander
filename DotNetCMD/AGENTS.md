@@ -9,7 +9,7 @@ Namespace: `DotNetCommander`
 
 Поточна активна збірка:
 - `Commander.NET.csproj` — `net8.0-windows10.0.22621.0`
-- Версія: `1.6.0`
+- Версія: `1.7.0`
 
 Історична збірка:
 - `DotNetCommander.csproj` — оригінальний .NET Framework-проєкт
@@ -18,7 +18,7 @@ Namespace: `DotNetCommander`
 - `Program.cs` — `Main()` запускає `AppForm`
 
 ## Основні форми та вікна
-- `Application/AppForm.cs` — головне вікно, меню (включно з `Help` → `README.md`, `CHANGE.md`, `ROADMAP.md`, `About`), панель дисків, дві файлові панелі, нижня смуга F-кнопок
+- `Application/AppForm.cs` — головне вікно, меню (включно з `Help` → `README.md`, `CHANGE.md`, `ROADMAP.md`, `About`), панель дисків, дві файлові панелі, командний рядок та нижня смуга F-кнопок
 - `Dialogs/Operations/FormCopy.cs` — асинхронний діалог копіювання/переміщення з прогресом і скасуванням
 - `Dialogs/Operations/FormDelete.cs` — асинхронний діалог видалення з прогресом і скасуванням
 - `Dialogs/Operations/FormFileConflict.cs` — діалог конфлікту файлів для `copy/move`
@@ -47,12 +47,14 @@ Namespace: `DotNetCommander`
 - `Services/Files/` — доступ до файлової системи, класифікація типів і process-wide кеш shell-іконок
 - `Services/UI/DialogStyleService.cs` — типографіка та спільний стиль службових діалогів
 - `Infrastructure/Platform/Windows/WinContextMenu.cs` — shell-дії `Open`, `Open with...`, `Properties`, запуск у persistent console
+- `Infrastructure/Platform/Windows/WinCommandLine.cs` — виконання введених команд через Windows command processor у каталозі активної панелі
 - `Infrastructure/Settings/SettingsStorage.cs` — допоміжний доступ до шляху `user.config`
 - `Infrastructure/Diagnostics/PerfTrace.cs` — вимкнена за замовчуванням допоміжна трасировка продуктивності
 - `LogService` — централізоване логування (застосовується поступово в критичних сценаріях)
 
 ## Поточні можливості
 - двопанельна навігація по файловій системі з адресним рядком і панеллю дисків;
+- commander-style командний рядок під панелями: запуск програм і команд із параметрами в каталозі активної панелі, історія через `Up/Down`, фокус через `Ctrl+L`, `Ctrl+Enter` вставляє назву поточного елемента, `Shift+Enter` залишає консоль відкритою;
 - `Quick View` для тексту, зображень і невеликих CSV-подібних файлів;
 - `Quick View` у GEDCOM-панелі показує інтерактивний родинний граф вибраної особи з pan/zoom;
 - вбудоване порівняння файлів (`Shift+F3`): text diff, CSV diff, image compare, binary fallback;

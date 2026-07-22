@@ -34,6 +34,9 @@ namespace DotNetCommander
         private ToolStripButton deleteButton;
         private readonly ModifierKeyMessageFilter modifierKeyMessageFilter;
         private Keys lastDisplayedModifiers = Keys.None;
+        private readonly List<string> commandHistory = new List<string>();
+        private int commandHistoryIndex;
+        private string commandHistoryDraft = string.Empty;
         private static readonly bool ShowMemoryUsageInTitle = false;
 
         public AppForm()
@@ -130,6 +133,8 @@ namespace DotNetCommander
             }
 
             UpdateCommandButtonLabels(GetRelevantModifiers(Control.ModifierKeys));
+            toolStripTextBoxCommand.ToolTipText = Language.getString("commandLineToolTip");
+            UpdateCommandLinePrompt();
             UpdateStatusHint();
         }
 
@@ -280,6 +285,7 @@ namespace DotNetCommander
       else
         fileBrowserLeft.browseTo(startPath);
             lastFileBrowser = fileBrowserLeft;
+            UpdateCommandLinePrompt();
         }
 
         private void toolStripButton_Click(object sender, EventArgs e)
@@ -312,6 +318,13 @@ namespace DotNetCommander
                     button.Width = width;
             }
 
+            if (toolStripTextBoxCommand != null && toolStripLabelCommandPath != null)
+            {
+                toolStripTextBoxCommand.Width = Math.Max(
+                    120,
+                    toolStripCommandLine.ClientSize.Width - toolStripLabelCommandPath.Width - 18);
+            }
+
         }
 
         protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
@@ -320,6 +333,17 @@ namespace DotNetCommander
             if (keyData == (Keys.Control | Keys.PageDown))
             {
                 _ = (lastFileBrowser ?? fileBrowserLeft).OpenSelectedContainerAsync();
+                return true;
+            }
+            if (keyData == (Keys.Control | Keys.L))
+            {
+                toolStripTextBoxCommand.Focus();
+                toolStripTextBoxCommand.SelectAll();
+                return true;
+            }
+            if (keyData == (Keys.Control | Keys.Enter))
+            {
+                InsertCurrentItemNameIntoCommandLine();
                 return true;
             }
             if (keyData == (Keys.Control | Keys.Q) || keyData == Keys.F2)
@@ -809,6 +833,7 @@ namespace DotNetCommander
             }
 
             UpdateStatusHint();
+            UpdateCommandLinePrompt();
         }
 
         private void FileBrowser_ArchiveDeviceChanged(object sender, ArchiveDeviceChangedEventArgs e)
@@ -892,6 +917,144 @@ namespace DotNetCommander
             fileBrowserRight.Refrech();
             fileBrowserLeft.Refrech();
             UpdateStatusHint();
+            UpdateCommandLinePrompt();
+        }
+
+        private void UpdateCommandLinePrompt()
+        {
+            if (toolStripLabelCommandPath == null)
+            {
+                return;
+            }
+
+            string workingDirectory = GetCommandWorkingDirectory();
+            toolStripLabelCommandPath.Text = workingDirectory.TrimEnd(Path.DirectorySeparatorChar) + ">";
+        }
+
+        private string GetCommandWorkingDirectory()
+        {
+            FileBrowser activeBrowser = lastFileBrowser ?? fileBrowserLeft;
+            string currentPath = activeBrowser?.CurrentPath;
+            return !string.IsNullOrWhiteSpace(currentPath) && Directory.Exists(currentPath)
+                ? currentPath
+                : Application.StartupPath;
+        }
+
+        private void toolStripTextBoxCommand_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+            {
+                ExecuteCommandLine(e.Shift);
+                e.Handled = true;
+                e.SuppressKeyPress = true;
+                return;
+            }
+
+            if (e.KeyCode == Keys.Up)
+            {
+                NavigateCommandHistory(-1);
+                e.Handled = true;
+                e.SuppressKeyPress = true;
+                return;
+            }
+
+            if (e.KeyCode == Keys.Down)
+            {
+                NavigateCommandHistory(1);
+                e.Handled = true;
+                e.SuppressKeyPress = true;
+                return;
+            }
+
+            if (e.KeyCode == Keys.Escape)
+            {
+                toolStripTextBoxCommand.Clear();
+                (lastFileBrowser ?? fileBrowserLeft)?.Select();
+                e.Handled = true;
+                e.SuppressKeyPress = true;
+            }
+        }
+
+        private void ExecuteCommandLine(bool keepConsoleOpen)
+        {
+            string command = toolStripTextBoxCommand.Text.Trim();
+            if (command.Length == 0)
+            {
+                return;
+            }
+
+            try
+            {
+                WinCommandLine.Execute(command, GetCommandWorkingDirectory(), keepConsoleOpen);
+                if (commandHistory.Count == 0 || !string.Equals(commandHistory[commandHistory.Count - 1], command, StringComparison.Ordinal))
+                {
+                    commandHistory.Add(command);
+                }
+                commandHistoryIndex = commandHistory.Count;
+                commandHistoryDraft = string.Empty;
+                toolStripTextBoxCommand.Clear();
+            }
+            catch (Exception ex)
+            {
+                LogService.LogException("AppForm.ExecuteCommandLine", ex);
+                MessageBox.Show(
+                    this,
+                    string.Format(Language.getString("commandLineExecutionFailedFormat"), ex.Message),
+                    Language.getString("error"),
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error);
+            }
+        }
+
+        private void InsertCurrentItemNameIntoCommandLine()
+        {
+            string itemName = (lastFileBrowser ?? fileBrowserLeft)?.GetCurrentItemName();
+            if (string.IsNullOrWhiteSpace(itemName))
+            {
+                return;
+            }
+
+            string argument = QuoteCommandLineItemName(itemName);
+            int selectionStart = toolStripTextBoxCommand.SelectionStart;
+            int selectionLength = toolStripTextBoxCommand.SelectionLength;
+            string currentText = toolStripTextBoxCommand.Text;
+            bool needsLeadingSpace = selectionStart > 0 && !char.IsWhiteSpace(currentText[selectionStart - 1]);
+            int followingIndex = selectionStart + selectionLength;
+            bool needsTrailingSpace = followingIndex < currentText.Length && !char.IsWhiteSpace(currentText[followingIndex]);
+            string insertion = (needsLeadingSpace ? " " : string.Empty)
+                + argument
+                + (needsTrailingSpace ? " " : string.Empty);
+
+            toolStripTextBoxCommand.Text = currentText.Remove(selectionStart, selectionLength).Insert(selectionStart, insertion);
+            toolStripTextBoxCommand.SelectionStart = selectionStart + insertion.Length;
+            toolStripTextBoxCommand.SelectionLength = 0;
+            toolStripTextBoxCommand.Focus();
+        }
+
+        private static string QuoteCommandLineItemName(string itemName)
+        {
+            return itemName.Any(character => char.IsWhiteSpace(character) || "&()[]{}^=;!'+,`~".IndexOf(character) >= 0)
+                ? "\"" + itemName + "\""
+                : itemName;
+        }
+
+        private void NavigateCommandHistory(int direction)
+        {
+            if (commandHistory.Count == 0)
+            {
+                return;
+            }
+
+            if (commandHistoryIndex == commandHistory.Count && direction < 0)
+            {
+                commandHistoryDraft = toolStripTextBoxCommand.Text;
+            }
+
+            commandHistoryIndex = Math.Max(0, Math.Min(commandHistory.Count, commandHistoryIndex + direction));
+            toolStripTextBoxCommand.Text = commandHistoryIndex == commandHistory.Count
+                ? commandHistoryDraft
+                : commandHistory[commandHistoryIndex];
+            toolStripTextBoxCommand.SelectionStart = toolStripTextBoxCommand.TextLength;
         }
 
         private void OpenSettings(object sender, EventArgs e)
@@ -1251,6 +1414,9 @@ namespace DotNetCommander
             builder.AppendLine("Backspace - " + Language.getString("helpHistoryBack"));
             builder.AppendLine("Alt+Up - " + Language.getString("helpNavigateParent"));
             builder.AppendLine("Ctrl+R - " + Language.getString("helpRefreshActivePanel"));
+            builder.AppendLine("Ctrl+L - " + Language.getString("helpFocusCommandLine"));
+            builder.AppendLine("Ctrl+Enter - " + Language.getString("helpCopyNameToCommandLine"));
+            builder.AppendLine("Shift+Enter - " + Language.getString("helpPersistentConsole"));
             builder.AppendLine("Alt+F4 - " + Language.getString("helpCloseApplication"));
 
             MessageBox.Show(this, builder.ToString(), Text, MessageBoxButtons.OK, MessageBoxIcon.Information);

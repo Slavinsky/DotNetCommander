@@ -109,6 +109,17 @@ namespace DotNetCommander
             .Select(ToBrowserItemInfo)
             .ToArray();
         public override BrowserPanelCapabilities Capabilities => BrowserPanelCapabilities.Navigate;
+        public string CurrentItemName
+        {
+            get
+            {
+                ListViewItem current = peopleView.FocusedItem?.Selected == true
+                    ? peopleView.FocusedItem
+                    : peopleView.SelectedItems.Cast<ListViewItem>().FirstOrDefault();
+                GedcomPersonEntry person = current?.Tag as GedcomPersonEntry;
+                return person == null ? null : GetDisplayName(person);
+            }
+        }
         public GedcomPersonEntry SelectedPerson => peopleView.SelectedItems.Count == 1
             ? peopleView.SelectedItems[0].Tag as GedcomPersonEntry
             : null;
