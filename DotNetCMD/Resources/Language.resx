@@ -1,0 +1,942 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="copy" xml:space="preserve">
+    <value>Copy</value>
+  </data>
+  <data name="cut" xml:space="preserve">
+    <value>Cut</value>
+  </data>
+  <data name="delete" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="DeleteItem" xml:space="preserve">
+    <value>Delete item</value>
+  </data>
+  <data name="DeleteItems" xml:space="preserve">
+    <value>Delete items</value>
+  </data>
+  <data name="edit" xml:space="preserve">
+    <value>Edit</value>
+  </data>
+  <data name="move" xml:space="preserve">
+    <value>Move</value>
+  </data>
+  <data name="newFolder" xml:space="preserve">
+    <value>New folder</value>
+  </data>
+  <data name="newFolderDialogTitle" xml:space="preserve">
+    <value>Create new folder</value>
+  </data>
+  <data name="newFolderDialogDescription" xml:space="preserve">
+    <value>Enter a folder name or a relative path. Nested folders will be created automatically.</value>
+  </data>
+  <data name="newFolderRelativePath" xml:space="preserve">
+    <value>Folder name or relative path</value>
+  </data>
+  <data name="newFolderLocation" xml:space="preserve">
+    <value>Location</value>
+  </data>
+  <data name="newFolderTarget" xml:space="preserve">
+    <value>Target path</value>
+  </data>
+  <data name="newFolderOpenCreated" xml:space="preserve">
+    <value>Open the created folder immediately</value>
+  </data>
+  <data name="newFolderCreate" xml:space="preserve">
+    <value>Create</value>
+  </data>
+  <data name="newFolderNameRequired" xml:space="preserve">
+    <value>Enter a folder name or a relative path.</value>
+  </data>
+  <data name="newFolderNameInvalid" xml:space="preserve">
+    <value>Folder name contains invalid characters or unsupported path segments.</value>
+  </data>
+  <data name="newFile" xml:space="preserve">
+    <value>New file</value>
+  </data>
+  <data name="newFileDialogTitle" xml:space="preserve">
+    <value>Create new file</value>
+  </data>
+  <data name="newFileDefaultName" xml:space="preserve">
+    <value>NewFile.txt</value>
+  </data>
+  <data name="newFileInlineTitle" xml:space="preserve">
+    <value>Create new file</value>
+  </data>
+  <data name="newFileInlineDescription" xml:space="preserve">
+    <value>Enter a file name and choose which editor should open it</value>
+  </data>
+  <data name="newFileName" xml:space="preserve">
+    <value>File name</value>
+  </data>
+  <data name="newFileType" xml:space="preserve">
+    <value>Editor type</value>
+  </data>
+  <data name="newFileLocation" xml:space="preserve">
+    <value>Location</value>
+  </data>
+  <data name="newFileTarget" xml:space="preserve">
+    <value>Target path</value>
+  </data>
+  <data name="newFileCreate" xml:space="preserve">
+    <value>Create</value>
+  </data>
+  <data name="newFileNameRequired" xml:space="preserve">
+    <value>Enter a file name.</value>
+  </data>
+  <data name="newFileNameInvalid" xml:space="preserve">
+    <value>File name contains invalid characters.</value>
+  </data>
+  <data name="editorTypeText" xml:space="preserve">
+    <value>Text editor (.txt)</value>
+  </data>
+  <data name="editorTypeMarkdown" xml:space="preserve">
+    <value>Markdown editor (.md)</value>
+  </data>
+  <data name="editorTypeRtf" xml:space="preserve">
+    <value>RTF editor (.rtf)</value>
+  </data>
+  <data name="editorNotSupported" xml:space="preserve">
+    <value>No built-in editor is registered for this file type.</value>
+  </data>
+  <data name="past" xml:space="preserve">
+    <value>Past</value>
+  </data>
+  <data name="qDeleteItem" xml:space="preserve">
+    <value>Are you sure you want to delete this item?</value>
+  </data>
+  <data name="qDeleteItems" xml:space="preserve">
+    <value>Are you sure you want to delete these items?</value>
+  </data>
+  <data name="rename" xml:space="preserve">
+    <value>Rename</value>
+  </data>
+  <data name="view" xml:space="preserve">
+    <value>View</value>
+  </data>
+  <data name="compare" xml:space="preserve">
+    <value>Compare</value>
+  </data>
+  <data name="open" xml:space="preserve">
+    <value>Open</value>
+  </data>
+  <data name="openWith" xml:space="preserve">
+    <value>Open with...</value>
+  </data>
+  <data name="properties" xml:space="preserve">
+    <value>Properties</value>
+  </data>
+  <data name="shellActionFailedFormat" xml:space="preserve">
+    <value>Failed to execute shell action: {0}</value>
+  </data>
+  <data name="shellExecuteFailedFormat" xml:space="preserve">
+    <value>Windows Shell execution failed with error code {0}.</value>
+  </data>
+  <data name="menuFile" xml:space="preserve">
+    <value>File</value>
+  </data>
+  <data name="menuEdit" xml:space="preserve">
+    <value>Edit</value>
+  </data>
+  <data name="menuView" xml:space="preserve">
+    <value>View</value>
+  </data>
+  <data name="menuTools" xml:space="preserve">
+    <value>Tools</value>
+  </data>
+  <data name="menuHelp" xml:space="preserve">
+    <value>Help</value>
+  </data>
+  <data name="options" xml:space="preserve">
+    <value>Options</value>
+  </data>
+  <data name="about" xml:space="preserve">
+    <value>About</value>
+  </data>
+  <data name="readme" xml:space="preserve">
+    <value>README</value>
+  </data>
+  <data name="changeLog" xml:space="preserve">
+    <value>Changelog</value>
+  </data>
+  <data name="roadmap" xml:space="preserve">
+    <value>Roadmap</value>
+  </data>
+  <data name="quickView" xml:space="preserve">
+    <value>Quick view</value>
+  </data>
+  <data name="quickViewSelectFile" xml:space="preserve">
+    <value>Select a file to preview.</value>
+  </data>
+  <data name="quickViewFolder" xml:space="preserve">
+    <value>Folder preview is not available.</value>
+  </data>
+  <data name="quickViewUnsupported" xml:space="preserve">
+    <value>Quick view is not available for this file type.</value>
+  </data>
+  <data name="compareWindowTitle" xml:space="preserve">
+    <value>Compare files</value>
+  </data>
+  <data name="compareWindowTitleFormat" xml:space="preserve">
+    <value>Compare: {0} / {1}</value>
+  </data>
+  <data name="compareLoading" xml:space="preserve">
+    <value>Loading comparison...</value>
+  </data>
+  <data name="compareLoadFailed" xml:space="preserve">
+    <value>Failed to load comparison.</value>
+  </data>
+  <data name="compareSelectSource" xml:space="preserve">
+    <value>Select a file in the active panel to compare.</value>
+  </data>
+  <data name="compareSelectTarget" xml:space="preserve">
+    <value>Select a file in the passive panel or keep a file with the same name there.</value>
+  </data>
+  <data name="compareFoldersNotSupported" xml:space="preserve">
+    <value>Folder comparison is not supported yet.</value>
+  </data>
+  <data name="compareTextTooLarge" xml:space="preserve">
+    <value>Text compare is limited to files up to 1 MB. Showing binary summary instead.</value>
+  </data>
+  <data name="compareModeText" xml:space="preserve">
+    <value>Text diff</value>
+  </data>
+  <data name="compareModeCsv" xml:space="preserve">
+    <value>CSV compare</value>
+  </data>
+  <data name="compareModeImage" xml:space="preserve">
+    <value>Image compare</value>
+  </data>
+  <data name="compareModeBinary" xml:space="preserve">
+    <value>Binary summary</value>
+  </data>
+  <data name="compareSummaryIdentical" xml:space="preserve">
+    <value>Files are identical.</value>
+  </data>
+  <data name="compareSummaryTextFormat" xml:space="preserve">
+    <value>Changed lines: {0}, only on left: {1}, only on right: {2}</value>
+  </data>
+  <data name="compareSummaryCsvFormat" xml:space="preserve">
+    <value>Different CSV cells: {0}</value>
+  </data>
+  <data name="compareSummaryImageFormat" xml:space="preserve">
+    <value>Images differ. Left: {0}, Right: {1}</value>
+  </data>
+  <data name="compareSummaryBinaryDifferent" xml:space="preserve">
+    <value>Binary content differs.</value>
+  </data>
+  <data name="compareLinesFormat" xml:space="preserve">
+    <value>Aligned rows: {0}</value>
+  </data>
+  <data name="compareCsvShapeFormat" xml:space="preserve">
+    <value>Left: {0} rows / {1} columns, Right: {2} rows / {3} columns</value>
+  </data>
+  <data name="compareHashesFormat" xml:space="preserve">
+    <value>Hashes: {0} / {1}</value>
+  </data>
+  <data name="compareLeftLine" xml:space="preserve">
+    <value>Left #</value>
+  </data>
+  <data name="compareLeftText" xml:space="preserve">
+    <value>Left text</value>
+  </data>
+  <data name="compareRightLine" xml:space="preserve">
+    <value>Right #</value>
+  </data>
+  <data name="compareRightText" xml:space="preserve">
+    <value>Right text</value>
+  </data>
+  <data name="compareMetaSize" xml:space="preserve">
+    <value>Size</value>
+  </data>
+  <data name="compareMetaModified" xml:space="preserve">
+    <value>Modified</value>
+  </data>
+  <data name="compareMetaDimensions" xml:space="preserve">
+    <value>Dimensions</value>
+  </data>
+  <data name="compareMetaDpi" xml:space="preserve">
+    <value>DPI</value>
+  </data>
+  <data name="compareMetaFormat" xml:space="preserve">
+    <value>Format</value>
+  </data>
+  <data name="compareMetaHash" xml:space="preserve">
+    <value>SHA-256</value>
+  </data>
+  <data name="quickViewError" xml:space="preserve">
+    <value>Cannot open file.</value>
+  </data>
+  <data name="quickViewLargeFile" xml:space="preserve">
+    <value>File is too large for quick view.</value>
+  </data>
+  <data name="viewMode" xml:space="preserve">
+    <value>View mode</value>
+  </data>
+  <data name="viewDetails" xml:space="preserve">
+    <value>Details</value>
+  </data>
+  <data name="viewList" xml:space="preserve">
+    <value>List</value>
+  </data>
+  <data name="viewSmallIcons" xml:space="preserve">
+    <value>Small icons</value>
+  </data>
+  <data name="viewLargeIcons" xml:space="preserve">
+    <value>Large icons</value>
+  </data>
+  <data name="viewTiles" xml:space="preserve">
+    <value>Tiles</value>
+  </data>
+  <data name="fileTooLargePreview" xml:space="preserve">
+    <value>File is too large to preview.</value>
+  </data>
+  <data name="previewNotSupported" xml:space="preserve">
+    <value>Preview is not supported for this file type.</value>
+  </data>
+  <data name="Info" xml:space="preserve">
+    <value>Info</value>
+  </data>
+  <data name="ok" xml:space="preserve">
+    <value>OK</value>
+  </data>
+  <data name="cancel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="close" xml:space="preserve">
+    <value>Close</value>
+  </data>
+  <data name="columnName" xml:space="preserve">
+    <value>Name</value>
+  </data>
+  <data name="columnType" xml:space="preserve">
+    <value>Type</value>
+  </data>
+  <data name="columnSize" xml:space="preserve">
+    <value>Size</value>
+  </data>
+  <data name="columnDate" xml:space="preserve">
+    <value>Date</value>
+  </data>
+  <data name="documentNotFoundFormat" xml:space="preserve">
+    <value>{0} not found.</value>
+  </data>
+  <data name="editSelectionNotSupported" xml:space="preserve">
+    <value>Selected file is not a supported text format.</value>
+  </data>
+  <data name="statusSideLeft" xml:space="preserve">
+    <value>Left</value>
+  </data>
+  <data name="statusSideRight" xml:space="preserve">
+    <value>Right</value>
+  </data>
+  <data name="statusHintNoSelectionFormat" xml:space="preserve">
+    <value>F1 Help   |   Active: {0}</value>
+  </data>
+  <data name="statusHintActiveFormat" xml:space="preserve">
+    <value>Active: {0}</value>
+  </data>
+  <data name="statusHintFoldersFormat" xml:space="preserve">
+    <value>Folders: {0}</value>
+  </data>
+  <data name="statusHintFilesFormat" xml:space="preserve">
+    <value>Files: {0}</value>
+  </data>
+  <data name="statusHintSelectedFormat" xml:space="preserve">
+    <value>Selected: {0} ({1} dirs, {2} files)</value>
+  </data>
+  <data name="statusHintDirectoryMarker" xml:space="preserve">
+    <value>&lt;DIR&gt;</value>
+  </data>
+  <data name="statusHintBytesFormat" xml:space="preserve">
+    <value>{0:0,0} bytes</value>
+  </data>
+  <data name="helpShowThis" xml:space="preserve">
+    <value>Show this help</value>
+  </data>
+  <data name="helpToggleQuickView" xml:space="preserve">
+    <value>Toggle Quick View</value>
+  </data>
+  <data name="helpNewFileDialog" xml:space="preserve">
+    <value>New file dialog</value>
+  </data>
+  <data name="helpCopyInPlace" xml:space="preserve">
+    <value>Copy in place</value>
+  </data>
+  <data name="helpRefreshActivePanel" xml:space="preserve">
+    <value>Refresh active panel</value>
+  </data>
+  <data name="helpOpenArchiveBySignature" xml:space="preserve">
+    <value>Open archive by file signature or GEDCOM panel</value>
+  </data>
+  <data name="helpHistoryBack" xml:space="preserve">
+    <value>Return to the previous panel location</value>
+  </data>
+  <data name="helpNavigateParent" xml:space="preserve">
+    <value>Go to the parent directory</value>
+  </data>
+  <data name="helpCloseApplication" xml:space="preserve">
+    <value>Close application</value>
+  </data>
+  <data name="copyDialogTitle" xml:space="preserve">
+    <value>Copy items</value>
+  </data>
+  <data name="moveDialogTitle" xml:space="preserve">
+    <value>Move items</value>
+  </data>
+  <data name="deleteDialogTitle" xml:space="preserve">
+    <value>Delete items</value>
+  </data>
+  <data name="copyDialogDescription" xml:space="preserve">
+    <value>Choose where the selected items should be copied.</value>
+  </data>
+  <data name="moveDialogDescription" xml:space="preserve">
+    <value>Choose where the selected items should be moved.</value>
+  </data>
+  <data name="deleteDialogDescriptionSingle" xml:space="preserve">
+    <value>This item will be permanently deleted.</value>
+  </data>
+  <data name="deleteDialogDescriptionMultiple" xml:space="preserve">
+    <value>These items will be permanently deleted.</value>
+  </data>
+  <data name="sourcePath" xml:space="preserve">
+    <value>Source path</value>
+  </data>
+  <data name="destinationPath" xml:space="preserve">
+    <value>Destination path</value>
+  </data>
+  <data name="deleteDialogTarget" xml:space="preserve">
+    <value>Target</value>
+  </data>
+  <data name="selectedItems" xml:space="preserve">
+    <value>Selected items</value>
+  </data>
+  <data name="itemsSelectedFormat" xml:space="preserve">
+    <value>{0} items selected</value>
+  </data>
+  <data name="noItemsSelected" xml:space="preserve">
+    <value>No items selected</value>
+  </data>
+  <data name="destinationRequired" xml:space="preserve">
+    <value>Please enter a destination path.</value>
+  </data>
+  <data name="error" xml:space="preserve">
+    <value>Error</value>
+  </data>
+  <data name="copyOperationFailed" xml:space="preserve">
+    <value>Copy operation failed.</value>
+  </data>
+  <data name="moveOperationFailed" xml:space="preserve">
+    <value>Move operation failed.</value>
+  </data>
+  <data name="browseAccessDenied" xml:space="preserve">
+    <value>Access denied while opening path:
+{0}</value>
+  </data>
+  <data name="browsePathNotFound" xml:space="preserve">
+    <value>Path not found:
+{0}</value>
+  </data>
+  <data name="browseOpenPathFailed" xml:space="preserve">
+    <value>Could not open path:
+{0}</value>
+  </data>
+  <data name="overwriteExistingFiles" xml:space="preserve">
+    <value>Overwrite existing files</value>
+  </data>
+  <data name="conflictDialogTitle" xml:space="preserve">
+    <value>File conflict</value>
+  </data>
+  <data name="conflictDialogCopyDescription" xml:space="preserve">
+    <value>The destination file already exists. Choose how to continue with this copy operation.</value>
+  </data>
+  <data name="conflictDialogMoveDescription" xml:space="preserve">
+    <value>The destination file already exists. Choose how to continue with this move operation.</value>
+  </data>
+  <data name="conflictOverwrite" xml:space="preserve">
+    <value>Overwrite</value>
+  </data>
+  <data name="conflictSkip" xml:space="preserve">
+    <value>Skip</value>
+  </data>
+  <data name="conflictRename" xml:space="preserve">
+    <value>Rename...</value>
+  </data>
+  <data name="conflictOverwriteAll" xml:space="preserve">
+    <value>Overwrite All</value>
+  </data>
+  <data name="conflictSkipAll" xml:space="preserve">
+    <value>Skip All</value>
+  </data>
+  <data name="conflictRenameDialogTitle" xml:space="preserve">
+    <value>Choose a different destination file</value>
+  </data>
+  <data name="conflictRenameExistsFormat" xml:space="preserve">
+    <value>The file '{0}' already exists. Choose another name.</value>
+  </data>
+  <data name="conflictFileDetailsFormat" xml:space="preserve">
+    <value>Size: {0} | Modified: {1}</value>
+  </data>
+  <data name="conflictFileDetailsUnavailable" xml:space="preserve">
+    <value>File details are unavailable.</value>
+  </data>
+  <data name="conflictSizeNewerSuffix" xml:space="preserve">
+    <value>newer</value>
+  </data>
+  <data name="conflictSizeOlderSuffix" xml:space="preserve">
+    <value>older</value>
+  </data>
+  <data name="conflictSizeLargerSuffix" xml:space="preserve">
+    <value>larger</value>
+  </data>
+  <data name="conflictSizeSmallerSuffix" xml:space="preserve">
+    <value>smaller</value>
+  </data>
+  <data name="conflictComparedWithFormat" xml:space="preserve">
+    <value>{0} than the other file</value>
+  </data>
+  <data name="deleteOperationFailed" xml:space="preserve">
+    <value>Delete operation failed.</value>
+  </data>
+  <data name="operationPreparing" xml:space="preserve">
+    <value>Preparing operation...</value>
+  </data>
+  <data name="operationCancelling" xml:space="preserve">
+    <value>Cancelling...</value>
+  </data>
+  <data name="operationCurrentItem" xml:space="preserve">
+    <value>Current item</value>
+  </data>
+  <data name="operationProgress" xml:space="preserve">
+    <value>Progress</value>
+  </data>
+  <data name="operationTransferred" xml:space="preserve">
+    <value>Transferred</value>
+  </data>
+  <data name="operationItemsFormat" xml:space="preserve">
+    <value>{0}/{1} items</value>
+  </data>
+  <data name="operationTransferStatus" xml:space="preserve">
+    <value>{0} / {1} | {2} | {3} left</value>
+  </data>
+  <data name="operationTransferStatusNoEta" xml:space="preserve">
+    <value>{0} / {1} | {2}</value>
+  </data>
+  <data name="operationElapsedStatus" xml:space="preserve">
+    <value>Elapsed: {0}</value>
+  </data>
+  <data name="operationCalculating" xml:space="preserve">
+    <value>calculating...</value>
+  </data>
+  <data name="operationWaiting" xml:space="preserve">
+    <value>Waiting for next item...</value>
+  </data>
+  <data name="quickViewCsvHint" xml:space="preserve">
+    <value>Use F3 to open this table in the CSV viewer.</value>
+  </data>
+  <data name="quickViewCsvLoading" xml:space="preserve">
+    <value>Loading table preview...</value>
+  </data>
+  <data name="quickViewCsvDisabled" xml:space="preserve">
+    <value>CSV quick preview is disabled in settings.</value>
+  </data>
+  <data name="quickViewCsvTooLargeFormat" xml:space="preserve">
+    <value>CSV quick preview is limited to {0} MB. Use F3 for larger tables.</value>
+  </data>
+  <data name="csvViewerTitle" xml:space="preserve">
+    <value>CSV Viewer</value>
+  </data>
+  <data name="csvViewerLoading" xml:space="preserve">
+    <value>Loading table...</value>
+  </data>
+  <data name="csvViewerLoadingEstimatedFormat" xml:space="preserve">
+    <value>Loading table... (~{0})</value>
+  </data>
+  <data name="csvViewerLoadedFormat" xml:space="preserve">
+    <value>Loaded: {0}</value>
+  </data>
+  <data name="csvViewerRowsFormat" xml:space="preserve">
+    <value>Rows: {0:n0} | Columns: {1:n0} | Load: {2}</value>
+  </data>
+  <data name="csvViewerProgressFormat" xml:space="preserve">
+    <value>{0}: {1}%</value>
+  </data>
+  <data name="csvViewerBytesFormat" xml:space="preserve">
+    <value>Rows: {0:n0} | Bytes: {1} / {2}</value>
+  </data>
+  <data name="csvViewerCancelled" xml:space="preserve">
+    <value>Loading cancelled.</value>
+  </data>
+  <data name="csvViewerLoadFailed" xml:space="preserve">
+    <value>Failed to load table.</value>
+  </data>
+  <data name="settingsTabGeneral" xml:space="preserve">
+    <value>General</value>
+  </data>
+  <data name="settingsTabQuickView" xml:space="preserve">
+    <value>Quick View</value>
+  </data>
+  <data name="settingsTabOperations" xml:space="preserve">
+    <value>Operations</value>
+  </data>
+  <data name="settingsGeneralIntro" xml:space="preserve">
+    <value>This is the beginning of a tabbed settings dialog. General application options can live here.</value>
+  </data>
+  <data name="settingsOperationsIntro" xml:space="preserve">
+    <value>Control copy and move behavior together with CSV quick preview defaults.</value>
+  </data>
+  <data name="settingsQuickViewTitle" xml:space="preserve">
+    <value>CSV quick preview</value>
+  </data>
+  <data name="settingsQuickViewCsvEnable" xml:space="preserve">
+    <value>Enable table preview for CSV-like files in Quick View</value>
+  </data>
+  <data name="settingsQuickViewCsvMaxSize" xml:space="preserve">
+    <value>Maximum file size for Quick View preview:</value>
+  </data>
+  <data name="settingsQuickViewCsvNote" xml:space="preserve">
+    <value>Small tables open directly in Quick View. Larger files stay available through F3 to avoid UI stalls.</value>
+  </data>
+  <data name="aboutVersion" xml:space="preserve">
+    <value>Version</value>
+  </data>
+  <data name="aboutSubtitle" xml:space="preserve">
+    <value>Windows Forms file manager</value>
+  </data>
+  <data name="aboutSummary" xml:space="preserve">
+    <value>Total Commander / Double Commander inspired two-panel file manager.</value>
+  </data>
+  <data name="aboutPlatform" xml:space="preserve">
+    <value>Platform</value>
+  </data>
+  <data name="aboutPlatformValue" xml:space="preserve">
+    <value>Windows Forms, .NET 8</value>
+  </data>
+  <data name="aboutDescription" xml:space="preserve">
+    <value>Description</value>
+  </data>
+  <data name="aboutCredits" xml:space="preserve">
+    <value>Built with care as an evolving Windows file manager.</value>
+  </data>
+  <data name="aboutApplication" xml:space="preserve">
+    <value>Application</value>
+  </data>
+  <data name="settingsTabView" xml:space="preserve">
+    <value>View</value>
+  </data>
+  <data name="settingsTabEditor" xml:space="preserve">
+    <value>Editor</value>
+  </data>
+  <data name="settingsTabRichText" xml:space="preserve">
+    <value>Rich Text</value>
+  </data>
+  <data name="settingsTabPerformance" xml:space="preserve">
+    <value>Performance</value>
+  </data>
+  <data name="settingsViewTitle" xml:space="preserve">
+    <value>File browser appearance</value>
+  </data>
+  <data name="settingsViewIntro" xml:space="preserve">
+    <value>Adjust the file list font and the most important column widths for both panels.</value>
+  </data>
+  <data name="settingsShowStatusHints" xml:space="preserve">
+    <value>Show status bar in the main window</value>
+  </data>
+  <data name="settingsLanguage" xml:space="preserve">
+    <value>Interface language</value>
+  </data>
+  <data name="settingsLanguageAuto" xml:space="preserve">
+    <value>Auto (system default)</value>
+  </data>
+  <data name="settingsBrowserFontName" xml:space="preserve">
+    <value>File browser font</value>
+  </data>
+  <data name="settingsBrowserFontSize" xml:space="preserve">
+    <value>Font size</value>
+  </data>
+  <data name="settingsDialogFontName" xml:space="preserve">
+    <value>Standard dialog font</value>
+  </data>
+  <data name="settingsDialogFontSize" xml:space="preserve">
+    <value>Standard dialog font size</value>
+  </data>
+  <data name="settingsDialogCaptionFontSize" xml:space="preserve">
+    <value>Dialog caption font size</value>
+  </data>
+  <data name="settingsDialogEmphasisFontSize" xml:space="preserve">
+    <value>Dialog emphasis font size</value>
+  </data>
+  <data name="settingsDialogHeaderFontSize" xml:space="preserve">
+    <value>Dialog header font size</value>
+  </data>
+  <data name="settingsDialogPreviewTitle" xml:space="preserve">
+    <value>Live preview</value>
+  </data>
+  <data name="settingsDialogPreviewHeader" xml:space="preserve">
+    <value>Dialog header sample</value>
+  </data>
+  <data name="settingsDialogPreviewBody" xml:space="preserve">
+    <value>Regular body text looks like this inside standard dialogs.</value>
+  </data>
+  <data name="settingsDialogPreviewEmphasis" xml:space="preserve">
+    <value>Selected items: 14</value>
+  </data>
+  <data name="settingsDialogPreviewCaption" xml:space="preserve">
+    <value>Caption labels and hints are shown with this style.</value>
+  </data>
+  <data name="settingsColumnNameWidth" xml:space="preserve">
+    <value>Name column width</value>
+  </data>
+  <data name="settingsColumnTypeWidth" xml:space="preserve">
+    <value>Type column width</value>
+  </data>
+  <data name="settingsColumnSizeWidth" xml:space="preserve">
+    <value>Size column width</value>
+  </data>
+  <data name="settingsColumnDateWidth" xml:space="preserve">
+    <value>Date column width</value>
+  </data>
+  <data name="settingsEditorTitle" xml:space="preserve">
+    <value>Text editor appearance</value>
+  </data>
+  <data name="settingsEditorIntro" xml:space="preserve">
+    <value>Choose the default font and wrapping behavior for the Text Editor window.</value>
+  </data>
+  <data name="settingsTextEditorFontName" xml:space="preserve">
+    <value>Text editor font</value>
+  </data>
+  <data name="settingsTextEditorFontSize" xml:space="preserve">
+    <value>Font size</value>
+  </data>
+  <data name="settingsTextEditorWordWrap" xml:space="preserve">
+    <value>Enable word wrap by default</value>
+  </data>
+  <data name="settingsShowEditorStatusBar" xml:space="preserve">
+    <value>Show status bar in editors and viewers</value>
+  </data>
+  <data name="settingsRichTextTitle" xml:space="preserve">
+    <value>RTF and Markdown preview</value>
+  </data>
+  <data name="settingsRichTextIntro" xml:space="preserve">
+    <value>Choose default RTF editor font and Markdown-to-RTF preview styles for headings and code.</value>
+  </data>
+  <data name="settingsRtfEditorFontName" xml:space="preserve">
+    <value>RTF editor font</value>
+  </data>
+  <data name="settingsRtfEditorFontSize" xml:space="preserve">
+    <value>RTF editor font size</value>
+  </data>
+  <data name="settingsMarkdownPreviewFontName" xml:space="preserve">
+    <value>Markdown preview font</value>
+  </data>
+  <data name="settingsMarkdownPreviewCodeFontName" xml:space="preserve">
+    <value>Markdown code font</value>
+  </data>
+  <data name="settingsMarkdownPreviewBaseFontSize" xml:space="preserve">
+    <value>Markdown body size</value>
+  </data>
+  <data name="settingsMarkdownPreviewH1FontSize" xml:space="preserve">
+    <value>Markdown H1 size</value>
+  </data>
+  <data name="settingsMarkdownPreviewH2FontSize" xml:space="preserve">
+    <value>Markdown H2 size</value>
+  </data>
+  <data name="settingsMarkdownPreviewH3FontSize" xml:space="preserve">
+    <value>Markdown H3 size</value>
+  </data>
+  <data name="settingsMarkdownPreviewH4FontSize" xml:space="preserve">
+    <value>Markdown H4 size</value>
+  </data>
+  <data name="settingsMarkdownPreviewH5FontSize" xml:space="preserve">
+    <value>Markdown H5 size</value>
+  </data>
+  <data name="settingsMarkdownPreviewH6FontSize" xml:space="preserve">
+    <value>Markdown H6 size</value>
+  </data>
+  <data name="settingsMarkdownPreviewRerenderOnResize" xml:space="preserve">
+    <value>Resize Markdown tables with the preview window</value>
+  </data>
+  <data name="markdownRendering" xml:space="preserve">
+    <value>Rendering Markdown preview...</value>
+  </data>
+  <data name="settingsOperationsTitle" xml:space="preserve">
+    <value>File operations</value>
+  </data>
+  <data name="settingsOverwriteExistingFiles" xml:space="preserve">
+    <value>Allow copy and move operations to overwrite existing files</value>
+  </data>
+  <data name="settingsPerformanceTitle" xml:space="preserve">
+    <value>Performance and storage</value>
+  </data>
+  <data name="settingsPerformanceIntro" xml:space="preserve">
+    <value>Control expensive icon extraction and inspect where user settings are stored.</value>
+  </data>
+  <data name="settingsLoadIcons" xml:space="preserve">
+    <value>Load file and folder icons in FileBrowser</value>
+  </data>
+  <data name="settingsLoadLargeIcons" xml:space="preserve">
+    <value>Also extract large icons for Large Icons / Tile views</value>
+  </data>
+  <data name="settingsWatchDirectoryChanges" xml:space="preserve">
+    <value>Watch the current folder and auto-refresh when its contents change</value>
+  </data>
+  <data name="settingsStorage" xml:space="preserve">
+    <value>Settings file</value>
+  </data>
+  <data name="settingsStorageFormat" xml:space="preserve">
+    <value>User settings are stored as user.config (XML), not as an INI file.</value>
+  </data>
+  <data name="archiveCreate" xml:space="preserve"><value>Pack...</value></data>
+  <data name="archiveExtract" xml:space="preserve"><value>Unpack...</value></data>
+  <data name="archiveCreateTitle" xml:space="preserve"><value>Create archive</value></data>
+  <data name="archiveExtractTitle" xml:space="preserve"><value>Extract archive</value></data>
+  <data name="archiveCreateDescription" xml:space="preserve"><value>Pack the selected files and folders into a ZIP or TAR archive.</value></data>
+  <data name="archiveExtractDescription" xml:space="preserve"><value>Extract the selected archive into the chosen folder.</value></data>
+  <data name="archiveSource" xml:space="preserve"><value>Source</value></data>
+  <data name="archiveDestination" xml:space="preserve"><value>Destination</value></data>
+  <data name="archiveOverwriteExisting" xml:space="preserve"><value>Overwrite existing files</value></data>
+  <data name="archiveUnsupportedFormat" xml:space="preserve"><value>Supported archive formats are ZIP, TAR, TAR.GZ and TGZ.</value></data>
+  <data name="archiveNoItems" xml:space="preserve"><value>No files or folders are available to archive.</value></data>
+  <data name="archiveUnsafeEntry" xml:space="preserve"><value>The archive contains an unsafe path and cannot be extracted:</value></data>
+  <data name="archiveSelectArchive" xml:space="preserve"><value>Select a ZIP, TAR, TAR.GZ or TGZ archive first.</value></data>
+  <data name="archiveCreateFailed" xml:space="preserve"><value>The archive could not be created.</value></data>
+  <data name="archiveExtractFailed" xml:space="preserve"><value>The archive could not be extracted.</value></data>
+  <data name="archiveEntriesProcessedFormat" xml:space="preserve"><value>{0} entries processed</value></data>
+  <data name="archiveTransferFormat" xml:space="preserve"><value>{0} of {1}</value></data>
+  <data name="archiveDefaultName" xml:space="preserve"><value>archive</value></data>
+  <data name="archiveChooseDestination" xml:space="preserve"><value>Choose the folder where the archive will be extracted.</value></data>
+  <data name="archiveSaveFilter" xml:space="preserve"><value>ZIP archive (*.zip)|*.zip|TAR archive (*.tar)|*.tar|Compressed TAR archive (*.tar.gz)|*.tar.gz</value></data>
+  <data name="archiveCompletedWithSkipped" xml:space="preserve"><value>Extraction completed. Existing files skipped: {0}.</value></data>
+  <data name="browse" xml:space="preserve"><value>Browse...</value></data>
+  <data name="archiveFormat" xml:space="preserve"><value>Archive format</value></data>
+  <data name="archiveFormatZip" xml:space="preserve"><value>ZIP archive (*.zip)</value></data>
+  <data name="archiveFormatTar" xml:space="preserve"><value>TAR archive (*.tar)</value></data>
+  <data name="archiveFormatTarGZip" xml:space="preserve"><value>Compressed TAR archive (*.tar.gz)</value></data>
+  <data name="archiveDestinationRequired" xml:space="preserve"><value>Enter the destination archive or folder path.</value></data>
+  <data name="archiveOverwriteConfirm" xml:space="preserve"><value>The destination archive already exists. Replace it?</value></data>
+  <data name="archiveReadingCatalog" xml:space="preserve"><value>Reading archive catalog...</value></data>
+  <data name="archiveOpeningEntry" xml:space="preserve"><value>Opening archive entry...</value></data>
+  <data name="archiveFolderType" xml:space="preserve"><value>Folder</value></data>
+  <data name="archivePanelReadOnly" xml:space="preserve"><value>The archive panel is read-only. Copy items to the other file panel before changing them.</value></data>
+  <data name="archiveCopyRequiresFilePanel" xml:space="preserve"><value>Select a regular file-system panel as the copy destination.</value></data>
+  <data name="gedcomReadingCatalog" xml:space="preserve"><value>Reading GEDCOM people...</value></data>
+  <data name="virtualPanelReadOnly" xml:space="preserve"><value>This virtual panel is read-only.</value></data>
+  <data name="quickViewGedcomSelectPerson" xml:space="preserve"><value>Select a person to display the family graph.</value></data>
+</root>

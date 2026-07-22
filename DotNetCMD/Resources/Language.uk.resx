@@ -1,0 +1,775 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="copy" xml:space="preserve">
+    <value>Копіювати</value>
+  </data>
+  <data name="cut" xml:space="preserve">
+    <value>вирізати</value>
+  </data>
+  <data name="delete" xml:space="preserve">
+    <value>Видалити</value>
+  </data>
+  <data name="DeleteItem" xml:space="preserve">
+    <value>Видалити елемент</value>
+  </data>
+  <data name="DeleteItems" xml:space="preserve">
+    <value>Видалити елементи</value>
+  </data>
+  <data name="edit" xml:space="preserve">
+    <value>Редагувати</value>
+  </data>
+  <data name="move" xml:space="preserve">
+    <value>Перемістити</value>
+  </data>
+  <data name="newFolder" xml:space="preserve">
+    <value>Нова папка</value>
+  </data>
+  <data name="newFolderDialogTitle" xml:space="preserve">
+    <value>Створити нову папку</value>
+  </data>
+  <data name="newFolderDialogDescription" xml:space="preserve">
+    <value>Вкажіть назву папки або відносний шлях. Вкладені підкаталоги буде створено автоматично.</value>
+  </data>
+  <data name="newFolderRelativePath" xml:space="preserve">
+    <value>Назва папки або відносний шлях</value>
+  </data>
+  <data name="newFolderLocation" xml:space="preserve">
+    <value>Розташування</value>
+  </data>
+  <data name="newFolderTarget" xml:space="preserve">
+    <value>Цільовий шлях</value>
+  </data>
+  <data name="newFolderOpenCreated" xml:space="preserve">
+    <value>Одразу відкрити створену папку</value>
+  </data>
+  <data name="newFolderCreate" xml:space="preserve">
+    <value>Створити</value>
+  </data>
+  <data name="newFolderNameRequired" xml:space="preserve">
+    <value>Вкажіть назву папки або відносний шлях.</value>
+  </data>
+  <data name="newFolderNameInvalid" xml:space="preserve">
+    <value>Назва папки містить неприпустимі символи або непідтримувані сегменти шляху.</value>
+  </data>
+  <data name="past" xml:space="preserve">
+    <value>Вставити</value>
+  </data>
+  <data name="qDeleteItem" xml:space="preserve">
+    <value>Ви впевнені, що хочете видалити цей елемент?</value>
+  </data>
+  <data name="qDeleteItems" xml:space="preserve">
+    <value>Ви впевнені, що хочете видалити ці елементи?</value>
+  </data>
+  <data name="rename" xml:space="preserve">
+    <value>Перейменувати</value>
+  </data>
+  <data name="view" xml:space="preserve">
+    <value>Показати</value>
+  </data>
+  <data name="menuFile" xml:space="preserve">
+    <value>Файл</value>
+  </data>
+  <data name="menuEdit" xml:space="preserve">
+    <value>Правка</value>
+  </data>
+  <data name="menuView" xml:space="preserve">
+    <value>Вигляд</value>
+  </data>
+  <data name="menuTools" xml:space="preserve">
+    <value>Інструменти</value>
+  </data>
+  <data name="menuHelp" xml:space="preserve">
+    <value>Довідка</value>
+  </data>
+  <data name="options" xml:space="preserve">
+    <value>Налаштування</value>
+  </data>
+  <data name="about" xml:space="preserve">
+    <value>Про програму</value>
+  </data>
+  <data name="readme" xml:space="preserve">
+    <value>README</value>
+  </data>
+  <data name="changeLog" xml:space="preserve">
+    <value>Історія змін</value>
+  </data>
+  <data name="roadmap" xml:space="preserve">
+    <value>Дорожня карта</value>
+  </data>
+  <data name="quickView" xml:space="preserve">
+    <value>Швидкий перегляд</value>
+  </data>
+  <data name="quickViewSelectFile" xml:space="preserve">
+    <value>Виберіть файл для перегляду.</value>
+  </data>
+  <data name="quickViewFolder" xml:space="preserve">
+    <value>Перегляд папок недоступний.</value>
+  </data>
+  <data name="quickViewUnsupported" xml:space="preserve">
+    <value>Швидкий перегляд недоступний для цього типу файлів.</value>
+  </data>
+  <data name="quickViewError" xml:space="preserve">
+    <value>Не вдалося відкрити файл.</value>
+  </data>
+  <data name="quickViewLargeFile" xml:space="preserve">
+    <value>Файл занадто великий для швидкого перегляду.</value>
+  </data>
+  <data name="viewMode" xml:space="preserve">
+    <value>Режим перегляду</value>
+  </data>
+  <data name="viewDetails" xml:space="preserve">
+    <value>Детально</value>
+  </data>
+  <data name="viewList" xml:space="preserve">
+    <value>Список</value>
+  </data>
+  <data name="viewSmallIcons" xml:space="preserve">
+    <value>Малі піктограми</value>
+  </data>
+  <data name="viewLargeIcons" xml:space="preserve">
+    <value>Великі піктограми</value>
+  </data>
+  <data name="viewTiles" xml:space="preserve">
+    <value>Плитки</value>
+  </data>
+  <data name="cancel" xml:space="preserve">
+    <value>Скасувати</value>
+  </data>
+  <data name="ok" xml:space="preserve">
+    <value>Гаразд</value>
+  </data>
+  <data name="columnName" xml:space="preserve">
+    <value>Назва</value>
+  </data>
+  <data name="columnType" xml:space="preserve">
+    <value>Тип</value>
+  </data>
+  <data name="columnSize" xml:space="preserve">
+    <value>Розмір</value>
+  </data>
+  <data name="columnDate" xml:space="preserve">
+    <value>Дата</value>
+  </data>
+  <data name="documentNotFoundFormat" xml:space="preserve">
+    <value>Не знайдено файл:
+{0}</value>
+  </data>
+  <data name="editSelectionNotSupported" xml:space="preserve">
+    <value>Вибраний файл не є підтримуваним текстовим форматом.</value>
+  </data>
+  <data name="statusSideLeft" xml:space="preserve">
+    <value>Ліва</value>
+  </data>
+  <data name="statusSideRight" xml:space="preserve">
+    <value>Права</value>
+  </data>
+  <data name="statusHintNoSelectionFormat" xml:space="preserve">
+    <value>F1 Довідка   |   Активна: {0}</value>
+  </data>
+  <data name="statusHintActiveFormat" xml:space="preserve">
+    <value>Активна: {0}</value>
+  </data>
+  <data name="statusHintFoldersFormat" xml:space="preserve">
+    <value>Папок: {0}</value>
+  </data>
+  <data name="statusHintFilesFormat" xml:space="preserve">
+    <value>Файлів: {0}</value>
+  </data>
+  <data name="statusHintSelectedFormat" xml:space="preserve">
+    <value>Вибрано: {0} ({1} папок, {2} файлів)</value>
+  </data>
+  <data name="statusHintDirectoryMarker" xml:space="preserve">
+    <value>&lt;КАТАЛОГ&gt;</value>
+  </data>
+  <data name="statusHintBytesFormat" xml:space="preserve">
+    <value>{0:0,0} байт</value>
+  </data>
+  <data name="helpShowThis" xml:space="preserve">
+    <value>Показати цю довідку</value>
+  </data>
+  <data name="helpToggleQuickView" xml:space="preserve">
+    <value>Перемкнути Quick View</value>
+  </data>
+  <data name="helpNewFileDialog" xml:space="preserve">
+    <value>Діалог створення файла</value>
+  </data>
+  <data name="helpCopyInPlace" xml:space="preserve">
+    <value>Копіювати в цій же панелі</value>
+  </data>
+  <data name="helpRefreshActivePanel" xml:space="preserve">
+    <value>Оновити активну панель</value>
+  </data>
+  <data name="helpOpenArchiveBySignature" xml:space="preserve">
+    <value>Відкрити архів за сигнатурою файла або панель GEDCOM</value>
+  </data>
+  <data name="helpHistoryBack" xml:space="preserve">
+    <value>Повернутися до попереднього розташування панелі</value>
+  </data>
+  <data name="helpNavigateParent" xml:space="preserve">
+    <value>Перейти до батьківського каталогу</value>
+  </data>
+  <data name="helpCloseApplication" xml:space="preserve">
+    <value>Закрити застосунок</value>
+  </data>
+  <data name="copyDialogTitle" xml:space="preserve">
+    <value>Копіювання елементів</value>
+  </data>
+  <data name="moveDialogTitle" xml:space="preserve">
+    <value>Переміщення елементів</value>
+  </data>
+  <data name="deleteDialogTitle" xml:space="preserve">
+    <value>Видалення елементів</value>
+  </data>
+  <data name="copyDialogDescription" xml:space="preserve">
+    <value>Виберіть місце, куди буде скопійовано вибрані елементи.</value>
+  </data>
+  <data name="moveDialogDescription" xml:space="preserve">
+    <value>Виберіть місце, куди буде переміщено вибрані елементи.</value>
+  </data>
+  <data name="deleteDialogDescriptionSingle" xml:space="preserve">
+    <value>Цей елемент буде видалено безповоротно.</value>
+  </data>
+  <data name="deleteDialogDescriptionMultiple" xml:space="preserve">
+    <value>Ці елементи буде видалено безповоротно.</value>
+  </data>
+  <data name="sourcePath" xml:space="preserve">
+    <value>Вихідний шлях</value>
+  </data>
+  <data name="destinationPath" xml:space="preserve">
+    <value>Шлях призначення</value>
+  </data>
+  <data name="deleteDialogTarget" xml:space="preserve">
+    <value>Ціль</value>
+  </data>
+  <data name="selectedItems" xml:space="preserve">
+    <value>Вибрані елементи</value>
+  </data>
+  <data name="itemsSelectedFormat" xml:space="preserve">
+    <value>Вибрано елементів: {0}</value>
+  </data>
+  <data name="noItemsSelected" xml:space="preserve">
+    <value>Немає вибраних елементів</value>
+  </data>
+  <data name="destinationRequired" xml:space="preserve">
+    <value>Вкажіть шлях призначення.</value>
+  </data>
+  <data name="error" xml:space="preserve">
+    <value>Помилка</value>
+  </data>
+  <data name="copyOperationFailed" xml:space="preserve">
+    <value>Не вдалося виконати копіювання.</value>
+  </data>
+  <data name="moveOperationFailed" xml:space="preserve">
+    <value>Не вдалося виконати переміщення.</value>
+  </data>
+  <data name="browseAccessDenied" xml:space="preserve">
+    <value>Немає доступу для відкриття шляху:
+{0}</value>
+  </data>
+  <data name="browsePathNotFound" xml:space="preserve">
+    <value>Шлях не знайдено:
+{0}</value>
+  </data>
+  <data name="browseOpenPathFailed" xml:space="preserve">
+    <value>Не вдалося відкрити шлях:
+{0}</value>
+  </data>
+  <data name="overwriteExistingFiles" xml:space="preserve">
+    <value>Перезаписувати наявні файли</value>
+  </data>
+  <data name="conflictDialogTitle" xml:space="preserve">
+    <value>Конфлікт файлів</value>
+  </data>
+  <data name="conflictDialogCopyDescription" xml:space="preserve">
+    <value>Файл у місці призначення вже існує. Оберіть, як продовжити цю copy операцію.</value>
+  </data>
+  <data name="conflictDialogMoveDescription" xml:space="preserve">
+    <value>Файл у місці призначення вже існує. Оберіть, як продовжити цю move операцію.</value>
+  </data>
+  <data name="conflictOverwrite" xml:space="preserve">
+    <value>Перезаписати</value>
+  </data>
+  <data name="conflictSkip" xml:space="preserve">
+    <value>Пропустити</value>
+  </data>
+  <data name="conflictRename" xml:space="preserve">
+    <value>Перейменувати...</value>
+  </data>
+  <data name="conflictOverwriteAll" xml:space="preserve">
+    <value>Перезаписати все</value>
+  </data>
+  <data name="conflictSkipAll" xml:space="preserve">
+    <value>Пропустити все</value>
+  </data>
+  <data name="conflictRenameDialogTitle" xml:space="preserve">
+    <value>Оберіть інший файл призначення</value>
+  </data>
+  <data name="conflictRenameExistsFormat" xml:space="preserve">
+    <value>Файл '{0}' уже існує. Оберіть іншу назву.</value>
+  </data>
+  <data name="conflictFileDetailsFormat" xml:space="preserve">
+    <value>Розмір: {0} | Змінено: {1}</value>
+  </data>
+  <data name="conflictFileDetailsUnavailable" xml:space="preserve">
+    <value>Відомості про файл недоступні.</value>
+  </data>
+  <data name="conflictSizeNewerSuffix" xml:space="preserve">
+    <value>новіший</value>
+  </data>
+  <data name="conflictSizeOlderSuffix" xml:space="preserve">
+    <value>старіший</value>
+  </data>
+  <data name="conflictSizeLargerSuffix" xml:space="preserve">
+    <value>більший</value>
+  </data>
+  <data name="conflictSizeSmallerSuffix" xml:space="preserve">
+    <value>менший</value>
+  </data>
+  <data name="conflictComparedWithFormat" xml:space="preserve">
+    <value>{0} за інший файл</value>
+  </data>
+  <data name="deleteOperationFailed" xml:space="preserve">
+    <value>Не вдалося виконати видалення.</value>
+  </data>
+  <data name="operationPreparing" xml:space="preserve">
+    <value>Підготовка операції...</value>
+  </data>
+  <data name="operationCancelling" xml:space="preserve">
+    <value>Скасування...</value>
+  </data>
+  <data name="operationCurrentItem" xml:space="preserve">
+    <value>Поточний елемент</value>
+  </data>
+  <data name="operationProgress" xml:space="preserve">
+    <value>Прогрес</value>
+  </data>
+  <data name="operationTransferred" xml:space="preserve">
+    <value>Передано</value>
+  </data>
+  <data name="operationItemsFormat" xml:space="preserve">
+    <value>{0}/{1} елементів</value>
+  </data>
+  <data name="operationTransferStatus" xml:space="preserve">
+    <value>{0} / {1} | {2} | залишилось {3}</value>
+  </data>
+  <data name="operationTransferStatusNoEta" xml:space="preserve">
+    <value>{0} / {1} | {2}</value>
+  </data>
+  <data name="operationElapsedStatus" xml:space="preserve">
+    <value>Минуло: {0}</value>
+  </data>
+  <data name="operationCalculating" xml:space="preserve">
+    <value>обчислення...</value>
+  </data>
+  <data name="operationWaiting" xml:space="preserve">
+    <value>Очікування наступного елемента...</value>
+  </data>
+  <data name="quickViewCsvHint" xml:space="preserve">
+    <value>Натисніть F3, щоб відкрити цю таблицю у CSV-переглядачі.</value>
+  </data>
+  <data name="quickViewCsvLoading" xml:space="preserve">
+    <value>Завантаження попереднього перегляду таблиці...</value>
+  </data>
+  <data name="quickViewCsvDisabled" xml:space="preserve">
+    <value>Швидкий перегляд CSV вимкнено в налаштуваннях.</value>
+  </data>
+  <data name="quickViewCsvTooLargeFormat" xml:space="preserve">
+    <value>Швидкий перегляд CSV обмежено {0} МБ. Для більших таблиць використовуйте F3.</value>
+  </data>
+  <data name="csvViewerTitle" xml:space="preserve">
+    <value>CSV-переглядач</value>
+  </data>
+  <data name="csvViewerLoading" xml:space="preserve">
+    <value>Завантаження таблиці...</value>
+  </data>
+  <data name="csvViewerLoadingEstimatedFormat" xml:space="preserve">
+    <value>Завантаження таблиці... (~{0})</value>
+  </data>
+  <data name="csvViewerLoadedFormat" xml:space="preserve">
+    <value>Завантажено: {0}</value>
+  </data>
+  <data name="csvViewerRowsFormat" xml:space="preserve">
+    <value>Рядків: {0:n0} | Стовпців: {1:n0} | Час: {2}</value>
+  </data>
+  <data name="csvViewerProgressFormat" xml:space="preserve">
+    <value>{0}: {1}%</value>
+  </data>
+  <data name="csvViewerBytesFormat" xml:space="preserve">
+    <value>Рядків: {0:n0} | Байти: {1} / {2}</value>
+  </data>
+  <data name="csvViewerCancelled" xml:space="preserve">
+    <value>Завантаження скасовано.</value>
+  </data>
+  <data name="csvViewerLoadFailed" xml:space="preserve">
+    <value>Не вдалося завантажити таблицю.</value>
+  </data>
+  <data name="settingsTabGeneral" xml:space="preserve">
+    <value>Загальні</value>
+  </data>
+  <data name="settingsTabQuickView" xml:space="preserve">
+    <value>Швидкий перегляд</value>
+  </data>
+  <data name="settingsTabOperations" xml:space="preserve">
+    <value>Операції</value>
+  </data>
+  <data name="settingsGeneralIntro" xml:space="preserve">
+    <value>Це початок діалогу налаштувань із вкладками. Тут можуть жити загальні параметри програми.</value>
+  </data>
+  <data name="settingsOperationsIntro" xml:space="preserve">
+    <value>Керуйте поведінкою copy і move операцій разом із типовими параметрами CSV quick preview.</value>
+  </data>
+  <data name="settingsQuickViewTitle" xml:space="preserve">
+    <value>Швидкий перегляд CSV</value>
+  </data>
+  <data name="settingsQuickViewCsvEnable" xml:space="preserve">
+    <value>Увімкнути табличний перегляд CSV-подібних файлів у Quick View</value>
+  </data>
+  <data name="settingsQuickViewCsvMaxSize" xml:space="preserve">
+    <value>Максимальний розмір файлу для Quick View:</value>
+  </data>
+  <data name="settingsQuickViewCsvNote" xml:space="preserve">
+    <value>Невеликі таблиці відкриваються прямо в Quick View. Великі файли залишаються доступними через F3, щоб уникнути підвисань UI.</value>
+  </data>
+  <data name="aboutVersion" xml:space="preserve">
+    <value>Версія</value>
+  </data>
+  <data name="aboutSubtitle" xml:space="preserve">
+    <value>Файловий менеджер на Windows Forms</value>
+  </data>
+  <data name="aboutSummary" xml:space="preserve">
+    <value>Двопанельний файловий менеджер у стилі Total Commander / Double Commander.</value>
+  </data>
+  <data name="aboutPlatform" xml:space="preserve">
+    <value>Платформа</value>
+  </data>
+  <data name="aboutPlatformValue" xml:space="preserve">
+    <value>Windows Forms, .NET 8</value>
+  </data>
+  <data name="aboutDescription" xml:space="preserve">
+    <value>Опис</value>
+  </data>
+  <data name="aboutCredits" xml:space="preserve">
+    <value>Створюється з увагою як Windows-файловий менеджер, що розвивається.</value>
+  </data>
+  <data name="aboutApplication" xml:space="preserve">
+    <value>Застосунок</value>
+  </data>
+  <data name="settingsTabView" xml:space="preserve">
+    <value>Вигляд</value>
+  </data>
+  <data name="settingsTabEditor" xml:space="preserve">
+    <value>Редактор</value>
+  </data>
+  <data name="settingsTabRichText" xml:space="preserve">
+    <value>Форматований текст</value>
+  </data>
+  <data name="settingsTabPerformance" xml:space="preserve">
+    <value>Продуктивність</value>
+  </data>
+  <data name="settingsViewTitle" xml:space="preserve">
+    <value>Вигляд файлових панелей</value>
+  </data>
+  <data name="settingsViewIntro" xml:space="preserve">
+    <value>Налаштуйте шрифт списку файлів і ширину основних стовпців для обох панелей.</value>
+  </data>
+  <data name="settingsShowStatusHints" xml:space="preserve">
+    <value>Показувати рядок стану в головному вікні</value>
+  </data>
+  <data name="settingsLanguage" xml:space="preserve">
+    <value>Мова інтерфейсу</value>
+  </data>
+  <data name="settingsLanguageAuto" xml:space="preserve">
+    <value>Автоматично (системна типова)</value>
+  </data>
+  <data name="settingsBrowserFontName" xml:space="preserve">
+    <value>Шрифт файлової панелі</value>
+  </data>
+  <data name="settingsBrowserFontSize" xml:space="preserve">
+    <value>Розмір шрифту</value>
+  </data>
+  <data name="settingsDialogFontName" xml:space="preserve">
+    <value>Шрифт типових діалогів</value>
+  </data>
+  <data name="settingsDialogFontSize" xml:space="preserve">
+    <value>Розмір шрифту типових діалогів</value>
+  </data>
+  <data name="settingsDialogCaptionFontSize" xml:space="preserve">
+    <value>Розмір шрифту підписів у діалогах</value>
+  </data>
+  <data name="settingsDialogEmphasisFontSize" xml:space="preserve">
+    <value>Розмір акцентного шрифту в діалогах</value>
+  </data>
+  <data name="settingsDialogHeaderFontSize" xml:space="preserve">
+    <value>Розмір шрифту заголовків діалогів</value>
+  </data>
+  <data name="settingsDialogPreviewTitle" xml:space="preserve">
+    <value>Живий попередній перегляд</value>
+  </data>
+  <data name="settingsDialogPreviewHeader" xml:space="preserve">
+    <value>Приклад заголовка діалогу</value>
+  </data>
+  <data name="settingsDialogPreviewBody" xml:space="preserve">
+    <value>Так виглядатиме основний текст у типових діалогах.</value>
+  </data>
+  <data name="settingsDialogPreviewEmphasis" xml:space="preserve">
+    <value>Вибрано елементів: 14</value>
+  </data>
+  <data name="settingsDialogPreviewCaption" xml:space="preserve">
+    <value>Так виглядатимуть підписи та підказки в діалогах.</value>
+  </data>
+  <data name="settingsColumnNameWidth" xml:space="preserve">
+    <value>Ширина стовпця Назва</value>
+  </data>
+  <data name="settingsColumnTypeWidth" xml:space="preserve">
+    <value>Ширина стовпця Тип</value>
+  </data>
+  <data name="settingsColumnSizeWidth" xml:space="preserve">
+    <value>Ширина стовпця Розмір</value>
+  </data>
+  <data name="settingsColumnDateWidth" xml:space="preserve">
+    <value>Ширина стовпця Дата</value>
+  </data>
+  <data name="settingsEditorTitle" xml:space="preserve">
+    <value>Вигляд текстового редактора</value>
+  </data>
+  <data name="settingsEditorIntro" xml:space="preserve">
+    <value>Оберіть типовий шрифт і поведінку перенесення рядків для вікна Text Editor.</value>
+  </data>
+  <data name="settingsTextEditorFontName" xml:space="preserve">
+    <value>Шрифт текстового редактора</value>
+  </data>
+  <data name="settingsTextEditorFontSize" xml:space="preserve">
+    <value>Розмір шрифту</value>
+  </data>
+  <data name="settingsTextEditorWordWrap" xml:space="preserve">
+    <value>Увімкнути перенесення рядків типово</value>
+  </data>
+  <data name="settingsShowEditorStatusBar" xml:space="preserve">
+    <value>Показувати рядок стану в редакторах і переглядачах</value>
+  </data>
+  <data name="settingsRichTextTitle" xml:space="preserve">
+    <value>RTF і Markdown preview</value>
+  </data>
+  <data name="settingsRichTextIntro" xml:space="preserve">
+    <value>Оберіть типовий шрифт RTF-редактора та стилі Markdown-to-RTF для заголовків і коду.</value>
+  </data>
+  <data name="settingsRtfEditorFontName" xml:space="preserve">
+    <value>Шрифт RTF-редактора</value>
+  </data>
+  <data name="settingsRtfEditorFontSize" xml:space="preserve">
+    <value>Розмір шрифту RTF-редактора</value>
+  </data>
+  <data name="settingsMarkdownPreviewFontName" xml:space="preserve">
+    <value>Шрифт Markdown preview</value>
+  </data>
+  <data name="settingsMarkdownPreviewCodeFontName" xml:space="preserve">
+    <value>Шрифт для Markdown-коду</value>
+  </data>
+  <data name="settingsMarkdownPreviewBaseFontSize" xml:space="preserve">
+    <value>Розмір основного Markdown-тексту</value>
+  </data>
+  <data name="settingsMarkdownPreviewH1FontSize" xml:space="preserve">
+    <value>Розмір Markdown H1</value>
+  </data>
+  <data name="settingsMarkdownPreviewH2FontSize" xml:space="preserve">
+    <value>Розмір Markdown H2</value>
+  </data>
+  <data name="settingsMarkdownPreviewH3FontSize" xml:space="preserve">
+    <value>Розмір Markdown H3</value>
+  </data>
+  <data name="settingsMarkdownPreviewH4FontSize" xml:space="preserve">
+    <value>Розмір Markdown H4</value>
+  </data>
+  <data name="settingsMarkdownPreviewH5FontSize" xml:space="preserve">
+    <value>Розмір Markdown H5</value>
+  </data>
+  <data name="settingsMarkdownPreviewH6FontSize" xml:space="preserve">
+    <value>Розмір Markdown H6</value>
+  </data>
+  <data name="settingsMarkdownPreviewRerenderOnResize" xml:space="preserve">
+    <value>Змінювати розмір Markdown-таблиць разом із вікном preview</value>
+  </data>
+  <data name="markdownRendering" xml:space="preserve">
+    <value>Формування Markdown preview...</value>
+  </data>
+  <data name="settingsOperationsTitle" xml:space="preserve">
+    <value>Файлові операції</value>
+  </data>
+  <data name="settingsOverwriteExistingFiles" xml:space="preserve">
+    <value>Дозволяти copy і move операціям перезаписувати наявні файли</value>
+  </data>
+  <data name="settingsPerformanceTitle" xml:space="preserve">
+    <value>Продуктивність і зберігання</value>
+  </data>
+  <data name="settingsPerformanceIntro" xml:space="preserve">
+    <value>Керуйте дорогою побудовою іконок та дивіться, де зберігаються користувацькі налаштування.</value>
+  </data>
+  <data name="settingsLoadIcons" xml:space="preserve">
+    <value>Завантажувати іконки файлів і папок у FileBrowser</value>
+  </data>
+  <data name="settingsLoadLargeIcons" xml:space="preserve">
+    <value>Також витягувати великі іконки для режимів Large Icons / Tile</value>
+  </data>
+  <data name="settingsWatchDirectoryChanges" xml:space="preserve">
+    <value>Стежити за поточною папкою й автоматично оновлювати панель, коли її вміст змінюється</value>
+  </data>
+  <data name="settingsStorage" xml:space="preserve">
+    <value>Файл налаштувань</value>
+  </data>
+  <data name="settingsStorageFormat" xml:space="preserve">
+    <value>Користувацькі налаштування зберігаються як user.config (XML), а не як INI-файл.</value>
+  </data>
+  <data name="archiveCreate" xml:space="preserve"><value>Запакувати...</value></data>
+  <data name="archiveExtract" xml:space="preserve"><value>Розпакувати...</value></data>
+  <data name="archiveCreateTitle" xml:space="preserve"><value>Створення архіву</value></data>
+  <data name="archiveExtractTitle" xml:space="preserve"><value>Розпакування архіву</value></data>
+  <data name="archiveCreateDescription" xml:space="preserve"><value>Запакуйте вибрані файли й папки в архів ZIP або TAR.</value></data>
+  <data name="archiveExtractDescription" xml:space="preserve"><value>Розпакуйте вибраний архів до вказаної папки.</value></data>
+  <data name="archiveSource" xml:space="preserve"><value>Джерело</value></data>
+  <data name="archiveDestination" xml:space="preserve"><value>Призначення</value></data>
+  <data name="archiveOverwriteExisting" xml:space="preserve"><value>Перезаписувати наявні файли</value></data>
+  <data name="archiveUnsupportedFormat" xml:space="preserve"><value>Підтримуються архіви ZIP, TAR, TAR.GZ і TGZ.</value></data>
+  <data name="archiveNoItems" xml:space="preserve"><value>Немає файлів або папок для архівування.</value></data>
+  <data name="archiveUnsafeEntry" xml:space="preserve"><value>Архів містить небезпечний шлях і не може бути розпакований:</value></data>
+  <data name="archiveSelectArchive" xml:space="preserve"><value>Спочатку виберіть архів ZIP, TAR, TAR.GZ або TGZ.</value></data>
+  <data name="archiveCreateFailed" xml:space="preserve"><value>Не вдалося створити архів.</value></data>
+  <data name="archiveExtractFailed" xml:space="preserve"><value>Не вдалося розпакувати архів.</value></data>
+  <data name="archiveEntriesProcessedFormat" xml:space="preserve"><value>Оброблено записів: {0}</value></data>
+  <data name="archiveTransferFormat" xml:space="preserve"><value>{0} із {1}</value></data>
+  <data name="archiveDefaultName" xml:space="preserve"><value>архів</value></data>
+  <data name="archiveChooseDestination" xml:space="preserve"><value>Виберіть папку, до якої слід розпакувати архів.</value></data>
+  <data name="archiveSaveFilter" xml:space="preserve"><value>Архів ZIP (*.zip)|*.zip|Архів TAR (*.tar)|*.tar|Стиснений архів TAR (*.tar.gz)|*.tar.gz</value></data>
+  <data name="archiveCompletedWithSkipped" xml:space="preserve"><value>Розпакування завершено. Пропущено наявних файлів: {0}.</value></data>
+  <data name="browse" xml:space="preserve"><value>Огляд...</value></data>
+  <data name="archiveFormat" xml:space="preserve"><value>Формат архіву</value></data>
+  <data name="archiveFormatZip" xml:space="preserve"><value>Архів ZIP (*.zip)</value></data>
+  <data name="archiveFormatTar" xml:space="preserve"><value>Архів TAR (*.tar)</value></data>
+  <data name="archiveFormatTarGZip" xml:space="preserve"><value>Стиснений архів TAR (*.tar.gz)</value></data>
+  <data name="archiveDestinationRequired" xml:space="preserve"><value>Вкажіть шлях до архіву або папки призначення.</value></data>
+  <data name="archiveOverwriteConfirm" xml:space="preserve"><value>Архів призначення вже існує. Замінити його?</value></data>
+  <data name="archiveReadingCatalog" xml:space="preserve"><value>Читання каталогу архіву...</value></data>
+  <data name="archiveOpeningEntry" xml:space="preserve"><value>Відкриття запису архіву...</value></data>
+  <data name="archiveFolderType" xml:space="preserve"><value>Папка</value></data>
+  <data name="archivePanelReadOnly" xml:space="preserve"><value>Архівна панель доступна лише для читання. Перед змінами скопіюйте елементи до іншої файлової панелі.</value></data>
+  <data name="archiveCopyRequiresFilePanel" xml:space="preserve"><value>Виберіть звичайну файлову панель як призначення копіювання.</value></data>
+  <data name="gedcomReadingCatalog" xml:space="preserve"><value>Читання осіб із GEDCOM...</value></data>
+  <data name="virtualPanelReadOnly" xml:space="preserve"><value>Ця віртуальна панель доступна лише для читання.</value></data>
+  <data name="quickViewGedcomSelectPerson" xml:space="preserve"><value>Виберіть особу для відображення родинного графа.</value></data>
+</root>

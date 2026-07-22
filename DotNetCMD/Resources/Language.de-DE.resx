@@ -1,0 +1,775 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="copy" xml:space="preserve">
+    <value>Kopieren</value>
+  </data>
+  <data name="cut" xml:space="preserve">
+    <value>Ausschneiden</value>
+  </data>
+  <data name="delete" xml:space="preserve">
+    <value>Löschen</value>
+  </data>
+  <data name="DeleteItem" xml:space="preserve">
+    <value>Element löschen</value>
+  </data>
+  <data name="DeleteItems" xml:space="preserve">
+    <value>Elemente löschen</value>
+  </data>
+  <data name="edit" xml:space="preserve">
+    <value>Bearbeiten</value>
+  </data>
+  <data name="move" xml:space="preserve">
+    <value>Bewegen</value>
+  </data>
+  <data name="newFolder" xml:space="preserve">
+    <value>Neuer Ordner</value>
+  </data>
+  <data name="newFolderDialogTitle" xml:space="preserve">
+    <value>Neuen Ordner erstellen</value>
+  </data>
+  <data name="newFolderDialogDescription" xml:space="preserve">
+    <value>Geben Sie einen Ordnernamen oder einen relativen Pfad ein. Unterordner werden automatisch erstellt.</value>
+  </data>
+  <data name="newFolderRelativePath" xml:space="preserve">
+    <value>Ordnername oder relativer Pfad</value>
+  </data>
+  <data name="newFolderLocation" xml:space="preserve">
+    <value>Speicherort</value>
+  </data>
+  <data name="newFolderTarget" xml:space="preserve">
+    <value>Zielpfad</value>
+  </data>
+  <data name="newFolderOpenCreated" xml:space="preserve">
+    <value>Erstellten Ordner sofort öffnen</value>
+  </data>
+  <data name="newFolderCreate" xml:space="preserve">
+    <value>Erstellen</value>
+  </data>
+  <data name="newFolderNameRequired" xml:space="preserve">
+    <value>Geben Sie einen Ordnernamen oder relativen Pfad ein.</value>
+  </data>
+  <data name="newFolderNameInvalid" xml:space="preserve">
+    <value>Der Ordnername enthält ungültige Zeichen oder nicht unterstützte Pfadsegmente.</value>
+  </data>
+  <data name="past" xml:space="preserve">
+    <value>Einfügen</value>
+  </data>
+  <data name="qDeleteItem" xml:space="preserve">
+    <value>Möchten Sie dieses Element wirklich Löschen?</value>
+  </data>
+  <data name="qDeleteItems" xml:space="preserve">
+    <value>Möchten Sie diese Elemente wirklich Löschen?</value>
+  </data>
+  <data name="rename" xml:space="preserve">
+    <value>Umbennenen</value>
+  </data>
+  <data name="view" xml:space="preserve">
+    <value>Anzeigen</value>
+  </data>
+  <data name="menuFile" xml:space="preserve">
+    <value>Datei</value>
+  </data>
+  <data name="menuEdit" xml:space="preserve">
+    <value>Bearbeiten</value>
+  </data>
+  <data name="menuView" xml:space="preserve">
+    <value>Ansicht</value>
+  </data>
+  <data name="menuTools" xml:space="preserve">
+    <value>Werkzeuge</value>
+  </data>
+  <data name="menuHelp" xml:space="preserve">
+    <value>Hilfe</value>
+  </data>
+  <data name="options" xml:space="preserve">
+    <value>Einstellungen</value>
+  </data>
+  <data name="about" xml:space="preserve">
+    <value>Über</value>
+  </data>
+  <data name="readme" xml:space="preserve">
+    <value>README</value>
+  </data>
+  <data name="changeLog" xml:space="preserve">
+    <value>Änderungen</value>
+  </data>
+  <data name="roadmap" xml:space="preserve">
+    <value>Roadmap</value>
+  </data>
+  <data name="quickView" xml:space="preserve">
+    <value>Schnellansicht</value>
+  </data>
+  <data name="quickViewSelectFile" xml:space="preserve">
+    <value>Wählen Sie eine Datei zur Vorschau.</value>
+  </data>
+  <data name="quickViewFolder" xml:space="preserve">
+    <value>Ordner-Vorschau nicht verfügbar.</value>
+  </data>
+  <data name="quickViewUnsupported" xml:space="preserve">
+    <value>Schnellansicht für diesen Dateityp nicht verfügbar.</value>
+  </data>
+  <data name="quickViewError" xml:space="preserve">
+    <value>Datei kann nicht geöffnet werden.</value>
+  </data>
+  <data name="quickViewLargeFile" xml:space="preserve">
+    <value>Datei ist zu groß für die Schnellansicht.</value>
+  </data>
+  <data name="viewMode" xml:space="preserve">
+    <value>Ansichtsmodus</value>
+  </data>
+  <data name="viewDetails" xml:space="preserve">
+    <value>Details</value>
+  </data>
+  <data name="viewList" xml:space="preserve">
+    <value>Liste</value>
+  </data>
+  <data name="viewSmallIcons" xml:space="preserve">
+    <value>Kleine Symbole</value>
+  </data>
+  <data name="viewLargeIcons" xml:space="preserve">
+    <value>Große Symbole</value>
+  </data>
+  <data name="viewTiles" xml:space="preserve">
+    <value>Kacheln</value>
+  </data>
+  <data name="cancel" xml:space="preserve">
+    <value>Abbrechen</value>
+  </data>
+  <data name="ok" xml:space="preserve">
+    <value>OK</value>
+  </data>
+  <data name="columnName" xml:space="preserve">
+    <value>Name</value>
+  </data>
+  <data name="columnType" xml:space="preserve">
+    <value>Typ</value>
+  </data>
+  <data name="columnSize" xml:space="preserve">
+    <value>Größe</value>
+  </data>
+  <data name="columnDate" xml:space="preserve">
+    <value>Datum</value>
+  </data>
+  <data name="documentNotFoundFormat" xml:space="preserve">
+    <value>Datei nicht gefunden:
+{0}</value>
+  </data>
+  <data name="editSelectionNotSupported" xml:space="preserve">
+    <value>Die ausgewählte Datei ist kein unterstütztes Textformat.</value>
+  </data>
+  <data name="statusSideLeft" xml:space="preserve">
+    <value>Links</value>
+  </data>
+  <data name="statusSideRight" xml:space="preserve">
+    <value>Rechts</value>
+  </data>
+  <data name="statusHintNoSelectionFormat" xml:space="preserve">
+    <value>F1 Hilfe   |   Aktiv: {0}</value>
+  </data>
+  <data name="statusHintActiveFormat" xml:space="preserve">
+    <value>Aktiv: {0}</value>
+  </data>
+  <data name="statusHintFoldersFormat" xml:space="preserve">
+    <value>Ordner: {0}</value>
+  </data>
+  <data name="statusHintFilesFormat" xml:space="preserve">
+    <value>Dateien: {0}</value>
+  </data>
+  <data name="statusHintSelectedFormat" xml:space="preserve">
+    <value>Ausgewählt: {0} ({1} Ordner, {2} Dateien)</value>
+  </data>
+  <data name="statusHintDirectoryMarker" xml:space="preserve">
+    <value>&lt;VERZ&gt;</value>
+  </data>
+  <data name="statusHintBytesFormat" xml:space="preserve">
+    <value>{0:0,0} Bytes</value>
+  </data>
+  <data name="helpShowThis" xml:space="preserve">
+    <value>Diese Hilfe anzeigen</value>
+  </data>
+  <data name="helpToggleQuickView" xml:space="preserve">
+    <value>Quick View umschalten</value>
+  </data>
+  <data name="helpNewFileDialog" xml:space="preserve">
+    <value>Dialog zum Erstellen einer Datei</value>
+  </data>
+  <data name="helpCopyInPlace" xml:space="preserve">
+    <value>Am selben Ort kopieren</value>
+  </data>
+  <data name="helpRefreshActivePanel" xml:space="preserve">
+    <value>Aktives Panel aktualisieren</value>
+  </data>
+  <data name="helpOpenArchiveBySignature" xml:space="preserve">
+    <value>Archiv anhand der Dateisignatur oder GEDCOM-Ansicht öffnen</value>
+  </data>
+  <data name="helpHistoryBack" xml:space="preserve">
+    <value>Zum vorherigen Panel-Speicherort zurückkehren</value>
+  </data>
+  <data name="helpNavigateParent" xml:space="preserve">
+    <value>Zum übergeordneten Ordner wechseln</value>
+  </data>
+  <data name="helpCloseApplication" xml:space="preserve">
+    <value>Anwendung schließen</value>
+  </data>
+  <data name="copyDialogTitle" xml:space="preserve">
+    <value>Elemente kopieren</value>
+  </data>
+  <data name="moveDialogTitle" xml:space="preserve">
+    <value>Elemente verschieben</value>
+  </data>
+  <data name="deleteDialogTitle" xml:space="preserve">
+    <value>Elemente löschen</value>
+  </data>
+  <data name="copyDialogDescription" xml:space="preserve">
+    <value>Wählen Sie das Ziel für die ausgewählten Elemente.</value>
+  </data>
+  <data name="moveDialogDescription" xml:space="preserve">
+    <value>Wählen Sie das Ziel für die ausgewählten Elemente.</value>
+  </data>
+  <data name="deleteDialogDescriptionSingle" xml:space="preserve">
+    <value>Dieses Element wird dauerhaft gelöscht.</value>
+  </data>
+  <data name="deleteDialogDescriptionMultiple" xml:space="preserve">
+    <value>Diese Elemente werden dauerhaft gelöscht.</value>
+  </data>
+  <data name="sourcePath" xml:space="preserve">
+    <value>Quellpfad</value>
+  </data>
+  <data name="destinationPath" xml:space="preserve">
+    <value>Zielpfad</value>
+  </data>
+  <data name="deleteDialogTarget" xml:space="preserve">
+    <value>Ziel</value>
+  </data>
+  <data name="selectedItems" xml:space="preserve">
+    <value>Ausgewählte Elemente</value>
+  </data>
+  <data name="itemsSelectedFormat" xml:space="preserve">
+    <value>{0} Elemente ausgewählt</value>
+  </data>
+  <data name="noItemsSelected" xml:space="preserve">
+    <value>Keine Elemente ausgewählt</value>
+  </data>
+  <data name="destinationRequired" xml:space="preserve">
+    <value>Bitte geben Sie einen Zielpfad ein.</value>
+  </data>
+  <data name="error" xml:space="preserve">
+    <value>Fehler</value>
+  </data>
+  <data name="copyOperationFailed" xml:space="preserve">
+    <value>Kopiervorgang fehlgeschlagen.</value>
+  </data>
+  <data name="moveOperationFailed" xml:space="preserve">
+    <value>Verschieben fehlgeschlagen.</value>
+  </data>
+  <data name="browseAccessDenied" xml:space="preserve">
+    <value>Zugriff auf den Pfad verweigert:
+{0}</value>
+  </data>
+  <data name="browsePathNotFound" xml:space="preserve">
+    <value>Pfad nicht gefunden:
+{0}</value>
+  </data>
+  <data name="browseOpenPathFailed" xml:space="preserve">
+    <value>Pfad konnte nicht geöffnet werden:
+{0}</value>
+  </data>
+  <data name="overwriteExistingFiles" xml:space="preserve">
+    <value>Vorhandene Dateien überschreiben</value>
+  </data>
+  <data name="conflictDialogTitle" xml:space="preserve">
+    <value>Dateikonflikt</value>
+  </data>
+  <data name="conflictDialogCopyDescription" xml:space="preserve">
+    <value>Die Zieldatei existiert bereits. Wählen Sie, wie dieser Kopiervorgang fortgesetzt werden soll.</value>
+  </data>
+  <data name="conflictDialogMoveDescription" xml:space="preserve">
+    <value>Die Zieldatei existiert bereits. Wählen Sie, wie dieser Verschiebevorgang fortgesetzt werden soll.</value>
+  </data>
+  <data name="conflictOverwrite" xml:space="preserve">
+    <value>Überschreiben</value>
+  </data>
+  <data name="conflictSkip" xml:space="preserve">
+    <value>Überspringen</value>
+  </data>
+  <data name="conflictRename" xml:space="preserve">
+    <value>Umbenennen...</value>
+  </data>
+  <data name="conflictOverwriteAll" xml:space="preserve">
+    <value>Alle überschreiben</value>
+  </data>
+  <data name="conflictSkipAll" xml:space="preserve">
+    <value>Alle überspringen</value>
+  </data>
+  <data name="conflictRenameDialogTitle" xml:space="preserve">
+    <value>Andere Zieldatei auswählen</value>
+  </data>
+  <data name="conflictRenameExistsFormat" xml:space="preserve">
+    <value>Die Datei '{0}' existiert bereits. Wählen Sie einen anderen Namen.</value>
+  </data>
+  <data name="conflictFileDetailsFormat" xml:space="preserve">
+    <value>Größe: {0} | Geändert: {1}</value>
+  </data>
+  <data name="conflictFileDetailsUnavailable" xml:space="preserve">
+    <value>Dateidetails sind nicht verfügbar.</value>
+  </data>
+  <data name="conflictSizeNewerSuffix" xml:space="preserve">
+    <value>neuer</value>
+  </data>
+  <data name="conflictSizeOlderSuffix" xml:space="preserve">
+    <value>älter</value>
+  </data>
+  <data name="conflictSizeLargerSuffix" xml:space="preserve">
+    <value>größer</value>
+  </data>
+  <data name="conflictSizeSmallerSuffix" xml:space="preserve">
+    <value>kleiner</value>
+  </data>
+  <data name="conflictComparedWithFormat" xml:space="preserve">
+    <value>{0} als die andere Datei</value>
+  </data>
+  <data name="deleteOperationFailed" xml:space="preserve">
+    <value>Löschvorgang fehlgeschlagen.</value>
+  </data>
+  <data name="operationPreparing" xml:space="preserve">
+    <value>Vorgang wird vorbereitet...</value>
+  </data>
+  <data name="operationCancelling" xml:space="preserve">
+    <value>Wird abgebrochen...</value>
+  </data>
+  <data name="operationCurrentItem" xml:space="preserve">
+    <value>Aktuelles Element</value>
+  </data>
+  <data name="operationProgress" xml:space="preserve">
+    <value>Fortschritt</value>
+  </data>
+  <data name="operationTransferred" xml:space="preserve">
+    <value>Übertragen</value>
+  </data>
+  <data name="operationItemsFormat" xml:space="preserve">
+    <value>{0}/{1} Elemente</value>
+  </data>
+  <data name="operationTransferStatus" xml:space="preserve">
+    <value>{0} / {1} | {2} | noch {3}</value>
+  </data>
+  <data name="operationTransferStatusNoEta" xml:space="preserve">
+    <value>{0} / {1} | {2}</value>
+  </data>
+  <data name="operationElapsedStatus" xml:space="preserve">
+    <value>Verstrichen: {0}</value>
+  </data>
+  <data name="operationCalculating" xml:space="preserve">
+    <value>wird berechnet...</value>
+  </data>
+  <data name="operationWaiting" xml:space="preserve">
+    <value>Warte auf das nächste Element...</value>
+  </data>
+  <data name="quickViewCsvHint" xml:space="preserve">
+    <value>Mit F3 diese Tabelle im CSV-Betrachter öffnen.</value>
+  </data>
+  <data name="quickViewCsvLoading" xml:space="preserve">
+    <value>Tabellenvorschau wird geladen...</value>
+  </data>
+  <data name="quickViewCsvDisabled" xml:space="preserve">
+    <value>CSV-Schnellvorschau ist in den Einstellungen deaktiviert.</value>
+  </data>
+  <data name="quickViewCsvTooLargeFormat" xml:space="preserve">
+    <value>CSV-Schnellvorschau ist auf {0} MB begrenzt. Für größere Tabellen F3 verwenden.</value>
+  </data>
+  <data name="csvViewerTitle" xml:space="preserve">
+    <value>CSV-Betrachter</value>
+  </data>
+  <data name="csvViewerLoading" xml:space="preserve">
+    <value>Tabelle wird geladen...</value>
+  </data>
+  <data name="csvViewerLoadingEstimatedFormat" xml:space="preserve">
+    <value>Tabelle wird geladen... (~{0})</value>
+  </data>
+  <data name="csvViewerLoadedFormat" xml:space="preserve">
+    <value>Geladen: {0}</value>
+  </data>
+  <data name="csvViewerRowsFormat" xml:space="preserve">
+    <value>Zeilen: {0:n0} | Spalten: {1:n0} | Dauer: {2}</value>
+  </data>
+  <data name="csvViewerProgressFormat" xml:space="preserve">
+    <value>{0}: {1}%</value>
+  </data>
+  <data name="csvViewerBytesFormat" xml:space="preserve">
+    <value>Zeilen: {0:n0} | Bytes: {1} / {2}</value>
+  </data>
+  <data name="csvViewerCancelled" xml:space="preserve">
+    <value>Laden abgebrochen.</value>
+  </data>
+  <data name="csvViewerLoadFailed" xml:space="preserve">
+    <value>Tabelle konnte nicht geladen werden.</value>
+  </data>
+  <data name="settingsTabGeneral" xml:space="preserve">
+    <value>Allgemein</value>
+  </data>
+  <data name="settingsTabQuickView" xml:space="preserve">
+    <value>Schnellansicht</value>
+  </data>
+  <data name="settingsTabOperations" xml:space="preserve">
+    <value>Operationen</value>
+  </data>
+  <data name="settingsGeneralIntro" xml:space="preserve">
+    <value>Dies ist der Anfang eines Einstellungsdialogs mit Tabs. Allgemeine Programmoptionen können hier liegen.</value>
+  </data>
+  <data name="settingsOperationsIntro" xml:space="preserve">
+    <value>Steuern Sie das Verhalten von Kopieren und Verschieben zusammen mit den Standardwerten der CSV-Schnellvorschau.</value>
+  </data>
+  <data name="settingsQuickViewTitle" xml:space="preserve">
+    <value>CSV-Schnellvorschau</value>
+  </data>
+  <data name="settingsQuickViewCsvEnable" xml:space="preserve">
+    <value>Tabellenvorschau für CSV-ähnliche Dateien in der Schnellansicht aktivieren</value>
+  </data>
+  <data name="settingsQuickViewCsvMaxSize" xml:space="preserve">
+    <value>Maximale Dateigröße für Schnellansicht:</value>
+  </data>
+  <data name="settingsQuickViewCsvNote" xml:space="preserve">
+    <value>Kleine Tabellen öffnen direkt in der Schnellansicht. Größere Dateien bleiben über F3 verfügbar, um UI-Blockaden zu vermeiden.</value>
+  </data>
+  <data name="aboutVersion" xml:space="preserve">
+    <value>Version</value>
+  </data>
+  <data name="aboutSubtitle" xml:space="preserve">
+    <value>Dateimanager auf Windows Forms</value>
+  </data>
+  <data name="aboutSummary" xml:space="preserve">
+    <value>Zweispaltiger Dateimanager im Stil von Total Commander / Double Commander.</value>
+  </data>
+  <data name="aboutPlatform" xml:space="preserve">
+    <value>Plattform</value>
+  </data>
+  <data name="aboutPlatformValue" xml:space="preserve">
+    <value>Windows Forms, .NET 8</value>
+  </data>
+  <data name="aboutDescription" xml:space="preserve">
+    <value>Beschreibung</value>
+  </data>
+  <data name="aboutCredits" xml:space="preserve">
+    <value>Mit Sorgfalt als sich entwickelnder Windows-Dateimanager gebaut.</value>
+  </data>
+  <data name="aboutApplication" xml:space="preserve">
+    <value>Anwendung</value>
+  </data>
+  <data name="settingsTabView" xml:space="preserve">
+    <value>Ansicht</value>
+  </data>
+  <data name="settingsTabEditor" xml:space="preserve">
+    <value>Editor</value>
+  </data>
+  <data name="settingsTabRichText" xml:space="preserve">
+    <value>Formatierter Text</value>
+  </data>
+  <data name="settingsTabPerformance" xml:space="preserve">
+    <value>Leistung</value>
+  </data>
+  <data name="settingsViewTitle" xml:space="preserve">
+    <value>Dateibrowser-Darstellung</value>
+  </data>
+  <data name="settingsViewIntro" xml:space="preserve">
+    <value>Passen Sie Schriftart und die wichtigsten Spaltenbreiten für beide Panels an.</value>
+  </data>
+  <data name="settingsShowStatusHints" xml:space="preserve">
+    <value>Befehls-Hinweise in der Hauptstatusleiste anzeigen</value>
+  </data>
+  <data name="settingsLanguage" xml:space="preserve">
+    <value>Sprache der Benutzeroberfläche</value>
+  </data>
+  <data name="settingsLanguageAuto" xml:space="preserve">
+    <value>Automatisch (Systemstandard)</value>
+  </data>
+  <data name="settingsBrowserFontName" xml:space="preserve">
+    <value>Schriftart im Dateibrowser</value>
+  </data>
+  <data name="settingsBrowserFontSize" xml:space="preserve">
+    <value>Schriftgröße</value>
+  </data>
+  <data name="settingsDialogFontName" xml:space="preserve">
+    <value>Schriftart der Standarddialoge</value>
+  </data>
+  <data name="settingsDialogFontSize" xml:space="preserve">
+    <value>Schriftgröße der Standarddialoge</value>
+  </data>
+  <data name="settingsDialogCaptionFontSize" xml:space="preserve">
+    <value>Schriftgröße der Dialogbeschriftungen</value>
+  </data>
+  <data name="settingsDialogEmphasisFontSize" xml:space="preserve">
+    <value>Schriftgröße für hervorgehobene Dialogtexte</value>
+  </data>
+  <data name="settingsDialogHeaderFontSize" xml:space="preserve">
+    <value>Schriftgröße der Dialogüberschriften</value>
+  </data>
+  <data name="settingsDialogPreviewTitle" xml:space="preserve">
+    <value>Live-Vorschau</value>
+  </data>
+  <data name="settingsDialogPreviewHeader" xml:space="preserve">
+    <value>Beispiel für eine Dialogüberschrift</value>
+  </data>
+  <data name="settingsDialogPreviewBody" xml:space="preserve">
+    <value>So sieht normaler Fließtext in den Standarddialogen aus.</value>
+  </data>
+  <data name="settingsDialogPreviewEmphasis" xml:space="preserve">
+    <value>Ausgewählte Elemente: 14</value>
+  </data>
+  <data name="settingsDialogPreviewCaption" xml:space="preserve">
+    <value>So erscheinen Beschriftungen und Hinweise in Dialogen.</value>
+  </data>
+  <data name="settingsColumnNameWidth" xml:space="preserve">
+    <value>Breite der Spalte Name</value>
+  </data>
+  <data name="settingsColumnTypeWidth" xml:space="preserve">
+    <value>Breite der Spalte Typ</value>
+  </data>
+  <data name="settingsColumnSizeWidth" xml:space="preserve">
+    <value>Breite der Spalte Größe</value>
+  </data>
+  <data name="settingsColumnDateWidth" xml:space="preserve">
+    <value>Breite der Spalte Datum</value>
+  </data>
+  <data name="settingsEditorTitle" xml:space="preserve">
+    <value>Darstellung des Texteditors</value>
+  </data>
+  <data name="settingsEditorIntro" xml:space="preserve">
+    <value>Wählen Sie Standardschriftart und Umbruchverhalten für das Fenster des Texteditors.</value>
+  </data>
+  <data name="settingsTextEditorFontName" xml:space="preserve">
+    <value>Schriftart des Texteditors</value>
+  </data>
+  <data name="settingsTextEditorFontSize" xml:space="preserve">
+    <value>Schriftgröße</value>
+  </data>
+  <data name="settingsTextEditorWordWrap" xml:space="preserve">
+    <value>Zeilenumbruch standardmäßig aktivieren</value>
+  </data>
+  <data name="settingsShowEditorStatusBar" xml:space="preserve">
+    <value>Statusleiste in Editoren und Viewern anzeigen</value>
+  </data>
+  <data name="settingsRichTextTitle" xml:space="preserve">
+    <value>RTF und Markdown-Vorschau</value>
+  </data>
+  <data name="settingsRichTextIntro" xml:space="preserve">
+    <value>Wählen Sie Standardschrift für den RTF-Editor und Markdown-zu-RTF-Stile für Überschriften und Code.</value>
+  </data>
+  <data name="settingsRtfEditorFontName" xml:space="preserve">
+    <value>Schriftart des RTF-Editors</value>
+  </data>
+  <data name="settingsRtfEditorFontSize" xml:space="preserve">
+    <value>Schriftgröße des RTF-Editors</value>
+  </data>
+  <data name="settingsMarkdownPreviewFontName" xml:space="preserve">
+    <value>Schriftart der Markdown-Vorschau</value>
+  </data>
+  <data name="settingsMarkdownPreviewCodeFontName" xml:space="preserve">
+    <value>Schriftart für Markdown-Code</value>
+  </data>
+  <data name="settingsMarkdownPreviewBaseFontSize" xml:space="preserve">
+    <value>Größe des Markdown-Fließtexts</value>
+  </data>
+  <data name="settingsMarkdownPreviewH1FontSize" xml:space="preserve">
+    <value>Größe Markdown H1</value>
+  </data>
+  <data name="settingsMarkdownPreviewH2FontSize" xml:space="preserve">
+    <value>Größe Markdown H2</value>
+  </data>
+  <data name="settingsMarkdownPreviewH3FontSize" xml:space="preserve">
+    <value>Größe Markdown H3</value>
+  </data>
+  <data name="settingsMarkdownPreviewH4FontSize" xml:space="preserve">
+    <value>Größe Markdown H4</value>
+  </data>
+  <data name="settingsMarkdownPreviewH5FontSize" xml:space="preserve">
+    <value>Größe Markdown H5</value>
+  </data>
+  <data name="settingsMarkdownPreviewH6FontSize" xml:space="preserve">
+    <value>Größe Markdown H6</value>
+  </data>
+  <data name="settingsMarkdownPreviewRerenderOnResize" xml:space="preserve">
+    <value>Markdown-Tabellen an die Vorschaufenstergröße anpassen</value>
+  </data>
+  <data name="markdownRendering" xml:space="preserve">
+    <value>Markdown-Vorschau wird erstellt...</value>
+  </data>
+  <data name="settingsOperationsTitle" xml:space="preserve">
+    <value>Dateioperationen</value>
+  </data>
+  <data name="settingsOverwriteExistingFiles" xml:space="preserve">
+    <value>Kopier- und Verschiebevorgänge dürfen vorhandene Dateien überschreiben</value>
+  </data>
+  <data name="settingsPerformanceTitle" xml:space="preserve">
+    <value>Leistung und Speicherort</value>
+  </data>
+  <data name="settingsPerformanceIntro" xml:space="preserve">
+    <value>Steuern Sie teure Symbol-Extraktion und prüfen Sie, wo Benutzereinstellungen gespeichert werden.</value>
+  </data>
+  <data name="settingsLoadIcons" xml:space="preserve">
+    <value>Datei- und Ordnersymbole im FileBrowser laden</value>
+  </data>
+  <data name="settingsLoadLargeIcons" xml:space="preserve">
+    <value>Zusätzlich große Symbole für Große Symbole / Kachelansicht extrahieren</value>
+  </data>
+  <data name="settingsWatchDirectoryChanges" xml:space="preserve">
+    <value>Aktuellen Ordner überwachen und bei Inhaltsänderungen automatisch aktualisieren</value>
+  </data>
+  <data name="settingsStorage" xml:space="preserve">
+    <value>Einstellungsdatei</value>
+  </data>
+  <data name="settingsStorageFormat" xml:space="preserve">
+    <value>Benutzereinstellungen werden als user.config (XML) gespeichert, nicht als INI-Datei.</value>
+  </data>
+  <data name="archiveCreate" xml:space="preserve"><value>Packen...</value></data>
+  <data name="archiveExtract" xml:space="preserve"><value>Entpacken...</value></data>
+  <data name="archiveCreateTitle" xml:space="preserve"><value>Archiv erstellen</value></data>
+  <data name="archiveExtractTitle" xml:space="preserve"><value>Archiv entpacken</value></data>
+  <data name="archiveCreateDescription" xml:space="preserve"><value>Ausgewählte Dateien und Ordner in ein ZIP- oder TAR-Archiv packen.</value></data>
+  <data name="archiveExtractDescription" xml:space="preserve"><value>Das ausgewählte Archiv in den gewählten Ordner entpacken.</value></data>
+  <data name="archiveSource" xml:space="preserve"><value>Quelle</value></data>
+  <data name="archiveDestination" xml:space="preserve"><value>Ziel</value></data>
+  <data name="archiveOverwriteExisting" xml:space="preserve"><value>Vorhandene Dateien überschreiben</value></data>
+  <data name="archiveUnsupportedFormat" xml:space="preserve"><value>Unterstützte Archivformate sind ZIP, TAR, TAR.GZ und TGZ.</value></data>
+  <data name="archiveNoItems" xml:space="preserve"><value>Keine Dateien oder Ordner zum Archivieren vorhanden.</value></data>
+  <data name="archiveUnsafeEntry" xml:space="preserve"><value>Das Archiv enthält einen unsicheren Pfad und kann nicht entpackt werden:</value></data>
+  <data name="archiveSelectArchive" xml:space="preserve"><value>Wählen Sie zuerst ein ZIP-, TAR-, TAR.GZ- oder TGZ-Archiv aus.</value></data>
+  <data name="archiveCreateFailed" xml:space="preserve"><value>Das Archiv konnte nicht erstellt werden.</value></data>
+  <data name="archiveExtractFailed" xml:space="preserve"><value>Das Archiv konnte nicht entpackt werden.</value></data>
+  <data name="archiveEntriesProcessedFormat" xml:space="preserve"><value>{0} Einträge verarbeitet</value></data>
+  <data name="archiveTransferFormat" xml:space="preserve"><value>{0} von {1}</value></data>
+  <data name="archiveDefaultName" xml:space="preserve"><value>Archiv</value></data>
+  <data name="archiveChooseDestination" xml:space="preserve"><value>Wählen Sie den Ordner, in den das Archiv entpackt wird.</value></data>
+  <data name="archiveSaveFilter" xml:space="preserve"><value>ZIP-Archiv (*.zip)|*.zip|TAR-Archiv (*.tar)|*.tar|Komprimiertes TAR-Archiv (*.tar.gz)|*.tar.gz</value></data>
+  <data name="archiveCompletedWithSkipped" xml:space="preserve"><value>Entpacken abgeschlossen. Vorhandene Dateien übersprungen: {0}.</value></data>
+  <data name="browse" xml:space="preserve"><value>Durchsuchen...</value></data>
+  <data name="archiveFormat" xml:space="preserve"><value>Archivformat</value></data>
+  <data name="archiveFormatZip" xml:space="preserve"><value>ZIP-Archiv (*.zip)</value></data>
+  <data name="archiveFormatTar" xml:space="preserve"><value>TAR-Archiv (*.tar)</value></data>
+  <data name="archiveFormatTarGZip" xml:space="preserve"><value>Komprimiertes TAR-Archiv (*.tar.gz)</value></data>
+  <data name="archiveDestinationRequired" xml:space="preserve"><value>Geben Sie den Pfad zum Zielarchiv oder Zielordner ein.</value></data>
+  <data name="archiveOverwriteConfirm" xml:space="preserve"><value>Das Zielarchiv ist bereits vorhanden. Soll es ersetzt werden?</value></data>
+  <data name="archiveReadingCatalog" xml:space="preserve"><value>Archivkatalog wird gelesen...</value></data>
+  <data name="archiveOpeningEntry" xml:space="preserve"><value>Archiveintrag wird geöffnet...</value></data>
+  <data name="archiveFolderType" xml:space="preserve"><value>Ordner</value></data>
+  <data name="archivePanelReadOnly" xml:space="preserve"><value>Die Archivansicht ist schreibgeschützt. Kopieren Sie Einträge vor Änderungen in die andere Dateiansicht.</value></data>
+  <data name="archiveCopyRequiresFilePanel" xml:space="preserve"><value>Wählen Sie eine normale Dateisystemansicht als Kopierziel.</value></data>
+  <data name="gedcomReadingCatalog" xml:space="preserve"><value>GEDCOM-Personen werden gelesen...</value></data>
+  <data name="virtualPanelReadOnly" xml:space="preserve"><value>Diese virtuelle Ansicht ist schreibgeschützt.</value></data>
+  <data name="quickViewGedcomSelectPerson" xml:space="preserve"><value>Wählen Sie eine Person aus, um den Familiengraphen anzuzeigen.</value></data>
+</root>
