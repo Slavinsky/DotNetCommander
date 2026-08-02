@@ -44,6 +44,7 @@ namespace DotNetCommander
         private readonly CheckBox showStatusHintsCheckBox;
         private readonly CheckBox quickViewCsvEnabledCheckBox;
         private readonly CheckBox overwriteExistingFilesCheckBox;
+        private readonly CheckBox openCreatedFolderCheckBox;
         private readonly NumericUpDown quickViewCsvMaxMbNumeric;
         private readonly NumericUpDown dialogFontSizeNumeric;
         private readonly NumericUpDown dialogCaptionFontSizeNumeric;
@@ -233,6 +234,13 @@ namespace DotNetCommander
                 Dock = DockStyle.Top,
                 Height = 34,
                 Text = Language.getString("settingsOverwriteExistingFiles")
+            };
+
+            openCreatedFolderCheckBox = new CheckBox
+            {
+                Dock = DockStyle.Top,
+                Height = 34,
+                Text = Language.getString("settingsOpenCreatedFolder")
             };
 
             textEditorWordWrapCheckBox = new CheckBox
@@ -474,6 +482,7 @@ namespace DotNetCommander
             quickViewPanel.Controls.Add(dialogPreviewPanel);
             quickViewPanel.Controls.Add(dialogLayout);
             quickViewPanel.Controls.Add(overwriteExistingFilesCheckBox);
+            quickViewPanel.Controls.Add(openCreatedFolderCheckBox);
             quickViewPanel.Controls.Add(quickViewCsvEnabledCheckBox);
 
             operationsPage.Controls.Add(quickViewPanel);
@@ -536,6 +545,7 @@ namespace DotNetCommander
 
             quickViewCsvEnabledCheckBox.Checked = Properties.Settings.Default.QuickViewCsvEnabled;
             overwriteExistingFilesCheckBox.Checked = Properties.Settings.Default.OverwriteExistingFiles;
+            openCreatedFolderCheckBox.Checked = Properties.Settings.Default.OpenCreatedFolderAfterCreate;
             quickViewCsvMaxMbNumeric.Value = Math.Max(1, Properties.Settings.Default.QuickViewCsvMaxBytes / (1024 * 1024));
             textEditorWordWrapCheckBox.Checked = Properties.Settings.Default.TextEditorWordWrap;
             showStatusHintsCheckBox.Checked = Properties.Settings.Default.ShowStatusHints;
@@ -582,6 +592,7 @@ namespace DotNetCommander
 
             Properties.Settings.Default.QuickViewCsvEnabled = quickViewCsvEnabledCheckBox.Checked;
             Properties.Settings.Default.OverwriteExistingFiles = overwriteExistingFilesCheckBox.Checked;
+            Properties.Settings.Default.OpenCreatedFolderAfterCreate = openCreatedFolderCheckBox.Checked;
             Properties.Settings.Default.QuickViewCsvMaxBytes = (int)quickViewCsvMaxMbNumeric.Value * 1024 * 1024;
 
             Properties.Settings.Default.FileBrowserLoadIcons = loadIconsCheckBox.Checked;

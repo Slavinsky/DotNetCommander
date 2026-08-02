@@ -484,7 +484,7 @@
     <value>Refresh active panel</value>
   </data>
   <data name="helpOpenArchiveBySignature" xml:space="preserve">
-    <value>Open archive by file signature or GEDCOM panel</value>
+    <value>Open an archive by signature, a GEDCOM panel, or try DataSet XML regardless of extension</value>
   </data>
   <data name="helpHistoryBack" xml:space="preserve">
     <value>Return to the previous panel location</value>
@@ -936,7 +936,38 @@
   <data name="archiveFolderType" xml:space="preserve"><value>Folder</value></data>
   <data name="archivePanelReadOnly" xml:space="preserve"><value>The archive panel is read-only. Copy items to the other file panel before changing them.</value></data>
   <data name="archiveCopyRequiresFilePanel" xml:space="preserve"><value>Select a regular file-system panel as the copy destination.</value></data>
-  <data name="gedcomReadingCatalog" xml:space="preserve"><value>Reading GEDCOM people...</value></data>
+  <data name="gedcomReadingCatalog" xml:space="preserve"><value>Reading GEDCOM catalog...</value></data>
+  <data name="gedcomPersons" xml:space="preserve"><value>Persons</value></data>
+  <data name="gedcomFamilies" xml:space="preserve"><value>Families</value></data>
+  <data name="gedcomNotes" xml:space="preserve"><value>Notes</value></data>
+  <data name="gedcomObject" xml:space="preserve"><value>Object</value></data>
+  <data name="gedcomTag" xml:space="preserve"><value>Tag</value></data>
+  <data name="gedcomCount" xml:space="preserve"><value>Count</value></data>
+  <data name="gedcomDescription" xml:space="preserve"><value>Description</value></data>
+  <data name="gedcomLevelZeroDescription" xml:space="preserve"><value>GEDCOM level-0 records</value></data>
+  <data name="gedcomFirstName" xml:space="preserve"><value>First name</value></data>
+  <data name="gedcomLastName" xml:space="preserve"><value>Last name</value></data>
+  <data name="gedcomAge" xml:space="preserve"><value>Age</value></data>
+  <data name="gedcomBirthDate" xml:space="preserve"><value>Birth date</value></data>
+  <data name="gedcomIdentifier" xml:space="preserve"><value>Identifier</value></data>
+  <data name="gedcomHusband" xml:space="preserve"><value>Husband</value></data>
+  <data name="gedcomWife" xml:space="preserve"><value>Wife</value></data>
+  <data name="gedcomChildren" xml:space="preserve"><value>Children</value></data>
+  <data name="gedcomFamily" xml:space="preserve"><value>Family</value></data>
+  <data name="gedcomSummary" xml:space="preserve"><value>Summary</value></data>
+  <data name="gedcomFields" xml:space="preserve"><value>Fields</value></data>
+  <data name="rawView" xml:space="preserve"><value>RAW / Hex view</value></data>
+  <data name="rawFirst" xml:space="preserve"><value>First block</value></data>
+  <data name="rawPrevious" xml:space="preserve"><value>Previous block</value></data>
+  <data name="rawNext" xml:space="preserve"><value>Next block</value></data>
+  <data name="rawLast" xml:space="preserve"><value>Last block</value></data>
+  <data name="rawOffset" xml:space="preserve"><value>Offset</value></data>
+  <data name="rawOffsetHint" xml:space="preserve"><value>Enter a hexadecimal file offset</value></data>
+  <data name="rawGo" xml:space="preserve"><value>Go</value></data>
+  <data name="rawInvalidOffset" xml:space="preserve"><value>Enter a valid hexadecimal offset.</value></data>
+  <data name="rawFileNotFound" xml:space="preserve"><value>The file was not found.</value></data>
+  <data name="rawStatusFormat" xml:space="preserve"><value>Offsets 0x{0:X}–0x{1:X} of {2:N0} bytes | loaded {3:N0} bytes</value></data>
+  <data name="rawHelp" xml:space="preserve"><value>PageUp/PageDown — previous/next block; Ctrl+Home/Ctrl+End — first/last block; Ctrl+G — go to hexadecimal offset; F5 — reload; Ctrl+C — copy selection; Esc — close.</value></data>
   <data name="virtualPanelReadOnly" xml:space="preserve"><value>This virtual panel is read-only.</value></data>
   <data name="quickViewGedcomSelectPerson" xml:space="preserve"><value>Select a person to display the family graph.</value></data>
   <data name="commandLineToolTip" xml:space="preserve"><value>Enter a program or command with parameters. Enter runs it; Shift+Enter keeps the console open; Up/Down browse history; Ctrl+L focuses this field; Ctrl+Enter inserts the current item name.</value></data>
@@ -944,4 +975,43 @@
   <data name="helpFocusCommandLine" xml:space="preserve"><value>Focus the command line</value></data>
   <data name="helpPersistentConsole" xml:space="preserve"><value>Run the selected script/program, or the entered command, in a console that stays open</value></data>
   <data name="helpCopyNameToCommandLine" xml:space="preserve"><value>Insert the current item name into the command line</value></data>
+  <data name="settingsOpenCreatedFolder" xml:space="preserve"><value>Open a newly created folder by default</value></data>
+  <data name="operationFailureTitle" xml:space="preserve"><value>File operation problem</value></data>
+  <data name="operationFailurePrompt" xml:space="preserve"><value>Could not process:
+{0}
+
+{1}
+
+Attempt: {2}
+
+Retry the item, ignore it and continue, or abort the operation?</value></data>
+  <data name="operationSummaryTitle" xml:space="preserve"><value>Operation summary</value></data>
+  <data name="operationSummaryCompleted" xml:space="preserve"><value>The operation has finished.</value></data>
+  <data name="operationSummaryCancelled" xml:space="preserve"><value>The operation was cancelled. Completed changes were kept.</value></data>
+  <data name="operationSummaryCounts" xml:space="preserve"><value>Completed: {0}    Skipped: {1}    Errors: {2}</value></data>
+  <data name="operationSummaryDuration" xml:space="preserve"><value>Elapsed: {0}</value></data>
+  <data name="operationSummaryErrors" xml:space="preserve"><value>Recent errors:</value></data>
+  <data name="operationSummaryMoreErrors" xml:space="preserve"><value>…and {0} more.</value></data>
+  <data name="helpSwitchPanel" xml:space="preserve"><value>Activate the adjacent file panel</value></data>
+  <data name="dataSetReading" xml:space="preserve"><value>Reading DataSet schema and data...</value></data>
+  <data name="dataSetOpenFailed" xml:space="preserve"><value>Could not open the DataSet file.</value></data>
+  <data name="dataSetObject" xml:space="preserve"><value>Object</value></data>
+  <data name="dataSetCount" xml:space="preserve"><value>Count</value></data>
+  <data name="dataSetDescription" xml:space="preserve"><value>Description</value></data>
+  <data name="dataSetTables" xml:space="preserve"><value>Tables</value></data>
+  <data name="dataSetRelations" xml:space="preserve"><value>Relations</value></data>
+  <data name="dataSetTablesDescription" xml:space="preserve"><value>Data tables and their rows</value></data>
+  <data name="dataSetRelationsDescription" xml:space="preserve"><value>Parent-child relations defined by the schema</value></data>
+  <data name="dataSetTable" xml:space="preserve"><value>Table</value></data>
+  <data name="dataSetRows" xml:space="preserve"><value>Rows</value></data>
+  <data name="dataSetColumns" xml:space="preserve"><value>Columns</value></data>
+  <data name="dataSetRelation" xml:space="preserve"><value>Relation</value></data>
+  <data name="dataSetParentTable" xml:space="preserve"><value>Parent table</value></data>
+  <data name="dataSetChildTable" xml:space="preserve"><value>Child table</value></data>
+  <data name="dataSetProperty" xml:space="preserve"><value>Property</value></data>
+  <data name="dataSetValue" xml:space="preserve"><value>Value</value></data>
+  <data name="dataSetParentColumns" xml:space="preserve"><value>Parent columns</value></data>
+  <data name="dataSetChildColumns" xml:space="preserve"><value>Child columns</value></data>
+  <data name="dataSetNested" xml:space="preserve"><value>Nested</value></data>
+  <data name="dataSetRowFormat" xml:space="preserve"><value>Row {0}</value></data>
 </root>

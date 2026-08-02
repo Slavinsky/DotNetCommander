@@ -34,13 +34,20 @@ namespace DotNetCommander
     private readonly GedcomBrowser gedcomBrowser;
     private bool gedcomMode;
     private string gedcomReturnFileName;
+    private readonly DataSetBrowser dataSetBrowser;
+    private bool dataSetMode;
+    private string dataSetReturnFileName;
     private readonly List<BrowserHistoryEntry> navigationHistory = new List<BrowserHistoryEntry>();
     private int navigationHistoryIndex = -1;
     private bool navigatingHistory;
     private bool suppressArchiveHistory;
+    private List<ListViewItem> selectionBeforeMouseDown = new List<ListViewItem>();
+    private ListViewItem focusedItemBeforeMouseDown;
+    private bool dragInProgress;
 
     public delegate void PathChangeHandler(Object sender, String newPath);
     public event PathChangeHandler PathChange;
+    public event EventHandler AdjacentPanelRequested;
     internal event EventHandler<ArchiveDeviceChangedEventArgs> ArchiveDeviceChanged;
 
     public String CurrentPath;
@@ -72,6 +79,17 @@ namespace DotNetCommander
       gedcomBrowser.LeaveGedcomRequested += (_, __) => ExitGedcom(true);
       gedcomBrowser.NavigateBackRequested += (_, __) => _ = NavigateBackAsync();
       Controls.Add(gedcomBrowser);
+
+      dataSetBrowser = new DataSetBrowser
+      {
+        Dock = DockStyle.Fill,
+        Visible = false
+      };
+      dataSetBrowser.SelectionChanged += DataSetBrowser_SelectionChanged;
+      dataSetBrowser.BrowserLocationChanged += DataSetBrowser_LocationChanged;
+      dataSetBrowser.LeaveDataSetRequested += (_, __) => ExitDataSet(true);
+      dataSetBrowser.NavigateBackRequested += (_, __) => _ = NavigateBackAsync();
+      Controls.Add(dataSetBrowser);
 
       directoryRefreshTimer = new Timer();
       directoryRefreshTimer.Interval = 350;
@@ -139,7 +157,12 @@ namespace DotNetCommander
 
       // Addressbar
       addressBarCurrentPath.ButtonClick += new EventHandler(addressBar_ButtonClick);
+      addressBarCurrentPath.BackClick += async (_, __) => await NavigateBackAsync();
+      addressBarCurrentPath.ParentClick += (_, __) => NavigateParent();
+      addressBarCurrentPath.RefreshClick += (_, __) => RefreshCurrentDirectory();
       browserView.ColumnClick += browserView_ColumnClick;
+      browserView.MouseDown += browserView_MouseDown;
+      browserView.MouseUp += browserView_MouseUp;
       browserView.ItemDrag += browserView_ItemDrag;
       browserView.DragEnter += browserView_DragEnter;
       browserView.DragOver += browserView_DragOver;
@@ -149,7 +172,8 @@ namespace DotNetCommander
 
     public bool IsArchiveMode => archiveMode;
     public bool IsGedcomMode => gedcomMode;
-    public bool IsVirtualMode => archiveMode || gedcomMode;
+    public bool IsDataSetMode => dataSetMode;
+    public bool IsVirtualMode => archiveMode || gedcomMode || dataSetMode;
     internal GedcomPersonEntry SelectedGedcomPerson => gedcomMode ? gedcomBrowser.SelectedPerson : null;
     internal bool SelectGedcomPerson(string personId)
     {
@@ -157,25 +181,68 @@ namespace DotNetCommander
     }
     public string OpenArchivePath => archiveMode ? archiveBrowser.ArchivePath : null;
     public string OpenArchiveInternalPath => archiveMode ? archiveBrowser.InternalPath : null;
+    public string OpenVirtualSourcePath => gedcomMode
+      ? gedcomBrowser.GedcomPath
+      : dataSetMode
+        ? dataSetBrowser.DataSetPath
+        : archiveMode
+          ? archiveBrowser.ArchivePath
+          : null;
     public string[] SelectedArchiveEntryNames => archiveMode ? archiveBrowser.SelectedEntryNames : Array.Empty<string>();
+
+    public void ActivatePanel()
+    {
+      Select();
+      if (archiveMode)
+      {
+        archiveBrowser.FocusItems();
+      }
+      else if (gedcomMode)
+      {
+        gedcomBrowser.FocusItems();
+      }
+      else if (dataSetMode)
+      {
+        dataSetBrowser.FocusItems();
+      }
+      else
+      {
+        browserView.Focus();
+      }
+    }
+
+    protected override bool ProcessDialogKey(Keys keyData)
+    {
+      if (keyData == Keys.Tab || keyData == (Keys.Shift | Keys.Tab))
+      {
+        AdjacentPanelRequested?.Invoke(this, EventArgs.Empty);
+        return true;
+      }
+
+      return base.ProcessDialogKey(keyData);
+    }
     public override string DisplayLocation => archiveMode
       ? archiveBrowser.DisplayLocation
-      : gedcomMode ? gedcomBrowser.DisplayLocation : CurrentPath;
+      : gedcomMode ? gedcomBrowser.DisplayLocation
+      : dataSetMode ? dataSetBrowser.DisplayLocation : CurrentPath;
     public override IReadOnlyList<BrowserItemInfo> Items => archiveMode
       ? archiveBrowser.Items
-      : gedcomMode ? gedcomBrowser.Items : browserView.Items.Cast<ListViewItem>()
+      : gedcomMode ? gedcomBrowser.Items
+      : dataSetMode ? dataSetBrowser.Items : browserView.Items.Cast<ListViewItem>()
         .Where(item => !IsParentNavigationItem(item))
         .Select(CreateBrowserItemInfo)
         .ToArray();
     public override IReadOnlyList<BrowserItemInfo> SelectedItems => archiveMode
       ? archiveBrowser.SelectedItems
-      : gedcomMode ? gedcomBrowser.SelectedItems : browserView.SelectedItems.Cast<ListViewItem>()
+      : gedcomMode ? gedcomBrowser.SelectedItems
+      : dataSetMode ? dataSetBrowser.SelectedItems : browserView.SelectedItems.Cast<ListViewItem>()
         .Where(item => !IsParentNavigationItem(item))
         .Select(CreateBrowserItemInfo)
         .ToArray();
     public override BrowserPanelCapabilities Capabilities => archiveMode
       ? BrowserPanelCapabilities.ReadOnlyVirtual
-      : gedcomMode ? gedcomBrowser.Capabilities : BrowserPanelCapabilities.FullFileSystem;
+      : gedcomMode ? gedcomBrowser.Capabilities
+      : dataSetMode ? dataSetBrowser.Capabilities : BrowserPanelCapabilities.FullFileSystem;
 
     public override bool Navigate(string location)
     {
@@ -186,6 +253,10 @@ namespace DotNetCommander
       if (gedcomMode)
       {
         return gedcomBrowser.Navigate(location);
+      }
+      if (dataSetMode)
+      {
+        return dataSetBrowser.Navigate(location);
       }
 
       return browseTo(location) != null;
@@ -200,6 +271,10 @@ namespace DotNetCommander
       if (gedcomMode)
       {
         return gedcomBrowser.NavigateParent();
+      }
+      if (dataSetMode)
+      {
+        return dataSetBrowser.NavigateParent();
       }
 
       if (string.IsNullOrWhiteSpace(CurrentPath))
@@ -232,7 +307,24 @@ namespace DotNetCommander
       try
       {
         bool navigated;
-        if (target.IsGedcom)
+        if (target.IsDataSet)
+        {
+          if (!dataSetMode || !string.Equals(dataSetBrowser.DataSetPath, target.Location, StringComparison.OrdinalIgnoreCase))
+          {
+            navigated = await EnterDataSetAsync(target.Location, true);
+          }
+          else
+          {
+            navigated = true;
+          }
+
+          if (navigated)
+          {
+            navigated = dataSetBrowser.Navigate(target.InternalPath);
+            dataSetBrowser.SelectLocation(target.SelectedLocation);
+          }
+        }
+        else if (target.IsGedcom)
         {
           if (!gedcomMode || !string.Equals(gedcomBrowser.GedcomPath, target.Location, StringComparison.OrdinalIgnoreCase))
           {
@@ -245,7 +337,11 @@ namespace DotNetCommander
 
           if (navigated)
           {
-            gedcomBrowser.SelectPerson(target.SelectedLocation);
+            navigated = gedcomBrowser.Navigate(target.InternalPath);
+            if (navigated)
+            {
+              gedcomBrowser.SelectLocation(target.SelectedLocation);
+            }
           }
         }
         else if (target.IsArchive)
@@ -282,6 +378,10 @@ namespace DotNetCommander
           if (gedcomMode)
           {
             ExitGedcom(false, false);
+          }
+          if (dataSetMode)
+          {
+            ExitDataSet(false, false);
           }
 
           navigated = browseTo(target.Location) != null;
@@ -349,6 +449,7 @@ namespace DotNetCommander
       browserView.Columns[4].Width = Math.Max(80, Properties.Settings.Default.FileBrowserDateColumnWidth);
       archiveBrowser.ApplyUserSettings(browserFont, GetColumnWidths(), browserView.View);
       gedcomBrowser.ApplyUserSettings(browserFont, GetColumnWidths(), browserView.View);
+      dataSetBrowser.ApplyUserSettings(browserFont);
 
       if (!Properties.Settings.Default.FileBrowserLoadIcons)
       {
@@ -388,6 +489,10 @@ namespace DotNetCommander
       if (gedcomMode)
       {
         ExitGedcom(false, false);
+      }
+      if (dataSetMode)
+      {
+        ExitDataSet(false, false);
       }
 
       try
@@ -581,6 +686,10 @@ namespace DotNetCommander
         }*/
         if (System.IO.Directory.Exists(newPath)) {
           browseTo(newPath);
+        }
+        else if (FileTypeClassifier.IsDataSetFile(newPath))
+        {
+          await EnterDataSetAsync(newPath);
         }
         else if (FileTypeClassifier.IsSupportedArchive(newPath))
         {
@@ -851,6 +960,10 @@ editBox.Focus();*/
       {
         ExitGedcom(false, false);
       }
+      if (dataSetMode)
+      {
+        ExitDataSet(false, false);
+      }
 
       archiveReturnFileName = Path.GetFileName(archivePath);
       archiveMode = true;
@@ -922,7 +1035,17 @@ editBox.Focus();*/
         return await EnterGedcomAsync(selectedPath);
       }
 
-      return await OpenSelectedArchiveBySignatureAsync();
+      if (FileTypeClassifier.IsDataSetFile(selectedPath))
+      {
+        return await EnterDataSetAsync(selectedPath);
+      }
+
+      if (await OpenSelectedArchiveBySignatureAsync())
+      {
+        return true;
+      }
+
+      return await EnterDataSetAsync(selectedPath, true);
     }
 
     public async Task<bool> EnterGedcomAsync(string gedcomPath)
@@ -936,6 +1059,10 @@ editBox.Focus();*/
       if (archiveMode)
       {
         ExitArchive(false, false);
+      }
+      if (dataSetMode)
+      {
+        ExitDataSet(false, false);
       }
 
       gedcomReturnFileName = Path.GetFileName(gedcomPath);
@@ -958,7 +1085,51 @@ editBox.Focus();*/
       RecordHistory(new BrowserHistoryEntry
       {
         IsGedcom = true,
-        Location = gedcomBrowser.GedcomPath
+        Location = gedcomBrowser.GedcomPath,
+        InternalPath = gedcomBrowser.InternalPath
+      });
+      PathChange?.Invoke(this, DisplayLocation);
+      return true;
+    }
+
+    public async Task<bool> EnterDataSetAsync(string path, bool silentProbe = false)
+    {
+      if (string.IsNullOrWhiteSpace(path) || !File.Exists(path) ||
+          (!silentProbe && !FileTypeClassifier.IsDataSetFile(path)))
+      {
+        return false;
+      }
+
+      if (archiveMode)
+      {
+        ExitArchive(false, false);
+      }
+      if (gedcomMode)
+      {
+        ExitGedcom(false, false);
+      }
+
+      bool opened = await dataSetBrowser.OpenDataSetAsync(path, !silentProbe);
+      if (!opened)
+      {
+        return false;
+      }
+
+      dataSetReturnFileName = Path.GetFileName(path);
+      dataSetMode = true;
+      selectedFiles = Array.Empty<string>();
+      browserView.Visible = false;
+      addressBarCurrentPath.Visible = false;
+      dataSetBrowser.Visible = true;
+      dataSetBrowser.BringToFront();
+      ConfigureDirectoryWatcher();
+      RaiseSelectionChanged();
+
+      RecordHistory(new BrowserHistoryEntry
+      {
+        IsDataSet = true,
+        Location = dataSetBrowser.DataSetPath,
+        InternalPath = dataSetBrowser.InternalPath
       });
       PathChange?.Invoke(this, DisplayLocation);
       return true;
@@ -1053,6 +1224,41 @@ editBox.Focus();*/
       browserView.Focus();
     }
 
+    public void ExitDataSet(bool restoreSelection, bool recordHistory = true)
+    {
+      if (!dataSetMode)
+      {
+        return;
+      }
+
+      string fileToSelect = dataSetReturnFileName;
+      dataSetMode = false;
+      dataSetBrowser.Visible = false;
+      browserView.Visible = true;
+      addressBarCurrentPath.Visible = true;
+      browserView.BringToFront();
+      addressBarCurrentPath.BringToFront();
+      ConfigureDirectoryWatcher();
+      if (restoreSelection && !string.IsNullOrWhiteSpace(fileToSelect))
+      {
+        selectFile(fileToSelect);
+      }
+
+      if (recordHistory)
+      {
+        RecordHistory(new BrowserHistoryEntry
+        {
+          Location = CurrentPath,
+          SelectedLocation = browserView.SelectedItems.Count == 1 ? browserView.SelectedItems[0].Tag as string : null
+        });
+      }
+
+      PathChange?.Invoke(this, CurrentPath);
+      RaiseLocationChanged(CurrentPath);
+      RaiseSelectionChanged();
+      browserView.Focus();
+    }
+
     private void ArchiveBrowser_SelectionChanged(object sender, EventArgs e)
     {
       selectedFiles = Array.Empty<string>();
@@ -1093,8 +1299,38 @@ editBox.Focus();*/
       RaiseLocationChanged(e.Location);
       if (gedcomMode)
       {
+        RecordHistory(new BrowserHistoryEntry
+        {
+          IsGedcom = true,
+          Location = gedcomBrowser.GedcomPath,
+          InternalPath = gedcomBrowser.InternalPath
+        });
         PathChange?.Invoke(this, e.Location);
       }
+    }
+
+    private void DataSetBrowser_SelectionChanged(object sender, EventArgs e)
+    {
+      selectedFiles = Array.Empty<string>();
+      UpdateCurrentHistorySelection();
+      RaiseSelectionChanged();
+    }
+
+    private void DataSetBrowser_LocationChanged(object sender, BrowserLocationChangedEventArgs e)
+    {
+      if (!dataSetMode)
+      {
+        return;
+      }
+
+      RaiseLocationChanged(e.Location);
+      RecordHistory(new BrowserHistoryEntry
+      {
+        IsDataSet = true,
+        Location = dataSetBrowser.DataSetPath,
+        InternalPath = dataSetBrowser.InternalPath
+      });
+      PathChange?.Invoke(this, e.Location);
     }
 
     private void RecordHistory(BrowserHistoryEntry entry)
@@ -1141,13 +1377,20 @@ editBox.Focus();*/
           : null;
       }
       else if (gedcomMode && current.IsGedcom &&
-               string.Equals(current.Location, gedcomBrowser.GedcomPath, StringComparison.OrdinalIgnoreCase))
+               string.Equals(current.Location, gedcomBrowser.GedcomPath, StringComparison.OrdinalIgnoreCase) &&
+               string.Equals(current.InternalPath ?? string.Empty, gedcomBrowser.InternalPath ?? string.Empty, StringComparison.OrdinalIgnoreCase))
       {
         current.SelectedLocation = gedcomBrowser.SelectedItems.Count == 1
           ? gedcomBrowser.SelectedItems[0].Location
           : null;
       }
-      else if (!IsVirtualMode && !current.IsArchive && !current.IsGedcom &&
+      else if (dataSetMode && current.IsDataSet &&
+               string.Equals(current.Location, dataSetBrowser.DataSetPath, StringComparison.OrdinalIgnoreCase) &&
+               string.Equals(current.InternalPath ?? string.Empty, dataSetBrowser.InternalPath ?? string.Empty, StringComparison.OrdinalIgnoreCase))
+      {
+        current.SelectedLocation = dataSetBrowser.SelectedLocation;
+      }
+      else if (!IsVirtualMode && !current.IsArchive && !current.IsGedcom && !current.IsDataSet &&
                string.Equals(current.Location, CurrentPath, StringComparison.OrdinalIgnoreCase))
       {
         current.SelectedLocation = browserView.SelectedItems.Count == 1
@@ -1167,6 +1410,11 @@ editBox.Focus();*/
         gedcomBrowser.RefreshPanel();
         return;
       }
+      if (dataSetMode)
+      {
+        dataSetBrowser.RefreshPanel();
+        return;
+      }
 
       browseTo(CurrentPath);
     }
@@ -1181,6 +1429,11 @@ editBox.Focus();*/
       if (gedcomMode)
       {
         gedcomBrowser.RefreshPanel();
+        return;
+      }
+      if (dataSetMode)
+      {
+        dataSetBrowser.RefreshPanel();
         return;
       }
 
@@ -1232,9 +1485,11 @@ editBox.Focus();*/
         BrowserItemInfo[] selectedGedcomItems = gedcomBrowser.SelectedItems.ToArray();
         BrowserStatusInfo gedcomInfo = new BrowserStatusInfo
         {
-          FileCount = gedcomItems.Length,
+          DirectoryCount = gedcomItems.Count(item => item.IsDirectory),
+          FileCount = gedcomItems.Count(item => !item.IsDirectory),
           SelectedCount = selectedGedcomItems.Length,
-          SelectedFileCount = selectedGedcomItems.Length
+          SelectedDirectoryCount = selectedGedcomItems.Count(item => item.IsDirectory),
+          SelectedFileCount = selectedGedcomItems.Count(item => !item.IsDirectory)
         };
         if (selectedGedcomItems.Length == 1)
         {
@@ -1242,8 +1497,32 @@ editBox.Focus();*/
           gedcomInfo.CurrentItemName = selected.Name;
           gedcomInfo.CurrentItemPath = gedcomBrowser.GedcomPath + " :: " + selected.Location;
           gedcomInfo.CurrentItemModifiedText = selected.Modified?.ToShortDateString();
+          gedcomInfo.CurrentItemIsDirectory = selected.IsDirectory;
         }
         return gedcomInfo;
+      }
+      if (dataSetMode)
+      {
+        BrowserItemInfo[] dataSetItems = dataSetBrowser.Items.ToArray();
+        BrowserItemInfo[] selectedDataSetItems = dataSetBrowser.SelectedItems.ToArray();
+        BrowserStatusInfo dataSetInfo = new BrowserStatusInfo
+        {
+          DirectoryCount = dataSetItems.Count(item => item.IsDirectory),
+          FileCount = dataSetItems.Length > 0
+            ? dataSetItems.Count(item => !item.IsDirectory)
+            : dataSetBrowser.TotalItemCount,
+          SelectedCount = selectedDataSetItems.Length,
+          SelectedDirectoryCount = selectedDataSetItems.Count(item => item.IsDirectory),
+          SelectedFileCount = selectedDataSetItems.Count(item => !item.IsDirectory)
+        };
+        if (selectedDataSetItems.Length == 1)
+        {
+          BrowserItemInfo selected = selectedDataSetItems[0];
+          dataSetInfo.CurrentItemName = selected.Name;
+          dataSetInfo.CurrentItemPath = dataSetBrowser.DataSetPath + " :: " + selected.Location;
+          dataSetInfo.CurrentItemIsDirectory = selected.IsDirectory;
+        }
+        return dataSetInfo;
       }
 
       BrowserStatusInfo info = new BrowserStatusInfo();
@@ -1482,7 +1761,7 @@ editBox.Focus();*/
         return;
       }
 
-      if (e.KeyCode == Keys.Up && e.Alt)
+      if (e.KeyCode == Keys.PageUp && e.Control)
       {
         NavigateParent();
         e.Handled = true;
@@ -1508,16 +1787,98 @@ editBox.Focus();*/
 
     private void browserView_ItemDrag(object sender, ItemDragEventArgs e)
     {
-      string[] dragPaths = GetSelectedPathsForDragDrop();
+      ListViewItem draggedItem = e.Item as ListViewItem;
+      string[] dragPaths = GetPathsForDragStart(draggedItem);
       if (dragPaths.Length == 0)
         return;
+
+      dragInProgress = true;
+      RestoreSelectionBeforeDrag();
 
       DataObject dataObject = new DataObject();
       dataObject.SetData(DataFormats.FileDrop, true, dragPaths);
       dataObject.SetData(InternalDragSourceFormat, CurrentPath ?? string.Empty);
 
       DragDropEffects allowedEffects = DragDropEffects.Copy | DragDropEffects.Move;
-      browserView.DoDragDrop(dataObject, allowedEffects);
+      try
+      {
+        browserView.DoDragDrop(dataObject, allowedEffects);
+      }
+      finally
+      {
+        dragInProgress = false;
+        ClearMouseSelectionSnapshot();
+      }
+    }
+
+    private void browserView_MouseDown(object sender, MouseEventArgs e)
+    {
+      if (e.Button != MouseButtons.Left)
+      {
+        ClearMouseSelectionSnapshot();
+        return;
+      }
+
+      selectionBeforeMouseDown = browserView.SelectedItems
+        .Cast<ListViewItem>()
+        .ToList();
+      focusedItemBeforeMouseDown = browserView.FocusedItem;
+    }
+
+    private void browserView_MouseUp(object sender, MouseEventArgs e)
+    {
+      if (!dragInProgress)
+      {
+        ClearMouseSelectionSnapshot();
+      }
+    }
+
+    private string[] GetPathsForDragStart(ListViewItem draggedItem)
+    {
+      IEnumerable<ListViewItem> dragItems;
+      if (draggedItem != null && selectionBeforeMouseDown.Contains(draggedItem))
+      {
+        dragItems = selectionBeforeMouseDown;
+      }
+      else if (draggedItem != null)
+      {
+        // Dragging an unselected item must not add it to the panel selection.
+        dragItems = new[] { draggedItem };
+      }
+      else
+      {
+        dragItems = selectionBeforeMouseDown;
+      }
+
+      return GetPathsForDragDrop(dragItems);
+    }
+
+    private void RestoreSelectionBeforeDrag()
+    {
+      HashSet<ListViewItem> itemsToRestore = new HashSet<ListViewItem>(selectionBeforeMouseDown);
+      browserView.BeginUpdate();
+      try
+      {
+        foreach (ListViewItem item in browserView.Items)
+        {
+          item.Selected = itemsToRestore.Contains(item);
+        }
+
+        if (focusedItemBeforeMouseDown?.ListView == browserView)
+        {
+          focusedItemBeforeMouseDown.Focused = true;
+        }
+      }
+      finally
+      {
+        browserView.EndUpdate();
+      }
+    }
+
+    private void ClearMouseSelectionSnapshot()
+    {
+      selectionBeforeMouseDown.Clear();
+      focusedItemBeforeMouseDown = null;
     }
 
     private void browserView_DragEnter(object sender, DragEventArgs e)
@@ -1533,7 +1894,8 @@ editBox.Focus();*/
       ListViewItem hoveredItem = browserView.GetItemAt(clientPoint.X, clientPoint.Y);
       if (hoveredItem != null)
       {
-        hoveredItem.Selected = true;
+        // A drop target may receive keyboard focus, but drag hover must never
+        // mutate the file selection.
         hoveredItem.Focused = true;
       }
       else if (browserView.Items.Count > 0)
@@ -1558,10 +1920,9 @@ editBox.Focus();*/
       CopyWindow.ShowDialog(FindForm());
     }
 
-    private string[] GetSelectedPathsForDragDrop()
+    private static string[] GetPathsForDragDrop(IEnumerable<ListViewItem> items)
     {
-      return browserView.SelectedItems
-        .Cast<ListViewItem>()
+      return (items ?? Enumerable.Empty<ListViewItem>())
         .Where(item => item?.Tag is string path
           && !string.IsNullOrWhiteSpace(path)
           && item.SubItems.Count > 1
@@ -1664,6 +2025,10 @@ editBox.Focus();*/
       {
         return gedcomBrowser.CurrentItemName;
       }
+      if (dataSetMode)
+      {
+        return dataSetBrowser.CurrentItemName;
+      }
 
       if (browserView.SelectedItems.Count == 0)
         return null;
@@ -1713,7 +2078,7 @@ editBox.Focus();*/
 
 
     private void addressBar_ButtonClick(object sender, EventArgs e) {
-      browseTo((sender as Button).Tag as String);
+      browseTo((sender as Control)?.Tag as String);
     }
 
     private void addressBarCurrentPath_PathChange(object sender, string newPath) {
@@ -2064,6 +2429,7 @@ editBox.Focus();*/
   {
     public bool IsArchive { get; set; }
     public bool IsGedcom { get; set; }
+    public bool IsDataSet { get; set; }
     public string Location { get; set; }
     public string InternalPath { get; set; }
     public string SelectedLocation { get; set; }
@@ -2073,8 +2439,9 @@ editBox.Focus();*/
       return other != null &&
         IsArchive == other.IsArchive &&
         IsGedcom == other.IsGedcom &&
+        IsDataSet == other.IsDataSet &&
         string.Equals(Location, other.Location, StringComparison.OrdinalIgnoreCase) &&
-        (!IsArchive || string.Equals(InternalPath ?? string.Empty, other.InternalPath ?? string.Empty, StringComparison.OrdinalIgnoreCase));
+        (!(IsArchive || IsGedcom || IsDataSet) || string.Equals(InternalPath ?? string.Empty, other.InternalPath ?? string.Empty, StringComparison.OrdinalIgnoreCase));
     }
   }
 

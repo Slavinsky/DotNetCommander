@@ -45,6 +45,11 @@ namespace DotNetCommander
             File.Move(sourcePath, destinationPath, true);
         }
 
+        public static void CommitTemporaryFile(string temporaryPath, string destinationPath, bool overwriteExisting)
+        {
+            File.Move(temporaryPath, destinationPath, overwriteExisting);
+        }
+
         public static FileStream OpenRead(string path)
         {
             return new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read);

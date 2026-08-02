@@ -6,6 +6,7 @@ using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
 using System.IO;
+using DotNetCommander;
 using DotNetCommander.Properties;
 
 namespace View
@@ -17,6 +18,7 @@ namespace View
         private ToolStripStatusLabel statusMessageLabel;
         private ToolStripStatusLabel statusStatsLabel;
         private string currentFilePath;
+        private Encoding currentEncoding = new UTF8Encoding(false);
         private bool previewMode;
         private static Point _savedLocation = new Point(-1, -1); // Позиция формы
         private static Size _savedSize = new Size(0, 0); // Размер формы
@@ -323,7 +325,7 @@ namespace View
                 }
                 
                 // Читаем содержимое файла с корректной обработкой переносов строк
-                string content = File.ReadAllText(filePath);
+                string content = TextFileEncodingService.ReadAllText(filePath, out currentEncoding);
                 // Обрабатываем разные типы переносов строк (Windows, Unix, Mac)
                 content = content.Replace("\r\n", "\n").Replace("\r", "\n").Replace("\n", Environment.NewLine);
                 textBox.Text = content;
@@ -374,7 +376,7 @@ namespace View
 
             try
             {
-                File.WriteAllText(currentFilePath, textBox.Text);
+                TextFileEncodingService.WriteAllText(currentFilePath, textBox.Text, currentEncoding);
                 Text = Path.GetFileName(currentFilePath) + " - Text Editor";
                 NotifySaveSuccess(currentFilePath);
             }
@@ -400,7 +402,7 @@ namespace View
 
             try
             {
-                File.WriteAllText(targetPath, textBox.Text);
+                TextFileEncodingService.WriteAllText(targetPath, textBox.Text, currentEncoding);
                 if (!previewMode)
                 {
                     currentFilePath = targetPath;

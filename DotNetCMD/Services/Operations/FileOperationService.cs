@@ -18,7 +18,43 @@ namespace DotNetCommander
     internal enum FileOperationRunResult
     {
         Completed,
+        CompletedWithErrors,
         Cancelled
+    }
+
+    internal enum FileOperationFailureAction
+    {
+        Retry,
+        Skip,
+        Cancel
+    }
+
+    internal sealed class FileOperationFailure
+    {
+        public FileOperationFailure(string sourcePath, string destinationPath, Exception exception, int attempt)
+        {
+            SourcePath = sourcePath;
+            DestinationPath = destinationPath;
+            Exception = exception;
+            Attempt = attempt;
+        }
+
+        public string SourcePath { get; }
+        public string DestinationPath { get; }
+        public Exception Exception { get; }
+        public int Attempt { get; }
+    }
+
+    internal sealed class FileOperationResult
+    {
+        public FileOperationRunResult RunResult { get; set; }
+        public int CompletedEntries { get; set; }
+        public int SkippedEntries { get; set; }
+        public int FailedEntries { get; set; }
+        public int TotalEntries { get; set; }
+        public long CompletedBytes { get; set; }
+        public TimeSpan Elapsed { get; set; }
+        public List<FileOperationFailure> Failures { get; } = new List<FileOperationFailure>();
     }
 
     internal sealed class FileOperationProgressInfo
@@ -36,33 +72,40 @@ namespace DotNetCommander
     {
         private const int BufferSize = 1024 * 1024;
 
-        public static Task<FileOperationRunResult> ExecuteCopyOrMoveAsync(
+        public static Task<FileOperationResult> ExecuteCopyOrMoveAsync(
             string[] sources,
             string destination,
             FormCopy.Type operationType,
             bool overwriteExistingFiles,
             IReadOnlyDictionary<string, FileConflictResolution> conflictResolutions,
             IProgress<FileOperationProgressInfo> progress,
+            Func<FileOperationFailure, FileOperationFailureAction> failureHandler,
             CancellationToken cancellationToken)
         {
-            return Task.Run(() => ExecuteCopyOrMoveInternal(sources, destination, operationType, overwriteExistingFiles, conflictResolutions, progress, cancellationToken), cancellationToken);
+            return FileOperationQueue.Shared.EnqueueAsync(
+                () => ExecuteCopyOrMoveInternal(sources, destination, operationType, overwriteExistingFiles, conflictResolutions, progress, failureHandler, cancellationToken),
+                cancellationToken);
         }
 
-        public static Task<FileOperationRunResult> ExecuteDeleteAsync(
+        public static Task<FileOperationResult> ExecuteDeleteAsync(
             string[] sources,
             IProgress<FileOperationProgressInfo> progress,
+            Func<FileOperationFailure, FileOperationFailureAction> failureHandler,
             CancellationToken cancellationToken)
         {
-            return Task.Run(() => ExecuteDeleteInternal(sources, progress, cancellationToken), cancellationToken);
+            return FileOperationQueue.Shared.EnqueueAsync(
+                () => ExecuteDeleteInternal(sources, progress, failureHandler, cancellationToken),
+                cancellationToken);
         }
 
-        private static FileOperationRunResult ExecuteCopyOrMoveInternal(
+        private static FileOperationResult ExecuteCopyOrMoveInternal(
             string[] sources,
             string destination,
             FormCopy.Type operationType,
             bool overwriteExistingFiles,
             IReadOnlyDictionary<string, FileConflictResolution> conflictResolutions,
             IProgress<FileOperationProgressInfo> progress,
+            Func<FileOperationFailure, FileOperationFailureAction> failureHandler,
             CancellationToken cancellationToken)
         {
             sources ??= Array.Empty<string>();
@@ -74,7 +117,7 @@ namespace DotNetCommander
             });
 
             FileOperationPlan plan = BuildCopyOrMovePlan(sources, destination, operationType, overwriteExistingFiles, conflictResolutions, cancellationToken);
-            return ExecutePlan(plan, overwriteExistingFiles, progress, cancellationToken);
+            return ExecutePlan(plan, progress, failureHandler, cancellationToken);
         }
 
         public static IReadOnlyList<FileOperationConflict> CollectCopyOrMoveConflicts(
@@ -106,9 +149,10 @@ namespace DotNetCommander
             return conflicts;
         }
 
-        private static FileOperationRunResult ExecuteDeleteInternal(
+        private static FileOperationResult ExecuteDeleteInternal(
             string[] sources,
             IProgress<FileOperationProgressInfo> progress,
+            Func<FileOperationFailure, FileOperationFailureAction> failureHandler,
             CancellationToken cancellationToken)
         {
             sources ??= Array.Empty<string>();
@@ -120,7 +164,7 @@ namespace DotNetCommander
             });
 
             FileOperationPlan plan = BuildDeletePlan(sources, cancellationToken);
-            return ExecutePlan(plan, false, progress, cancellationToken);
+            return ExecutePlan(plan, progress, failureHandler, cancellationToken);
         }
 
         private static FileOperationPlan BuildCopyOrMovePlan(
@@ -236,30 +280,32 @@ namespace DotNetCommander
                     return;
                 string destinationFile = MapNestedTargetPath(sourceDirectory, targetDirectory, file);
                 if (!TryResolveFileTarget(destinationFile, overwriteExistingFiles, conflictResolutions, out string resolvedDestinationFile))
+                {
+                    plan.MarkSkipped();
                     continue;
+                }
 
                 bool allowOverwrite = overwriteExistingFiles || ShouldOverwriteConflict(destinationFile, conflictResolutions);
-                plan.Add(new FileOperationEntry(FileOperationAction.CopyFile, file, resolvedDestinationFile, SafeGetFileLength(file), allowOverwrite));
+                plan.Add(new FileOperationEntry(
+                    FileOperationAction.CopyFile,
+                    file,
+                    resolvedDestinationFile,
+                    SafeGetFileLength(file),
+                    allowOverwrite,
+                    operationType == FormCopy.Type.Move));
             }
 
             if (operationType != FormCopy.Type.Move)
                 return;
 
-            foreach (string file in files)
-            {
-                if (cancellationToken.IsCancellationRequested)
-                    return;
-                plan.Add(new FileOperationEntry(FileOperationAction.DeleteFile, file, null, SafeGetFileLength(file)));
-            }
-
             foreach (string directory in directories.OrderByDescending(path => path.Length))
             {
                 if (cancellationToken.IsCancellationRequested)
                     return;
-                plan.Add(new FileOperationEntry(FileOperationAction.DeleteDirectory, directory, null, 0));
+                plan.Add(new FileOperationEntry(FileOperationAction.DeleteDirectoryIfEmpty, directory, null, 0));
             }
 
-            plan.Add(new FileOperationEntry(FileOperationAction.DeleteDirectory, sourceDirectory, null, 0));
+            plan.Add(new FileOperationEntry(FileOperationAction.DeleteDirectoryIfEmpty, sourceDirectory, null, 0));
         }
 
         private static void AppendFileEntry(
@@ -274,7 +320,10 @@ namespace DotNetCommander
             if (cancellationToken.IsCancellationRequested)
                 return;
             if (!TryResolveFileTarget(targetFile, overwriteExistingFiles, conflictResolutions, out string resolvedTargetFile))
+            {
+                plan.MarkSkipped();
                 return;
+            }
 
             long size = SafeGetFileLength(sourceFile);
             if (operationType == FormCopy.Type.Move && IsSameVolume(sourceFile, resolvedTargetFile))
@@ -285,11 +334,13 @@ namespace DotNetCommander
             }
 
             bool allowCopyOverwrite = overwriteExistingFiles || ShouldOverwriteConflict(targetFile, conflictResolutions);
-            plan.Add(new FileOperationEntry(FileOperationAction.CopyFile, sourceFile, resolvedTargetFile, size, allowCopyOverwrite));
-            if (operationType == FormCopy.Type.Move)
-            {
-                plan.Add(new FileOperationEntry(FileOperationAction.DeleteFile, sourceFile, null, size));
-            }
+            plan.Add(new FileOperationEntry(
+                FileOperationAction.CopyFile,
+                sourceFile,
+                resolvedTargetFile,
+                size,
+                allowCopyOverwrite,
+                operationType == FormCopy.Type.Move));
         }
 
         private static bool TryResolveFileTarget(
@@ -370,69 +421,150 @@ namespace DotNetCommander
             conflicts.Add(new FileOperationConflict(sourceFile, targetFile));
         }
 
-        private static FileOperationRunResult ExecutePlan(
+        private static FileOperationResult ExecutePlan(
             FileOperationPlan plan,
-            bool overwriteExistingFiles,
             IProgress<FileOperationProgressInfo> progress,
+            Func<FileOperationFailure, FileOperationFailureAction> failureHandler,
             CancellationToken cancellationToken)
         {
             Stopwatch stopwatch = Stopwatch.StartNew();
             long completedBytes = 0;
             int completedEntries = 0;
+            int skippedEntries = plan.SkippedEntries;
+            int failedEntries = 0;
+            FileOperationResult result = new FileOperationResult
+            {
+                TotalEntries = plan.TotalEntries + plan.SkippedEntries,
+                SkippedEntries = plan.SkippedEntries
+            };
 
-            Report(progress, FileOperationPhase.Running, null, completedEntries, plan.TotalEntries, completedBytes, plan.TotalBytes, stopwatch.Elapsed);
+            Report(progress, FileOperationPhase.Running, null, completedEntries + skippedEntries, result.TotalEntries, completedBytes, plan.TotalBytes, stopwatch.Elapsed);
 
             foreach (FileOperationEntry entry in plan.Entries)
             {
                 if (cancellationToken.IsCancellationRequested)
-                    return FileOperationRunResult.Cancelled;
+                    return FinishResult(result, FileOperationRunResult.Cancelled, completedEntries, skippedEntries, failedEntries, completedBytes, stopwatch.Elapsed);
 
-                switch (entry.Action)
+                int attempt = 1;
+                while (true)
                 {
-                    case FileOperationAction.CreateDirectory:
-                        FileSystemService.CreateDirectory(entry.DestinationPath);
-                        completedEntries++;
-                        Report(progress, FileOperationPhase.Running, entry.DestinationPath, completedEntries, plan.TotalEntries, completedBytes, plan.TotalBytes, stopwatch.Elapsed);
-                        break;
-                    case FileOperationAction.CopyFile:
-                        if (!CopyFile(entry, progress, stopwatch, ref completedEntries, plan.TotalEntries, ref completedBytes, plan.TotalBytes, cancellationToken))
-                            return FileOperationRunResult.Cancelled;
-                        break;
-                    case FileOperationAction.MoveFile:
-                        FileSystemService.EnsureParentDirectory(entry.DestinationPath);
-                        FileSystemService.MoveFile(entry.SourcePath, entry.DestinationPath);
-                        completedBytes += entry.SizeBytes;
-                        completedEntries++;
-                        Report(progress, FileOperationPhase.Running, entry.SourcePath, completedEntries, plan.TotalEntries, completedBytes, plan.TotalBytes, stopwatch.Elapsed);
-                        break;
-                    case FileOperationAction.MoveDirectory:
-                        FileSystemService.EnsureParentDirectory(entry.DestinationPath);
-                        FileSystemService.MoveDirectory(entry.SourcePath, entry.DestinationPath);
-                        completedBytes += entry.SizeBytes;
-                        completedEntries++;
-                        Report(progress, FileOperationPhase.Running, entry.SourcePath, completedEntries, plan.TotalEntries, completedBytes, plan.TotalBytes, stopwatch.Elapsed);
-                        break;
-                    case FileOperationAction.DeleteFile:
-                        if (FileSystemService.FileExists(entry.SourcePath))
+                    try
+                    {
+                        if (!ExecuteEntry(entry, progress, stopwatch, ref completedEntries, skippedEntries + failedEntries, result.TotalEntries, ref completedBytes, plan.TotalBytes, cancellationToken))
                         {
-                            FileSystemService.DeleteFile(entry.SourcePath);
+                            return FinishResult(result, FileOperationRunResult.Cancelled, completedEntries, skippedEntries, failedEntries, completedBytes, stopwatch.Elapsed);
                         }
-                        completedBytes += entry.SizeBytes;
-                        completedEntries++;
-                        Report(progress, FileOperationPhase.Running, entry.SourcePath, completedEntries, plan.TotalEntries, completedBytes, plan.TotalBytes, stopwatch.Elapsed);
                         break;
-                    case FileOperationAction.DeleteDirectory:
-                        if (FileSystemService.DirectoryExists(entry.SourcePath))
+                    }
+                    catch (Exception ex) when (!(ex is OperationCanceledException))
+                    {
+                        FileOperationFailure failure = new FileOperationFailure(entry.SourcePath, entry.DestinationPath, ex, attempt);
+                        LogService.LogException(
+                            "FileOperationService." + entry.Action + " [" + (entry.SourcePath ?? entry.DestinationPath) + "]",
+                            ex);
+                        FileOperationFailureAction action = failureHandler?.Invoke(failure) ?? FileOperationFailureAction.Skip;
+                        if (action == FileOperationFailureAction.Retry)
                         {
-                            FileSystemService.DeleteDirectory(entry.SourcePath, false);
+                            attempt++;
+                            continue;
                         }
-                        completedEntries++;
-                        Report(progress, FileOperationPhase.Running, entry.SourcePath, completedEntries, plan.TotalEntries, completedBytes, plan.TotalBytes, stopwatch.Elapsed);
+
+                        result.Failures.Add(failure);
+                        failedEntries++;
+                        Report(progress, FileOperationPhase.Running, entry.SourcePath, completedEntries + skippedEntries + failedEntries, result.TotalEntries, completedBytes, plan.TotalBytes, stopwatch.Elapsed);
+                        if (action == FileOperationFailureAction.Cancel)
+                            return FinishResult(result, FileOperationRunResult.Cancelled, completedEntries, skippedEntries, failedEntries, completedBytes, stopwatch.Elapsed);
                         break;
+                    }
                 }
             }
 
-            return FileOperationRunResult.Completed;
+            FileOperationRunResult runResult = failedEntries > 0
+                ? FileOperationRunResult.CompletedWithErrors
+                : FileOperationRunResult.Completed;
+            return FinishResult(result, runResult, completedEntries, skippedEntries, failedEntries, completedBytes, stopwatch.Elapsed);
+        }
+
+        private static bool ExecuteEntry(
+            FileOperationEntry entry,
+            IProgress<FileOperationProgressInfo> progress,
+            Stopwatch stopwatch,
+            ref int completedEntries,
+            int progressEntryOffset,
+            int totalEntries,
+            ref long completedBytes,
+            long totalBytes,
+            CancellationToken cancellationToken)
+        {
+            switch (entry.Action)
+            {
+                case FileOperationAction.CreateDirectory:
+                    FileSystemService.CreateDirectory(entry.DestinationPath);
+                    break;
+                case FileOperationAction.CopyFile:
+                    if (!entry.CopyCommitted)
+                    {
+                        if (!CopyFile(entry, progress, stopwatch, ref completedEntries, progressEntryOffset, totalEntries, ref completedBytes, totalBytes, cancellationToken))
+                            return false;
+                    }
+                    if (entry.DeleteSourceAfterCopy)
+                    {
+                        if (FileSystemService.FileExists(entry.SourcePath))
+                            FileSystemService.DeleteFile(entry.SourcePath);
+                        completedEntries++;
+                        Report(progress, FileOperationPhase.Running, entry.SourcePath, completedEntries + progressEntryOffset, totalEntries, completedBytes, totalBytes, stopwatch.Elapsed);
+                    }
+                    return true;
+                case FileOperationAction.MoveFile:
+                    FileSystemService.EnsureParentDirectory(entry.DestinationPath);
+                    FileSystemService.MoveFile(entry.SourcePath, entry.DestinationPath);
+                    completedBytes += entry.SizeBytes;
+                    break;
+                case FileOperationAction.MoveDirectory:
+                    FileSystemService.EnsureParentDirectory(entry.DestinationPath);
+                    FileSystemService.MoveDirectory(entry.SourcePath, entry.DestinationPath);
+                    completedBytes += entry.SizeBytes;
+                    break;
+                case FileOperationAction.DeleteFile:
+                    if (FileSystemService.FileExists(entry.SourcePath))
+                        FileSystemService.DeleteFile(entry.SourcePath);
+                    completedBytes += entry.SizeBytes;
+                    break;
+                case FileOperationAction.DeleteDirectory:
+                    if (FileSystemService.DirectoryExists(entry.SourcePath))
+                        FileSystemService.DeleteDirectory(entry.SourcePath, false);
+                    break;
+                case FileOperationAction.DeleteDirectoryIfEmpty:
+                    if (FileSystemService.DirectoryExists(entry.SourcePath)
+                        && !FileSystemService.EnumerateFiles(entry.SourcePath, "*", SearchOption.TopDirectoryOnly).Any()
+                        && !FileSystemService.EnumerateDirectories(entry.SourcePath, "*", SearchOption.TopDirectoryOnly).Any())
+                    {
+                        FileSystemService.DeleteDirectory(entry.SourcePath, false);
+                    }
+                    break;
+            }
+
+            completedEntries++;
+            Report(progress, FileOperationPhase.Running, entry.SourcePath ?? entry.DestinationPath, completedEntries + progressEntryOffset, totalEntries, completedBytes, totalBytes, stopwatch.Elapsed);
+            return true;
+        }
+
+        private static FileOperationResult FinishResult(
+            FileOperationResult result,
+            FileOperationRunResult runResult,
+            int completedEntries,
+            int skippedEntries,
+            int failedEntries,
+            long completedBytes,
+            TimeSpan elapsed)
+        {
+            result.RunResult = runResult;
+            result.CompletedEntries = completedEntries;
+            result.SkippedEntries = skippedEntries;
+            result.FailedEntries = failedEntries;
+            result.CompletedBytes = completedBytes;
+            result.Elapsed = elapsed;
+            return result;
         }
 
         private static bool CopyFile(
@@ -440,30 +572,58 @@ namespace DotNetCommander
             IProgress<FileOperationProgressInfo> progress,
             Stopwatch stopwatch,
             ref int completedEntries,
+            int progressEntryOffset,
             int totalEntries,
             ref long completedBytes,
             long totalBytes,
             CancellationToken cancellationToken)
         {
             FileSystemService.EnsureParentDirectory(entry.DestinationPath);
-
-            using FileStream sourceStream = FileSystemService.OpenRead(entry.SourcePath);
-            using FileStream destinationStream = FileSystemService.OpenWrite(entry.DestinationPath, entry.AllowOverwrite);
-
-            byte[] buffer = new byte[BufferSize];
-            int bytesRead;
-            while ((bytesRead = sourceStream.Read(buffer, 0, buffer.Length)) > 0)
+            string temporaryPath = entry.DestinationPath + ".dncmd-" + Guid.NewGuid().ToString("N") + ".tmp";
+            long bytesWrittenThisAttempt = 0;
+            try
             {
-                if (cancellationToken.IsCancellationRequested)
-                    return false;
-                destinationStream.Write(buffer, 0, bytesRead);
-                completedBytes += bytesRead;
-                Report(progress, FileOperationPhase.Running, entry.SourcePath, completedEntries, totalEntries, completedBytes, totalBytes, stopwatch.Elapsed);
-            }
+                using (FileStream sourceStream = FileSystemService.OpenRead(entry.SourcePath))
+                using (FileStream destinationStream = FileSystemService.OpenWrite(temporaryPath, false))
+                {
+                    byte[] buffer = new byte[BufferSize];
+                    int bytesRead;
+                    while ((bytesRead = sourceStream.Read(buffer, 0, buffer.Length)) > 0)
+                    {
+                        if (cancellationToken.IsCancellationRequested)
+                            return false;
+                        destinationStream.Write(buffer, 0, bytesRead);
+                        bytesWrittenThisAttempt += bytesRead;
+                        Report(progress, FileOperationPhase.Running, entry.SourcePath, completedEntries + progressEntryOffset, totalEntries, completedBytes + bytesWrittenThisAttempt, totalBytes, stopwatch.Elapsed);
+                    }
 
-            completedEntries++;
-            Report(progress, FileOperationPhase.Running, entry.SourcePath, completedEntries, totalEntries, completedBytes, totalBytes, stopwatch.Elapsed);
-            return true;
+                    destinationStream.Flush(true);
+                }
+
+                FileSystemService.CommitTemporaryFile(temporaryPath, entry.DestinationPath, entry.AllowOverwrite);
+                completedBytes += bytesWrittenThisAttempt;
+                entry.CopyCommitted = true;
+                if (!entry.DeleteSourceAfterCopy)
+                {
+                    completedEntries++;
+                    Report(progress, FileOperationPhase.Running, entry.SourcePath, completedEntries + progressEntryOffset, totalEntries, completedBytes, totalBytes, stopwatch.Elapsed);
+                }
+                return true;
+            }
+            finally
+            {
+                if (FileSystemService.FileExists(temporaryPath))
+                {
+                    try
+                    {
+                        FileSystemService.DeleteFile(temporaryPath);
+                    }
+                    catch
+                    {
+                        // The original failure is more useful than a temporary-file cleanup failure.
+                    }
+                }
+            }
         }
 
         private static void Report(
@@ -532,6 +692,7 @@ namespace DotNetCommander
             public List<FileOperationEntry> Entries { get; } = new List<FileOperationEntry>();
             public int TotalEntries { get; private set; }
             public long TotalBytes { get; private set; }
+            public int SkippedEntries { get; private set; }
 
             public void Add(FileOperationEntry entry)
             {
@@ -539,17 +700,23 @@ namespace DotNetCommander
                 TotalEntries++;
                 TotalBytes += entry.SizeBytes;
             }
+
+            public void MarkSkipped()
+            {
+                SkippedEntries++;
+            }
         }
 
         private sealed class FileOperationEntry
         {
-            public FileOperationEntry(FileOperationAction action, string sourcePath, string destinationPath, long sizeBytes, bool allowOverwrite = false)
+            public FileOperationEntry(FileOperationAction action, string sourcePath, string destinationPath, long sizeBytes, bool allowOverwrite = false, bool deleteSourceAfterCopy = false)
             {
                 Action = action;
                 SourcePath = sourcePath;
                 DestinationPath = destinationPath;
                 SizeBytes = sizeBytes;
                 AllowOverwrite = allowOverwrite;
+                DeleteSourceAfterCopy = deleteSourceAfterCopy;
             }
 
             public FileOperationAction Action { get; }
@@ -557,6 +724,8 @@ namespace DotNetCommander
             public string DestinationPath { get; }
             public long SizeBytes { get; }
             public bool AllowOverwrite { get; }
+            public bool DeleteSourceAfterCopy { get; }
+            public bool CopyCommitted { get; set; }
         }
 
         private enum FileOperationAction
@@ -566,7 +735,8 @@ namespace DotNetCommander
             MoveFile,
             MoveDirectory,
             DeleteFile,
-            DeleteDirectory
+            DeleteDirectory,
+            DeleteDirectoryIfEmpty
         }
     }
 }

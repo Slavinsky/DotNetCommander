@@ -289,6 +289,18 @@ namespace DotNetCommander.Properties {
 
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool OpenCreatedFolderAfterCreate {
+            get {
+                return ((bool)(this["OpenCreatedFolderAfterCreate"]));
+            }
+            set {
+                this["OpenCreatedFolderAfterCreate"] = value;
+            }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("Segoe UI")]
         public string RtfEditorFontName {
             get {

@@ -36,20 +36,53 @@ namespace DotNetCommander
         public List<GedcomPersonEntry> Children { get; } = new List<GedcomPersonEntry>();
     }
 
+    internal sealed class GedcomFieldEntry
+    {
+        public int Level { get; set; }
+        public string Xref { get; set; }
+        public string Tag { get; set; }
+        public string Value { get; set; }
+    }
+
+    internal sealed class GedcomRecordEntry
+    {
+        public string Id { get; set; }
+        public string Tag { get; set; }
+        public string Value { get; set; }
+        public List<GedcomFieldEntry> Fields { get; } = new List<GedcomFieldEntry>();
+    }
+
+    internal sealed class GedcomCatalog
+    {
+        public IReadOnlyList<GedcomPersonEntry> People { get; set; }
+        public IReadOnlyList<GedcomFamilyEntry> Families { get; set; }
+        public IReadOnlyList<GedcomRecordEntry> Records { get; set; }
+    }
+
     internal static class GedcomCatalogService
     {
-        public static Task<IReadOnlyList<GedcomPersonEntry>> ReadPeopleAsync(string filePath, CancellationToken cancellationToken)
+        public static Task<GedcomCatalog> ReadAsync(string filePath, CancellationToken cancellationToken)
         {
-            return Task.Run<IReadOnlyList<GedcomPersonEntry>>(() => ReadPeople(filePath, cancellationToken), cancellationToken);
+            return Task.Run(() => ReadCatalog(filePath, cancellationToken), cancellationToken);
         }
 
-        private static IReadOnlyList<GedcomPersonEntry> ReadPeople(string filePath, CancellationToken cancellationToken)
+        public static Task<IReadOnlyList<GedcomPersonEntry>> ReadPeopleAsync(string filePath, CancellationToken cancellationToken)
+        {
+            return Task.Run<IReadOnlyList<GedcomPersonEntry>>(
+                () => ReadCatalog(filePath, cancellationToken).People,
+                cancellationToken);
+        }
+
+        private static GedcomCatalog ReadCatalog(string filePath, CancellationToken cancellationToken)
         {
             var people = new List<GedcomPersonEntry>();
             var peopleById = new Dictionary<string, GedcomPersonEntry>(StringComparer.OrdinalIgnoreCase);
-            var families = new Dictionary<string, GedcomFamilyEntry>(StringComparer.OrdinalIgnoreCase);
+            var familyList = new List<GedcomFamilyEntry>();
+            var familiesById = new Dictionary<string, GedcomFamilyEntry>(StringComparer.OrdinalIgnoreCase);
+            var records = new List<GedcomRecordEntry>();
             GedcomPersonEntry current = null;
             GedcomFamilyEntry currentFamily = null;
+            GedcomRecordEntry currentRecord = null;
             string levelOneTag = string.Empty;
             bool useCurrentNameRecord = false;
 
@@ -67,6 +100,13 @@ namespace DotNetCommander
                 {
                     current = null;
                     currentFamily = null;
+                    currentRecord = new GedcomRecordEntry
+                    {
+                        Id = xref,
+                        Tag = tag,
+                        Value = value
+                    };
+                    records.Add(currentRecord);
                     if (string.Equals(tag, "INDI", StringComparison.OrdinalIgnoreCase) && !string.IsNullOrWhiteSpace(xref))
                     {
                         current = new GedcomPersonEntry { Id = xref };
@@ -74,7 +114,8 @@ namespace DotNetCommander
                     else if (string.Equals(tag, "FAM", StringComparison.OrdinalIgnoreCase) && !string.IsNullOrWhiteSpace(xref))
                     {
                         currentFamily = new GedcomFamilyEntry { Id = xref };
-                        families[xref] = currentFamily;
+                        familyList.Add(currentFamily);
+                        familiesById[xref] = currentFamily;
                     }
                     if (current != null)
                     {
@@ -86,6 +127,14 @@ namespace DotNetCommander
                     useCurrentNameRecord = false;
                     continue;
                 }
+
+                currentRecord?.Fields.Add(new GedcomFieldEntry
+                {
+                    Level = level,
+                    Xref = xref,
+                    Tag = tag,
+                    Value = value
+                });
 
                 if (currentFamily != null)
                 {
@@ -176,7 +225,7 @@ namespace DotNetCommander
                 }
             }
 
-            foreach (GedcomFamilyEntry family in families.Values)
+            foreach (GedcomFamilyEntry family in familyList)
             {
                 if (!string.IsNullOrWhiteSpace(family.HusbandId) && peopleById.TryGetValue(family.HusbandId, out GedcomPersonEntry husband))
                 {
@@ -199,21 +248,26 @@ namespace DotNetCommander
             {
                 foreach (string familyId in person.FamilyAsChildIds)
                 {
-                    if (families.TryGetValue(familyId, out GedcomFamilyEntry family))
+                    if (familiesById.TryGetValue(familyId, out GedcomFamilyEntry family))
                     {
                         person.FamiliesAsChild.Add(family);
                     }
                 }
                 foreach (string familyId in person.FamilyAsSpouseIds)
                 {
-                    if (families.TryGetValue(familyId, out GedcomFamilyEntry family))
+                    if (familiesById.TryGetValue(familyId, out GedcomFamilyEntry family))
                     {
                         person.FamiliesAsSpouse.Add(family);
                     }
                 }
             }
 
-            return people;
+            return new GedcomCatalog
+            {
+                People = people,
+                Families = familyList,
+                Records = records
+            };
         }
 
         private static bool TryParseLine(string line, out int level, out string xref, out string tag, out string value)

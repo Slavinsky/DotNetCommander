@@ -317,7 +317,7 @@
     <value>Aktives Panel aktualisieren</value>
   </data>
   <data name="helpOpenArchiveBySignature" xml:space="preserve">
-    <value>Archiv anhand der Dateisignatur oder GEDCOM-Ansicht öffnen</value>
+    <value>Archiv anhand der Signatur, GEDCOM-Ansicht oder DataSet-XML unabhängig von der Erweiterung öffnen</value>
   </data>
   <data name="helpHistoryBack" xml:space="preserve">
     <value>Zum vorherigen Panel-Speicherort zurückkehren</value>
@@ -769,7 +769,38 @@
   <data name="archiveFolderType" xml:space="preserve"><value>Ordner</value></data>
   <data name="archivePanelReadOnly" xml:space="preserve"><value>Die Archivansicht ist schreibgeschützt. Kopieren Sie Einträge vor Änderungen in die andere Dateiansicht.</value></data>
   <data name="archiveCopyRequiresFilePanel" xml:space="preserve"><value>Wählen Sie eine normale Dateisystemansicht als Kopierziel.</value></data>
-  <data name="gedcomReadingCatalog" xml:space="preserve"><value>GEDCOM-Personen werden gelesen...</value></data>
+  <data name="gedcomReadingCatalog" xml:space="preserve"><value>GEDCOM-Katalog wird gelesen...</value></data>
+  <data name="gedcomPersons" xml:space="preserve"><value>Personen</value></data>
+  <data name="gedcomFamilies" xml:space="preserve"><value>Familien</value></data>
+  <data name="gedcomNotes" xml:space="preserve"><value>Notizen</value></data>
+  <data name="gedcomObject" xml:space="preserve"><value>Objekt</value></data>
+  <data name="gedcomTag" xml:space="preserve"><value>Tag</value></data>
+  <data name="gedcomCount" xml:space="preserve"><value>Anzahl</value></data>
+  <data name="gedcomDescription" xml:space="preserve"><value>Beschreibung</value></data>
+  <data name="gedcomLevelZeroDescription" xml:space="preserve"><value>GEDCOM-Datensätze der Ebene 0</value></data>
+  <data name="gedcomFirstName" xml:space="preserve"><value>Vorname</value></data>
+  <data name="gedcomLastName" xml:space="preserve"><value>Nachname</value></data>
+  <data name="gedcomAge" xml:space="preserve"><value>Alter</value></data>
+  <data name="gedcomBirthDate" xml:space="preserve"><value>Geburtsdatum</value></data>
+  <data name="gedcomIdentifier" xml:space="preserve"><value>Kennung</value></data>
+  <data name="gedcomHusband" xml:space="preserve"><value>Ehemann</value></data>
+  <data name="gedcomWife" xml:space="preserve"><value>Ehefrau</value></data>
+  <data name="gedcomChildren" xml:space="preserve"><value>Kinder</value></data>
+  <data name="gedcomFamily" xml:space="preserve"><value>Familie</value></data>
+  <data name="gedcomSummary" xml:space="preserve"><value>Zusammenfassung</value></data>
+  <data name="gedcomFields" xml:space="preserve"><value>Felder</value></data>
+  <data name="rawView" xml:space="preserve"><value>RAW-/Hex-Ansicht</value></data>
+  <data name="rawFirst" xml:space="preserve"><value>Erster Block</value></data>
+  <data name="rawPrevious" xml:space="preserve"><value>Vorheriger Block</value></data>
+  <data name="rawNext" xml:space="preserve"><value>Nächster Block</value></data>
+  <data name="rawLast" xml:space="preserve"><value>Letzter Block</value></data>
+  <data name="rawOffset" xml:space="preserve"><value>Offset</value></data>
+  <data name="rawOffsetHint" xml:space="preserve"><value>Hexadezimalen Datei-Offset eingeben</value></data>
+  <data name="rawGo" xml:space="preserve"><value>Gehe zu</value></data>
+  <data name="rawInvalidOffset" xml:space="preserve"><value>Geben Sie einen gültigen hexadezimalen Offset ein.</value></data>
+  <data name="rawFileNotFound" xml:space="preserve"><value>Die Datei wurde nicht gefunden.</value></data>
+  <data name="rawStatusFormat" xml:space="preserve"><value>Offsets 0x{0:X}–0x{1:X} von {2:N0} Bytes | {3:N0} Bytes geladen</value></data>
+  <data name="rawHelp" xml:space="preserve"><value>PageUp/PageDown — vorheriger/nächster Block; Strg+Pos1/Strg+Ende — erster/letzter Block; Strg+G — zum hexadezimalen Offset; F5 — neu laden; Strg+C — Auswahl kopieren; Esc — schließen.</value></data>
   <data name="virtualPanelReadOnly" xml:space="preserve"><value>Diese virtuelle Ansicht ist schreibgeschützt.</value></data>
   <data name="quickViewGedcomSelectPerson" xml:space="preserve"><value>Wählen Sie eine Person aus, um den Familiengraphen anzuzeigen.</value></data>
   <data name="commandLineToolTip" xml:space="preserve"><value>Programm oder Befehl mit Parametern eingeben. Eingabe führt ihn aus; Umschalt+Eingabe lässt die Konsole geöffnet; Pfeil hoch/runter durchsucht den Verlauf; Strg+L fokussiert dieses Feld; Strg+Eingabe fügt den Namen des aktuellen Elements ein.</value></data>
@@ -777,4 +808,43 @@
   <data name="helpFocusCommandLine" xml:space="preserve"><value>Befehlszeile fokussieren</value></data>
   <data name="helpPersistentConsole" xml:space="preserve"><value>Ausgewähltes Skript/Programm oder eingegebenen Befehl in einer geöffnet bleibenden Konsole starten</value></data>
   <data name="helpCopyNameToCommandLine" xml:space="preserve"><value>Namen des aktuellen Elements in die Befehlszeile einfügen</value></data>
+  <data name="settingsOpenCreatedFolder" xml:space="preserve"><value>Neu erstellten Ordner standardmäßig öffnen</value></data>
+  <data name="operationFailureTitle" xml:space="preserve"><value>Problem bei der Dateioperation</value></data>
+  <data name="operationFailurePrompt" xml:space="preserve"><value>Element konnte nicht verarbeitet werden:
+{0}
+
+{1}
+
+Versuch: {2}
+
+Element erneut versuchen, ignorieren und fortfahren oder Vorgang abbrechen?</value></data>
+  <data name="operationSummaryTitle" xml:space="preserve"><value>Vorgangszusammenfassung</value></data>
+  <data name="operationSummaryCompleted" xml:space="preserve"><value>Der Vorgang wurde abgeschlossen.</value></data>
+  <data name="operationSummaryCancelled" xml:space="preserve"><value>Der Vorgang wurde abgebrochen. Abgeschlossene Änderungen bleiben erhalten.</value></data>
+  <data name="operationSummaryCounts" xml:space="preserve"><value>Abgeschlossen: {0}    Übersprungen: {1}    Fehler: {2}</value></data>
+  <data name="operationSummaryDuration" xml:space="preserve"><value>Dauer: {0}</value></data>
+  <data name="operationSummaryErrors" xml:space="preserve"><value>Letzte Fehler:</value></data>
+  <data name="operationSummaryMoreErrors" xml:space="preserve"><value>…und {0} weitere.</value></data>
+  <data name="helpSwitchPanel" xml:space="preserve"><value>Benachbartes Dateifenster aktivieren</value></data>
+  <data name="dataSetReading" xml:space="preserve"><value>DataSet-Schema und Daten werden gelesen...</value></data>
+  <data name="dataSetOpenFailed" xml:space="preserve"><value>Die DataSet-Datei konnte nicht geöffnet werden.</value></data>
+  <data name="dataSetObject" xml:space="preserve"><value>Objekt</value></data>
+  <data name="dataSetCount" xml:space="preserve"><value>Anzahl</value></data>
+  <data name="dataSetDescription" xml:space="preserve"><value>Beschreibung</value></data>
+  <data name="dataSetTables" xml:space="preserve"><value>Tabellen</value></data>
+  <data name="dataSetRelations" xml:space="preserve"><value>Relationen</value></data>
+  <data name="dataSetTablesDescription" xml:space="preserve"><value>Datentabellen und ihre Zeilen</value></data>
+  <data name="dataSetRelationsDescription" xml:space="preserve"><value>Im Schema definierte Eltern-Kind-Relationen</value></data>
+  <data name="dataSetTable" xml:space="preserve"><value>Tabelle</value></data>
+  <data name="dataSetRows" xml:space="preserve"><value>Zeilen</value></data>
+  <data name="dataSetColumns" xml:space="preserve"><value>Spalten</value></data>
+  <data name="dataSetRelation" xml:space="preserve"><value>Relation</value></data>
+  <data name="dataSetParentTable" xml:space="preserve"><value>Elterntabelle</value></data>
+  <data name="dataSetChildTable" xml:space="preserve"><value>Kindtabelle</value></data>
+  <data name="dataSetProperty" xml:space="preserve"><value>Eigenschaft</value></data>
+  <data name="dataSetValue" xml:space="preserve"><value>Wert</value></data>
+  <data name="dataSetParentColumns" xml:space="preserve"><value>Elternspalten</value></data>
+  <data name="dataSetChildColumns" xml:space="preserve"><value>Kindspalten</value></data>
+  <data name="dataSetNested" xml:space="preserve"><value>Verschachtelt</value></data>
+  <data name="dataSetRowFormat" xml:space="preserve"><value>Zeile {0}</value></data>
 </root>

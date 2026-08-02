@@ -32,7 +32,7 @@ namespace DotNetCommander
             ".txt", ".md", ".markdown", ".log", ".cfg", ".conf", ".ini", ".json", ".jsonl", ".xml",
             ".cs", ".csproj", ".sln", ".cpp", ".h", ".hpp", ".java", ".py", ".sql", ".yaml", ".yml",".config",
             ".bat", ".cmd", ".ps1", ".psm1", ".sh", ".html", ".htm", ".css", ".js", ".ts", ".tsx",
-            ".jsx", ".resx", ".props", ".targets", ".csv", ".ged"
+            ".jsx", ".resx", ".props", ".targets", ".csv", ".ged", ".dsx"
         };
 
         private static readonly HashSet<string> CsvExtensions = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
@@ -43,6 +43,13 @@ namespace DotNetCommander
         public static bool IsSupportedArchive(string path)
         {
             return TryGetArchiveFormatByExtension(path, out _);
+        }
+
+        public static bool IsDataSetFile(string path)
+        {
+            return !string.IsNullOrWhiteSpace(path)
+                && File.Exists(path)
+                && string.Equals(Path.GetExtension(path), ".dsx", StringComparison.OrdinalIgnoreCase);
         }
 
         public static bool TryGetArchiveFormatByExtension(string path, out ArchiveFormat format)
@@ -137,7 +144,14 @@ namespace DotNetCommander
             }
 
             string extension = Path.GetExtension(path) ?? string.Empty;
-            return ClassifyExtension(extension);
+            FileContentKind extensionKind = ClassifyExtension(extension);
+            if ((extensionKind == FileContentKind.Binary || extensionKind == FileContentKind.Unknown) &&
+                HasXmlDeclaration(path))
+            {
+                return FileContentKind.Text;
+            }
+
+            return extensionKind;
         }
 
         public static FileContentKind ClassifyExtension(string extension)
@@ -234,6 +248,111 @@ namespace DotNetCommander
             }
 
             return totalRead;
+        }
+
+        private static bool HasXmlDeclaration(string path)
+        {
+            try
+            {
+                using var stream = new FileStream(
+                    path,
+                    FileMode.Open,
+                    FileAccess.Read,
+                    FileShare.ReadWrite | FileShare.Delete,
+                    4096,
+                    FileOptions.SequentialScan);
+                byte[] header = new byte[96];
+                int length = ReadPrefix(stream, header);
+                if (length == 0)
+                    return false;
+
+                int offset = 0;
+                if (length >= 3 && header[0] == 0xEF && header[1] == 0xBB && header[2] == 0xBF)
+                {
+                    offset = 3;
+                }
+                else if (length >= 4 && header[0] == 0xFF && header[1] == 0xFE && header[2] == 0x00 && header[3] == 0x00)
+                {
+                    return MatchesEncodedXmlDeclaration(header, 4, length, 4, littleEndian: true);
+                }
+                else if (length >= 4 && header[0] == 0x00 && header[1] == 0x00 && header[2] == 0xFE && header[3] == 0xFF)
+                {
+                    return MatchesEncodedXmlDeclaration(header, 4, length, 4, littleEndian: false);
+                }
+                else if (length >= 2 && header[0] == 0xFF && header[1] == 0xFE)
+                {
+                    return MatchesEncodedXmlDeclaration(header, 2, length, 2, littleEndian: true);
+                }
+                else if (length >= 2 && header[0] == 0xFE && header[1] == 0xFF)
+                {
+                    return MatchesEncodedXmlDeclaration(header, 2, length, 2, littleEndian: false);
+                }
+
+                while (offset < length &&
+                    (header[offset] == (byte)' ' ||
+                     header[offset] == (byte)'\t' ||
+                     header[offset] == (byte)'\r' ||
+                     header[offset] == (byte)'\n'))
+                {
+                    offset++;
+                }
+
+                if (MatchesAsciiXmlDeclaration(header, offset, length))
+                    return true;
+                if (length >= 10 && header[0] == (byte)'<' && header[1] == 0)
+                    return MatchesEncodedXmlDeclaration(header, 0, length, 2, littleEndian: true);
+                if (length >= 10 && header[0] == 0 && header[1] == (byte)'<')
+                    return MatchesEncodedXmlDeclaration(header, 0, length, 2, littleEndian: false);
+                return false;
+            }
+            catch (Exception ex) when (ex is IOException || ex is UnauthorizedAccessException)
+            {
+                return false;
+            }
+        }
+
+        private static bool MatchesAsciiXmlDeclaration(byte[] bytes, int offset, int length)
+        {
+            byte[] signature = { (byte)'<', (byte)'?', (byte)'x', (byte)'m', (byte)'l' };
+            if (offset < 0 || offset + signature.Length > length)
+                return false;
+            for (int index = 0; index < signature.Length; index++)
+            {
+                if (bytes[offset + index] != signature[index])
+                    return false;
+            }
+            return true;
+        }
+
+        private static bool MatchesEncodedXmlDeclaration(
+            byte[] bytes,
+            int offset,
+            int length,
+            int bytesPerCharacter,
+            bool littleEndian)
+        {
+            byte[] signature = { (byte)'<', (byte)'?', (byte)'x', (byte)'m', (byte)'l' };
+            if (offset < 0 || offset + signature.Length * bytesPerCharacter > length)
+                return false;
+
+            for (int index = 0; index < signature.Length; index++)
+            {
+                int characterOffset = offset + index * bytesPerCharacter;
+                int valueOffset = littleEndian
+                    ? characterOffset
+                    : characterOffset + bytesPerCharacter - 1;
+                if (bytes[valueOffset] != signature[index])
+                    return false;
+                for (int byteIndex = 0; byteIndex < bytesPerCharacter; byteIndex++)
+                {
+                    if (characterOffset + byteIndex != valueOffset &&
+                        bytes[characterOffset + byteIndex] != 0)
+                    {
+                        return false;
+                    }
+                }
+            }
+            return true;
         }
 
         private static bool IsZipSignature(byte[] header, int length)

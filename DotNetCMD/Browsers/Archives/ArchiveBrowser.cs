@@ -80,6 +80,11 @@ namespace DotNetCommander
         public event EventHandler LeaveArchiveRequested;
         public event EventHandler NavigateBackRequested;
 
+        internal void FocusItems()
+        {
+            archiveView.Focus();
+        }
+
         public string ArchivePath { get; private set; }
         public string InternalPath => internalPath;
         public override string DisplayLocation => string.IsNullOrWhiteSpace(ArchivePath)
@@ -301,7 +306,7 @@ namespace DotNetCommander
                 e.Handled = true;
                 e.SuppressKeyPress = true;
             }
-            else if (e.KeyCode == Keys.Up && e.Alt)
+            else if (e.KeyCode == Keys.PageUp && e.Control)
             {
                 NavigateParent();
                 e.Handled = true;

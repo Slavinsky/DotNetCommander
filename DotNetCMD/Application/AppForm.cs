@@ -25,6 +25,7 @@ namespace DotNetCommander
         private QuickViewControl quickViewControl;
         private int quickViewGeneration;
         private bool quickViewEnabled;
+        private ToolStripLabel functionModifierLabel;
         private ToolStripButton quickViewButton;
         private ToolStripButton viewButton;
         private ToolStripButton editButton;
@@ -33,7 +34,6 @@ namespace DotNetCommander
         private ToolStripButton newFolderButton;
         private ToolStripButton deleteButton;
         private readonly ModifierKeyMessageFilter modifierKeyMessageFilter;
-        private Keys lastDisplayedModifiers = Keys.None;
         private readonly List<string> commandHistory = new List<string>();
         private int commandHistoryIndex;
         private string commandHistoryDraft = string.Empty;
@@ -42,17 +42,29 @@ namespace DotNetCommander
         public AppForm()
         {
             InitializeComponent();
-            modifierKeyMessageFilter = new ModifierKeyMessageFilter(UpdateCommandButtonLabels);
+            modifierKeyMessageFilter = new ModifierKeyMessageFilter(UpdateCommandButtonLabels, TryHandlePanelSwitchMessage);
             browserDrivePaths[fileBrowserLeft] = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
             browserDrivePaths[fileBrowserRight] = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
             RestoreRememberedDrivePaths();
 
             fileBrowserLeft.SelectionChanged += FileBrowser_SelectionChanged;
             fileBrowserRight.SelectionChanged += FileBrowser_SelectionChanged;
+            fileBrowserLeft.AdjacentPanelRequested += FileBrowser_AdjacentPanelRequested;
+            fileBrowserRight.AdjacentPanelRequested += FileBrowser_AdjacentPanelRequested;
             fileBrowserLeft.ArchiveDeviceChanged += FileBrowser_ArchiveDeviceChanged;
             fileBrowserRight.ArchiveDeviceChanged += FileBrowser_ArchiveDeviceChanged;
 
-            quickViewButton = AddCommandButton(GetQuickViewButtonText(), Button_QuickView, true);
+            functionModifierLabel = new ToolStripLabel
+            {
+                AutoSize = false,
+                Width = 64,
+                Font = new Font("Segoe UI", 10.0f, FontStyle.Bold),
+                TextAlign = ContentAlignment.MiddleCenter
+            };
+            toolStripButtons.Items.Add(functionModifierLabel);
+            toolStripButtons.Items.Add(new ToolStripSeparator());
+
+            quickViewButton = AddCommandButton(GetQuickViewButtonText(Keys.None), Button_QuickView);
             toolStripButtons.Items.Add(new ToolStripSeparator());
 
             viewButton = AddCommandButton("F3 " + Language.getString("view"), new EventHandler(Button_View));
@@ -127,11 +139,6 @@ namespace DotNetCommander
             CreateToolsMenu(this.toolsToolStripMenuItem);
             CreateHelpMenu(this.helpToolStripMenuItem);
 
-            if (quickViewButton != null)
-            {
-                quickViewButton.Text = GetQuickViewButtonText();
-            }
-
             UpdateCommandButtonLabels(GetRelevantModifiers(Control.ModifierKeys));
             toolStripTextBoxCommand.ToolTipText = Language.getString("commandLineToolTip");
             UpdateCommandLinePrompt();
@@ -176,6 +183,9 @@ namespace DotNetCommander
             quickViewMenuItem.Checked = quickViewEnabled;
 
             parent.DropDownItems.Add(quickViewMenuItem);
+            ToolStripMenuItem rawViewMenuItem = CreateMenuItem("rawView", Button_RawView);
+            rawViewMenuItem.ShortcutKeys = Keys.Control | Keys.F3;
+            parent.DropDownItems.Add(rawViewMenuItem);
             parent.DropDownItems.Add(CreateStatusBarMenuItem());
         }
 
@@ -249,11 +259,6 @@ namespace DotNetCommander
             }
         }
 
-        private string GetQuickViewButtonText()
-        {
-            return "F2 " + Language.getString("quickView");
-        }
-
         public String ValidPath(String oldPath,String newPath)
         {
             if (newPath == null)
@@ -310,7 +315,20 @@ namespace DotNetCommander
             if (buttonCount == 0)
                 return;
 
-            int width = Math.Max(80, (this.Width / buttonCount) - 12);
+            int fixedWidth = toolStripButtons.Padding.Horizontal;
+            foreach (ToolStripItem item in toolStripButtons.Items)
+            {
+                if (item is not ToolStripButton)
+                {
+                    fixedWidth += item.Width + item.Margin.Horizontal;
+                }
+            }
+
+            int buttonMargins = toolStripButtons.Items
+                .OfType<ToolStripButton>()
+                .Sum(button => button.Margin.Horizontal);
+            int availableWidth = toolStripButtons.ClientSize.Width - fixedWidth - buttonMargins;
+            int width = Math.Max(48, availableWidth / buttonCount);
 
             foreach(Object ItemObj in toolStripButtons.Items)
             {
@@ -330,6 +348,11 @@ namespace DotNetCommander
         protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
         {
             // Обработка горячих клавиш
+            if (keyData == (Keys.Control | Keys.PageUp))
+            {
+                (lastFileBrowser ?? fileBrowserLeft).NavigateParent();
+                return true;
+            }
             if (keyData == (Keys.Control | Keys.PageDown))
             {
                 _ = (lastFileBrowser ?? fileBrowserLeft).OpenSelectedContainerAsync();
@@ -359,6 +382,11 @@ namespace DotNetCommander
             if (keyData == Keys.F3)
             {
                 Button_View(null, null);
+                return true;
+            }
+            else if (keyData == (Keys.Control | Keys.F3))
+            {
+                Button_RawView(null, null);
                 return true;
             }
             else if (keyData == (Keys.Shift | Keys.F3))
@@ -430,12 +458,95 @@ namespace DotNetCommander
             return base.ProcessCmdKey(ref msg, keyData);
         }
 
+        protected override bool ProcessDialogKey(Keys keyData)
+        {
+            if (keyData == Keys.Tab || keyData == (Keys.Shift | Keys.Tab))
+            {
+                ActivateAdjacentPanel();
+                return true;
+            }
+
+            return base.ProcessDialogKey(keyData);
+        }
+
+        private bool TryHandlePanelSwitchMessage(Message message)
+        {
+            if (message.Msg != 0x0100 || Form.ActiveForm != this)
+            {
+                return false;
+            }
+
+            Keys keyCode = (Keys)message.WParam.ToInt32() & Keys.KeyCode;
+            if (keyCode != Keys.Tab)
+            {
+                return false;
+            }
+
+            Keys modifiers = Control.ModifierKeys & (Keys.Control | Keys.Alt | Keys.Shift);
+            if (modifiers != Keys.None && modifiers != Keys.Shift)
+            {
+                return false;
+            }
+
+            Control sourceControl = Control.FromHandle(message.HWnd);
+            if (sourceControl == null || (sourceControl != this && sourceControl.FindForm() != this))
+            {
+                return false;
+            }
+
+            ActivateAdjacentPanel();
+            return true;
+        }
+
+        private void ActivateAdjacentPanel()
+        {
+            FileBrowser currentBrowser = lastFileBrowser ?? fileBrowserLeft;
+            FileBrowser targetBrowser = currentBrowser == fileBrowserRight
+                ? fileBrowserLeft
+                : fileBrowserRight;
+
+            lastFileBrowser = targetBrowser;
+            if (quickViewEnabled)
+            {
+                ConfigureQuickViewHost();
+            }
+
+            targetBrowser.ActivatePanel();
+        }
+
+        private void FileBrowser_AdjacentPanelRequested(object sender, EventArgs e)
+        {
+            if (sender is FileBrowser browser)
+            {
+                lastFileBrowser = browser;
+            }
+
+            ActivateAdjacentPanel();
+        }
+
     /*
      * Comand Buttons (e.g.: Copy, Past)
      */
     private void Button_View(object sender, EventArgs e)
     {
-        commandService.ViewSelection(lastFileBrowser, this);
+        Keys modifiers = GetRelevantModifiers(Control.ModifierKeys);
+        if (modifiers == Keys.Control)
+        {
+            Button_RawView(sender, e);
+        }
+        else if (modifiers == Keys.Shift)
+        {
+            Button_Compare(sender, e);
+        }
+        else if (modifiers == Keys.None)
+        {
+            commandService.ViewSelection(lastFileBrowser, this);
+        }
+    }
+
+    private void Button_RawView(object sender, EventArgs e)
+    {
+        commandService.ViewSelectionRaw(lastFileBrowser ?? fileBrowserLeft, this);
     }
 
     private void Button_Compare(object sender, EventArgs e)
@@ -446,24 +557,40 @@ namespace DotNetCommander
 
     private void Button_Edit(object sender, EventArgs e)
     {
-        commandService.EditSelection(lastFileBrowser, this);
+        Keys modifiers = GetRelevantModifiers(Control.ModifierKeys);
+        if (modifiers == Keys.Alt)
+        {
+            Close();
+        }
+        else if (modifiers == Keys.Shift)
+        {
+            Edit_NewFileInline(sender, e);
+        }
+        else if (modifiers == Keys.None)
+        {
+            commandService.EditSelection(lastFileBrowser, this);
+        }
     }
     private void Button_Copy(object sender, EventArgs e)
         {
             FileBrowser source = lastFileBrowser ?? fileBrowserLeft;
-            if ((Control.ModifierKeys & Keys.Alt) == Keys.Alt)
+            Keys modifiers = GetRelevantModifiers(Control.ModifierKeys);
+            if (modifiers == Keys.Alt)
             {
                 commandService.CreateArchive(source, GetPassiveBrowser(source), this);
                 return;
             }
 
-            if ((Control.ModifierKeys & Keys.Shift) == Keys.Shift)
+            if (modifiers == Keys.Shift)
             {
                 commandService.CopySelectionInPlace(source, CopyComplete, this);
                 return;
             }
 
-            commandService.CopySelection(source, GetPassiveBrowser(source), CopyComplete, this);
+            if (modifiers == Keys.None)
+            {
+                commandService.CopySelection(source, GetPassiveBrowser(source), CopyComplete, this);
+            }
         }
 
         private void Button_CreateArchive(object sender, EventArgs e)
@@ -481,23 +608,33 @@ namespace DotNetCommander
         private void Button_Move(object sender, EventArgs e)
         {
             FileBrowser source = lastFileBrowser ?? fileBrowserLeft;
-            if ((Control.ModifierKeys & Keys.Shift) == Keys.Shift)
+            Keys modifiers = GetRelevantModifiers(Control.ModifierKeys);
+            if (modifiers == Keys.Shift)
             {
                 commandService.RenameSelection(source);
                 return;
             }
 
-            commandService.MoveSelection(source, GetPassiveBrowser(source), CopyComplete, this);
+            if (modifiers == Keys.None)
+            {
+                commandService.MoveSelection(source, GetPassiveBrowser(source), CopyComplete, this);
+            }
         }
 
         private void Button_NewFolder(object sender, EventArgs e)
         {
-            commandService.CreateFolder(lastFileBrowser, this);
+            if (GetRelevantModifiers(Control.ModifierKeys) == Keys.None)
+            {
+                commandService.CreateFolder(lastFileBrowser, this);
+            }
         }
 
         private void Button_Delete(object sender, EventArgs e)
         {
-            commandService.DeleteSelection(lastFileBrowser, () => lastFileBrowser?.Refrech(), this);
+            if (GetRelevantModifiers(Control.ModifierKeys) == Keys.None)
+            {
+                commandService.DeleteSelection(lastFileBrowser, () => lastFileBrowser?.Refrech(), this);
+            }
         }
 
         private void RefreshActiveBrowser()
@@ -509,29 +646,35 @@ namespace DotNetCommander
         private void UpdateCommandButtonLabels(Keys modifiers)
         {
             Keys relevantModifiers = GetRelevantModifiers(modifiers);
-            if (relevantModifiers == lastDisplayedModifiers && editButton != null && !string.IsNullOrWhiteSpace(editButton.Text))
-            {
-                return;
-            }
 
-            lastDisplayedModifiers = relevantModifiers;
-
+            if (functionModifierLabel != null)
+                functionModifierLabel.Text = GetModifierLabelText(relevantModifiers);
             if (quickViewButton != null)
-                quickViewButton.Text = GetQuickViewButtonText();
+                SetFunctionButtonText(quickViewButton, GetQuickViewButtonText(relevantModifiers));
             if (viewButton != null)
-                viewButton.Text = GetViewButtonText(relevantModifiers);
+                SetFunctionButtonText(viewButton, GetViewButtonText(relevantModifiers));
             if (editButton != null)
-                editButton.Text = GetEditButtonText(relevantModifiers);
+                SetFunctionButtonText(editButton, GetEditButtonText(relevantModifiers));
             if (copyButton != null)
-                copyButton.Text = GetCopyButtonText(relevantModifiers);
+                SetFunctionButtonText(copyButton, GetCopyButtonText(relevantModifiers));
             if (moveButton != null)
-                moveButton.Text = GetMoveButtonText(relevantModifiers);
+                SetFunctionButtonText(moveButton, GetMoveButtonText(relevantModifiers));
             if (newFolderButton != null)
-                newFolderButton.Text = "F7 " + Language.getString("newFolder");
+                SetFunctionButtonText(
+                    newFolderButton,
+                    relevantModifiers == Keys.None ? "F7 " + Language.getString("newFolder") : string.Empty);
             if (deleteButton != null)
-                deleteButton.Text = "F8 " + Language.getString("delete");
+                SetFunctionButtonText(
+                    deleteButton,
+                    relevantModifiers == Keys.None ? "F8 " + Language.getString("delete") : string.Empty);
 
             UpdateStatusHint(relevantModifiers);
+        }
+
+        private static void SetFunctionButtonText(ToolStripButton button, string text)
+        {
+            button.Text = text;
+            button.Enabled = !string.IsNullOrWhiteSpace(text);
         }
 
         private static Keys GetRelevantModifiers(Keys modifiers)
@@ -539,62 +682,74 @@ namespace DotNetCommander
             return modifiers & (Keys.Shift | Keys.Alt | Keys.Control);
         }
 
+        private static string GetModifierLabelText(Keys modifiers)
+        {
+            List<string> names = new List<string>();
+            if ((modifiers & Keys.Control) == Keys.Control)
+                names.Add("Ctrl");
+            if ((modifiers & Keys.Alt) == Keys.Alt)
+                names.Add("Alt");
+            if ((modifiers & Keys.Shift) == Keys.Shift)
+                names.Add("Shift");
+            return string.Join("+", names);
+        }
+
+        private static string GetQuickViewButtonText(Keys modifiers)
+        {
+            return modifiers == Keys.None
+                ? "F2 " + Language.getString("quickView")
+                : string.Empty;
+        }
+
         private static string GetViewButtonText(Keys modifiers)
         {
-            if ((modifiers & Keys.Shift) == Keys.Shift)
-            {
-                return "Shift+F3 " + Language.getString("compare");
-            }
-
-            return "F3 " + Language.getString("view");
+            if (modifiers == Keys.Control)
+                return "F3 " + Language.getString("rawView");
+            if (modifiers == Keys.Shift)
+                return "F3 " + Language.getString("compare");
+            return modifiers == Keys.None
+                ? "F3 " + Language.getString("view")
+                : string.Empty;
         }
 
         private static string GetEditButtonText(Keys modifiers)
         {
-            if ((modifiers & Keys.Alt) == Keys.Alt)
-            {
-                return "Alt+F4 " + Language.getString("close");
-            }
-
-            if ((modifiers & Keys.Shift) == Keys.Shift)
-            {
-                return "Shift+F4 " + Language.getString("newFile");
-            }
-
-            return "F4 " + Language.getString("edit");
+            if (modifiers == Keys.Alt)
+                return "F4 " + Language.getString("close");
+            if (modifiers == Keys.Shift)
+                return "F4 " + Language.getString("newFile");
+            return modifiers == Keys.None
+                ? "F4 " + Language.getString("edit")
+                : string.Empty;
         }
 
         private static string GetCopyButtonText(Keys modifiers)
         {
-            if ((modifiers & Keys.Alt) == Keys.Alt)
-            {
-                return "Alt+F5 " + Language.getString("archiveCreate").TrimEnd('.');
-            }
-
-            if ((modifiers & Keys.Shift) == Keys.Shift)
-            {
-                return "Shift+F5 " + Language.getString("copy");
-            }
-
-            return "F5 " + Language.getString("copy");
+            if (modifiers == Keys.Alt)
+                return "F5 " + Language.getString("archiveCreate").TrimEnd('.');
+            if (modifiers == Keys.Shift)
+                return "F5 " + Language.getString("helpCopyInPlace");
+            return modifiers == Keys.None
+                ? "F5 " + Language.getString("copy")
+                : string.Empty;
         }
 
         private static string GetMoveButtonText(Keys modifiers)
         {
-            if ((modifiers & Keys.Shift) == Keys.Shift)
-            {
-                return "Shift+F6 " + Language.getString("rename");
-            }
-
-            return "F6 " + Language.getString("move");
+            if (modifiers == Keys.Shift)
+                return "F6 " + Language.getString("rename");
+            return modifiers == Keys.None
+                ? "F6 " + Language.getString("move")
+                : string.Empty;
         }
 
         private void Button_QuickView(object sender, EventArgs e)
         {
-            quickViewEnabled = quickViewButton.Checked;
-            ApplyQuickViewState();
-            ApplyLocalization();
-            UpdateStatusHint();
+            if (GetRelevantModifiers(Control.ModifierKeys) == Keys.None)
+            {
+                ToggleQuickView();
+                ApplyLocalization();
+            }
         }
 
         private void Button_QuickViewMenu(object sender, EventArgs e)
@@ -1398,6 +1553,7 @@ namespace DotNetCommander
             builder.AppendLine("F1 - " + Language.getString("helpShowThis"));
             builder.AppendLine("F2 / Ctrl+Q - " + Language.getString("helpToggleQuickView"));
             builder.AppendLine("F3 - " + Language.getString("view"));
+            builder.AppendLine("Ctrl+F3 - " + Language.getString("rawView"));
             builder.AppendLine("Shift+F3 - " + Language.getString("compare"));
             builder.AppendLine("F4 - " + Language.getString("edit"));
             builder.AppendLine("Shift+F4 - " + Language.getString("newFile"));
@@ -1410,9 +1566,10 @@ namespace DotNetCommander
             builder.AppendLine("F7 - " + Language.getString("newFolder"));
             builder.AppendLine("F8 - " + Language.getString("delete"));
             builder.AppendLine("Alt+F9 - " + Language.getString("archiveExtract"));
+            builder.AppendLine("Tab - " + Language.getString("helpSwitchPanel"));
             builder.AppendLine("Ctrl+PgDn - " + Language.getString("helpOpenArchiveBySignature"));
             builder.AppendLine("Backspace - " + Language.getString("helpHistoryBack"));
-            builder.AppendLine("Alt+Up - " + Language.getString("helpNavigateParent"));
+            builder.AppendLine("Ctrl+PgUp - " + Language.getString("helpNavigateParent"));
             builder.AppendLine("Ctrl+R - " + Language.getString("helpRefreshActivePanel"));
             builder.AppendLine("Ctrl+L - " + Language.getString("helpFocusCommandLine"));
             builder.AppendLine("Ctrl+Enter - " + Language.getString("helpCopyNameToCommandLine"));
@@ -1458,14 +1615,21 @@ namespace DotNetCommander
         private sealed class ModifierKeyMessageFilter : IMessageFilter
         {
             private readonly Action<Keys> updateLabels;
+            private readonly Func<Message, bool> handlePanelSwitch;
 
-            public ModifierKeyMessageFilter(Action<Keys> updateLabels)
+            public ModifierKeyMessageFilter(Action<Keys> updateLabels, Func<Message, bool> handlePanelSwitch)
             {
                 this.updateLabels = updateLabels;
+                this.handlePanelSwitch = handlePanelSwitch;
             }
 
             public bool PreFilterMessage(ref Message m)
             {
+                if (m.Msg == 0x0100 && handlePanelSwitch?.Invoke(m) == true)
+                {
+                    return true;
+                }
+
                 switch (m.Msg)
                 {
                     case 0x0100:

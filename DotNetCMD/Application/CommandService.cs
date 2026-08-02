@@ -9,7 +9,7 @@ namespace DotNetCommander
 {
     internal sealed class CommandService
     {
-        private const long PreviewMaxBytes = 9 * 1024 * 1024;
+        private const long MarkdownPreviewMaxBytes = 9 * 1024 * 1024;
 
         public void CopySelectionToClipboard(FileBrowser source)
         {
@@ -80,9 +80,11 @@ namespace DotNetCommander
                     return;
                 }
 
-                if (FileSystemService.FileExists(filePath) && FileSystemService.GetFileLength(filePath) > PreviewMaxBytes)
+                if (kind == FileContentKind.Binary ||
+                    kind == FileContentKind.Unknown ||
+                    kind == FileContentKind.Archive)
                 {
-                    MessageBox.Show(owner, Language.getString("fileTooLargePreview"), Language.getString("Info"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    ShowRawFile(filePath, owner);
                     return;
                 }
 
@@ -96,6 +98,13 @@ namespace DotNetCommander
 
                 if (kind == FileContentKind.Markdown)
                 {
+                    if (FileSystemService.FileExists(filePath) &&
+                        FileSystemService.GetFileLength(filePath) > MarkdownPreviewMaxBytes)
+                    {
+                        ShowRawFile(filePath, owner);
+                        return;
+                    }
+
                     View.RtfEdit preview = new View.RtfEdit();
                     preview.LoadFile(filePath, true);
                     ShowOwned(preview, owner);
@@ -123,6 +132,37 @@ namespace DotNetCommander
             catch (Exception ex)
             {
                 LogService.LogException("CommandService.ViewSelection", ex);
+                MessageBox.Show(owner, ex.Message, Language.getString("error"), MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        public async void ViewSelectionRaw(FileBrowser source, IWin32Window owner)
+        {
+            try
+            {
+                string filePath;
+                if (source?.IsArchiveMode == true)
+                {
+                    filePath = await source.MaterializeSelectedArchiveFileAsync();
+                    if (string.IsNullOrWhiteSpace(filePath))
+                        filePath = source.OpenVirtualSourcePath;
+                }
+                else if (source?.IsVirtualMode == true)
+                {
+                    filePath = source.OpenVirtualSourcePath;
+                }
+                else
+                {
+                    filePath = GetFirstSelectedFile(source);
+                }
+
+                if (string.IsNullOrWhiteSpace(filePath) || !File.Exists(filePath))
+                    return;
+                ShowRawFile(filePath, owner);
+            }
+            catch (Exception ex)
+            {
+                LogService.LogException("CommandService.ViewSelectionRaw", ex);
                 MessageBox.Show(owner, ex.Message, Language.getString("error"), MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
@@ -528,6 +568,13 @@ namespace DotNetCommander
         private static void ShowArchiveReadOnly(IWin32Window owner)
         {
             MessageBox.Show(owner, Language.getString("virtualPanelReadOnly"), Language.getString("Info"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+
+        private static void ShowRawFile(string filePath, IWin32Window owner)
+        {
+            var rawView = new View.RawFileView();
+            rawView.OpenFile(filePath);
+            ShowOwned(rawView, owner);
         }
 
         private static string GetFirstSelectedFile(FileBrowser source)

@@ -120,6 +120,7 @@ namespace DotNetCommander
             checkOpenCreatedFolder = new CheckBox
             {
                 AutoSize = true,
+                Checked = Properties.Settings.Default.OpenCreatedFolderAfterCreate,
                 Location = new Point(24, 188),
                 Text = Language.getString("newFolderOpenCreated")
             };

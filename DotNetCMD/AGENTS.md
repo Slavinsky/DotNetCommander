@@ -9,7 +9,7 @@ Namespace: `DotNetCommander`
 
 Поточна активна збірка:
 - `Commander.NET.csproj` — `net8.0-windows10.0.22621.0`
-- Версія: `1.7.0`
+- Версія: `1.8.0`
 
 Історична збірка:
 - `DotNetCommander.csproj` — оригінальний .NET Framework-проєкт
@@ -32,19 +32,21 @@ Namespace: `DotNetCommander`
 - `Editors/RichText/RtfEdit.cs` — редактор RTF
 - `Viewers/Csv/CsvView.cs` — окремий переглядач CSV-подібних файлів разом із CSV loader
 - `Viewers/Compare/FileCompareForm.cs` — side-by-side порівняння (`Shift+F3`): text diff, CSV diff, image compare, binary fallback
+- `Viewers/Raw/RawFileView.cs` — потоковий RAW/Hex viewer для довільних файлів із block navigation, hexadecimal offsets та ASCII column
 - `Dialogs/Legacy/` — legacy допоміжні діалоги (`InputBox`, `frmOptions`, `frmWait`) зі збереженим старим API, але вже зі спільною типографікою та візуальним стилем актуальних службових форм
 
 ## Ключові компоненти
 - `Browsers/FileSystem/FileBrowser.cs` — основна файлова панель на `ListView`
 - `Browsers/BrowserPanelBase.cs` — базовий контракт для фізичних і майбутніх віртуальних панелей: location, items, selection, capabilities, navigation, refresh
 - `Browsers/Archives/` — read-only archive panel, читання entries і матеріалізація окремих файлів для Quick View / `F3`
-- `Browsers/Gedcom/` — GEDCOM-панель, каталог, Quick View родинного графа та векторні піктограми статі
+- `Browsers/Gedcom/` — ієрархічна GEDCOM-панель для всіх level-0 tags (`INDI`, `FAM`, `NOTE` та інші), типізовані каталоги персон/сімей, generic records, Quick View родинного графа та векторні піктограми статі
+- `Browsers/DataSets/` — read-only DataSet-панель для `.dsx`: таблиці, рядки, schema relations і безпечне XML-читання зі strict-first fallback для невалідних XML 1.0 символів
 - `Controls/Preview/` — загальний Quick View та інтерактивний перегляд зображень
 - `Controls/Navigation/` — breadcrumb-навігація та її сегментні кнопки
 - `Services/Operations/FileOperationService.cs` — планування та виконання `copy/move/delete`
 - `Services/Archives/ArchiveService.cs` — виконання створення й безпечного розпакування архівів на стандартних API .NET 8; визначення типу делеговано `FileTypeClassifier`
 - `Application/CommandService.cs` — виконання основних commander-команд і відкриття внутрішніх viewer/editor форм
-- `Services/Files/` — доступ до файлової системи, класифікація типів і process-wide кеш shell-іконок
+- `Services/Files/` — доступ до файлової системи, класифікація типів, XML-aware визначення кодування тексту та process-wide кеш shell-іконок
 - `Services/UI/DialogStyleService.cs` — типографіка та спільний стиль службових діалогів
 - `Infrastructure/Platform/Windows/WinContextMenu.cs` — shell-дії `Open`, `Open with...`, `Properties`, запуск у persistent console
 - `Infrastructure/Platform/Windows/WinCommandLine.cs` — виконання введених команд через Windows command processor у каталозі активної панелі
@@ -54,18 +56,25 @@ Namespace: `DotNetCommander`
 
 ## Поточні можливості
 - двопанельна навігація по файловій системі з адресним рядком і панеллю дисків;
+- Файлова, GEDCOM та DataSet-панелі використовують `AddressBar` із компактними breadcrumb-сегментами та mouse-friendly кнопками `Back`, `Up` і `Refresh`, що викликають ті самі команди, що `Backspace`, `Ctrl+PgUp` і `Ctrl+R`;
 - commander-style командний рядок під панелями: запуск програм і команд із параметрами в каталозі активної панелі, історія через `Up/Down`, фокус через `Ctrl+L`, `Ctrl+Enter` вставляє назву поточного елемента, `Shift+Enter` залишає консоль відкритою;
 - `Quick View` для тексту, зображень і невеликих CSV-подібних файлів;
 - `Quick View` у GEDCOM-панелі показує інтерактивний родинний граф вибраної особи з pan/zoom;
+- GEDCOM-панель відкривається кореневим каталогом типів: `Persons (INDI)`, `Families (FAM)`, `Notes (NOTE)` і динамічними розділами для решти тегів нульового рівня;
 - вбудоване порівняння файлів (`Shift+F3`): text diff, CSV diff, image compare, binary fallback;
+- `F3` відкриває binary/unknown/archive файли у потоковому RAW/Hex viewer, але XML declaration `<?xml` у binary/unknown файла переводить їх у текстовий preview; `Ctrl+F3` примусово показує RAW для будь-якого вибраного файла незалежно від розширення;
+- текстовий viewer, Quick View і text compare враховують BOM та `encoding="..."` з XML declaration (зокрема `windows-1251` у `.fb2`), а `TextEdit` зберігає виявлене кодування;
+- великі RTF, text та image файли не блокуються загальним preview-size limit; ліміт `9 MiB` застосовується лише до Markdown-to-RTF render, після нього `F3` переходить у RAW;
 - окремі вікна для `ImageView`, `TextEdit`, `RtfEdit`, `CsvView`;
 - `TextEdit` і `RtfEdit` мають `F1`-help, `Save As...`, status bar і окремі налаштування editor/viewer UX;
 - drag-and-drop з `Explorer`, інших файлових менеджерів і між панелями;
 - конфлікт-орієнтовані `copy/move` з `overwrite`, `skip`, `rename` і масовими рішеннями (`apply to all`);
+- стійкі пакетні `copy/move/delete`: помилка окремого елемента підтримує retry/skip/cancel, завершення показує структурований підсумок, а операції виконуються через неблокуючу послідовну чергу;
 - створення архівів через `Alt+F5` і розпакування через `Alt+F9`; підтримуються `ZIP`, `TAR`, `TAR.GZ` / `TGZ`, path traversal блокується;
 - вхід у підтримуваний архів подвійним кліком або `Enter` як у каталог; відкритий архів тимчасово відображається як логічний пристрій у drive toolbar і зникає після виходу;
-- `Backspace` відновлює попередній список поточної панелі навіть між різними фізичними/архівними пристроями; `Alt+Up` завжди переходить лише до батьківського каталогу;
-- `Ctrl+PgDn` відкриває `.ged` як GEDCOM-панель або перевіряє сигнатуру вибраного файла й відкриває ZIP/TAR/TAR.GZ як каталог незалежно від розширення;
+- `Backspace` відновлює попередній список поточної панелі навіть між різними фізичними/архівними пристроями; `Ctrl+PgUp` завжди переходить лише до батьківського каталогу;
+- `Ctrl+PgDn` відкриває `.ged` як GEDCOM-панель, `.dsx` як DataSet-панель, перевіряє archive signature, а потім тихо пробує прочитати інші файли як DataSet XML незалежно від розширення;
+- DataSet-панель показує каталоги `Tables` і `Relations`, довільні колонки/рядки таблиць та parent/child columns зв’язків; режим read-only, читання виконується у фоні, а після секундної затримки показується неблокувальний `Wait`;
 - Quick View і `F3` матеріалізують лише вибраний файл архіву в тимчасовий session-каталог; `F5` копіює вибрані записи до пасивної файлової панелі;
 - сортування за колонками у `FileBrowser`;
 - перемикання режимів перегляду: `Details`, `List`, `Small Icons`, `Large Icons`, `Tiles`;
@@ -73,8 +82,8 @@ Namespace: `DotNetCommander`
 - `Shift+Enter` для запуску `.bat/.cmd/.exe/.com/.ps1` у консолі, що не закривається;
 - `Ctrl+R` для ручного refresh активної панелі, плюс опційне автооновлення каталогу при зовнішніх змінах;
 - `Ctrl+N` для створення нового файла через системний `SaveFileDialog`;
-- `Shift+F4`, `Shift+F5`, `Shift+F6`, `F7` для commander-style створення файла, копії з новим іменем, перейменування та створення каталогу;
-- жива нижня F-панель з модифікованими підписами для `Shift` / `Alt`;
+- `Shift+F4`, `Shift+F5`, `Shift+F6`, `F7` для commander-style створення файла, копії з новим іменем, перейменування та створення каталогу; після `F7` новий каталог типово відкривається, це можна змінити в `Options`;
+- жива нижня F-панель показує `Shift` / `Alt` / `Ctrl` в окремій крайній комірці, залишає непідтримувані модифіковані кнопки порожніми й відображає `Ctrl+F3` RAW/Hex;
 - меню `Help` з `About` і переглядом `README.md`, `CHANGE.md`, `ROADMAP.md`;
 - збереження геометрії головного вікна з відновленням maximized-стану і перевіркою монітора;
 - налаштування шрифтів, ширин колонок, CSV preview, directory watching, мови інтерфейсу, окремо `RtfEdit` / Markdown preview і типографіки службових діалогів;
@@ -88,7 +97,7 @@ Namespace: `DotNetCommander`
 - Локалізація централізована через `Language.cs` і ресурси `Resources/Language*.resx`.
 - `OS.cs` лишається фасадом між Windows- і Unix-специфічною логікою, хоча практичний фокус проєкту зараз — Windows.
 - `Dialogs/Common/` і `Dialogs/Operations/` — актуальні службові діалоги; `Dialogs/Legacy/` — сумісний legacy-шар, візуально вирівняний через `DialogStyleService`.
-- `FileBrowser`, `ArchiveBrowser` і `GedcomBrowser` наслідують `BrowserPanelBase`; `FileBrowser` лишається сумісним host-контролом для `AppForm` і перемикає фізичний/віртуальні режими без заміни панелі у layout.
+- `FileBrowser`, `ArchiveBrowser`, `GedcomBrowser` і `DataSetBrowser` наслідують `BrowserPanelBase`; `FileBrowser` лишається сумісним host-контролом для `AppForm` і перемикає фізичний/віртуальні режими без заміни панелі у layout.
 
 ## Структура проєкту
 ```text
@@ -101,7 +110,8 @@ DotNetCMD/
 │   ├── BrowserPanelBase.cs
 │   ├── FileSystem/       # FileBrowser + designer/resources
 │   ├── Archives/         # ArchiveBrowser + catalog
-│   └── Gedcom/           # browser, catalog, graph, icons
+│   ├── Gedcom/           # browser, catalog, graph, icons
+│   └── DataSets/         # DataSet XML loader, tables and relations browser
 ├── Controls/
 │   ├── Navigation/       # AddressBar controls
 │   └── Preview/          # Quick View controls
@@ -115,6 +125,7 @@ DotNetCMD/
 ├── Viewers/
 │   ├── Csv/              # viewer + loader
 │   ├── Compare/
+│   ├── Raw/              # streaming RAW/Hex viewer
 │   └── Images/           # ImageView + EXIF dependencies
 ├── Services/
 │   ├── Archives/
@@ -145,7 +156,6 @@ DotNetCMD/
 
 ## Відомі поточні обмеження
 
-- не закриті всі підсумки операцій, retry/recovery і partial failure сценарії для файлових операцій;
 - немає long-path hardening;
 - немає автоматичних тестів;
 - немає CI;

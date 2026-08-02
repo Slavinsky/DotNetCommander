@@ -317,7 +317,7 @@
     <value>Оновити активну панель</value>
   </data>
   <data name="helpOpenArchiveBySignature" xml:space="preserve">
-    <value>Відкрити архів за сигнатурою файла або панель GEDCOM</value>
+    <value>Відкрити архів за сигнатурою, панель GEDCOM або спробувати DataSet XML незалежно від розширення</value>
   </data>
   <data name="helpHistoryBack" xml:space="preserve">
     <value>Повернутися до попереднього розташування панелі</value>
@@ -769,7 +769,38 @@
   <data name="archiveFolderType" xml:space="preserve"><value>Папка</value></data>
   <data name="archivePanelReadOnly" xml:space="preserve"><value>Архівна панель доступна лише для читання. Перед змінами скопіюйте елементи до іншої файлової панелі.</value></data>
   <data name="archiveCopyRequiresFilePanel" xml:space="preserve"><value>Виберіть звичайну файлову панель як призначення копіювання.</value></data>
-  <data name="gedcomReadingCatalog" xml:space="preserve"><value>Читання осіб із GEDCOM...</value></data>
+  <data name="gedcomReadingCatalog" xml:space="preserve"><value>Читання каталогу GEDCOM...</value></data>
+  <data name="gedcomPersons" xml:space="preserve"><value>Особи</value></data>
+  <data name="gedcomFamilies" xml:space="preserve"><value>Сім’ї</value></data>
+  <data name="gedcomNotes" xml:space="preserve"><value>Нотатки</value></data>
+  <data name="gedcomObject" xml:space="preserve"><value>Об’єкт</value></data>
+  <data name="gedcomTag" xml:space="preserve"><value>Тег</value></data>
+  <data name="gedcomCount" xml:space="preserve"><value>Кількість</value></data>
+  <data name="gedcomDescription" xml:space="preserve"><value>Опис</value></data>
+  <data name="gedcomLevelZeroDescription" xml:space="preserve"><value>Записи GEDCOM нульового рівня</value></data>
+  <data name="gedcomFirstName" xml:space="preserve"><value>Ім’я</value></data>
+  <data name="gedcomLastName" xml:space="preserve"><value>Прізвище</value></data>
+  <data name="gedcomAge" xml:space="preserve"><value>Вік</value></data>
+  <data name="gedcomBirthDate" xml:space="preserve"><value>Дата народження</value></data>
+  <data name="gedcomIdentifier" xml:space="preserve"><value>Ідентифікатор</value></data>
+  <data name="gedcomHusband" xml:space="preserve"><value>Чоловік</value></data>
+  <data name="gedcomWife" xml:space="preserve"><value>Дружина</value></data>
+  <data name="gedcomChildren" xml:space="preserve"><value>Діти</value></data>
+  <data name="gedcomFamily" xml:space="preserve"><value>Сім’я</value></data>
+  <data name="gedcomSummary" xml:space="preserve"><value>Зміст</value></data>
+  <data name="gedcomFields" xml:space="preserve"><value>Поля</value></data>
+  <data name="rawView" xml:space="preserve"><value>Перегляд RAW / Hex</value></data>
+  <data name="rawFirst" xml:space="preserve"><value>Перший блок</value></data>
+  <data name="rawPrevious" xml:space="preserve"><value>Попередній блок</value></data>
+  <data name="rawNext" xml:space="preserve"><value>Наступний блок</value></data>
+  <data name="rawLast" xml:space="preserve"><value>Останній блок</value></data>
+  <data name="rawOffset" xml:space="preserve"><value>Зсув</value></data>
+  <data name="rawOffsetHint" xml:space="preserve"><value>Введіть шістнадцятковий зсув у файлі</value></data>
+  <data name="rawGo" xml:space="preserve"><value>Перейти</value></data>
+  <data name="rawInvalidOffset" xml:space="preserve"><value>Введіть коректний шістнадцятковий зсув.</value></data>
+  <data name="rawFileNotFound" xml:space="preserve"><value>Файл не знайдено.</value></data>
+  <data name="rawStatusFormat" xml:space="preserve"><value>Зсуви 0x{0:X}–0x{1:X} із {2:N0} байтів | завантажено {3:N0} байтів</value></data>
+  <data name="rawHelp" xml:space="preserve"><value>PageUp/PageDown — попередній/наступний блок; Ctrl+Home/Ctrl+End — перший/останній блок; Ctrl+G — перейти до шістнадцяткового зсуву; F5 — перечитати; Ctrl+C — копіювати виділення; Esc — закрити.</value></data>
   <data name="virtualPanelReadOnly" xml:space="preserve"><value>Ця віртуальна панель доступна лише для читання.</value></data>
   <data name="quickViewGedcomSelectPerson" xml:space="preserve"><value>Виберіть особу для відображення родинного графа.</value></data>
   <data name="commandLineToolTip" xml:space="preserve"><value>Введіть програму або команду з параметрами. Enter запускає; Shift+Enter залишає консоль відкритою; стрілки вгору/вниз переглядають історію; Ctrl+L переводить фокус сюди; Ctrl+Enter вставляє назву поточного елемента.</value></data>
@@ -777,4 +808,43 @@
   <data name="helpFocusCommandLine" xml:space="preserve"><value>Перейти до командного рядка</value></data>
   <data name="helpPersistentConsole" xml:space="preserve"><value>Запустити вибраний скрипт/програму або введену команду в консолі, що не закривається</value></data>
   <data name="helpCopyNameToCommandLine" xml:space="preserve"><value>Вставити назву поточного елемента в командний рядок</value></data>
+  <data name="settingsOpenCreatedFolder" xml:space="preserve"><value>Типово переходити до щойно створеного каталогу</value></data>
+  <data name="operationFailureTitle" xml:space="preserve"><value>Проблема файлової операції</value></data>
+  <data name="operationFailurePrompt" xml:space="preserve"><value>Не вдалося обробити:
+{0}
+
+{1}
+
+Спроба: {2}
+
+Повторити для цього елемента, пропустити й продовжити чи перервати операцію?</value></data>
+  <data name="operationSummaryTitle" xml:space="preserve"><value>Підсумок операції</value></data>
+  <data name="operationSummaryCompleted" xml:space="preserve"><value>Операцію завершено.</value></data>
+  <data name="operationSummaryCancelled" xml:space="preserve"><value>Операцію скасовано. Уже виконані зміни збережено.</value></data>
+  <data name="operationSummaryCounts" xml:space="preserve"><value>Завершено: {0}    Пропущено: {1}    Помилок: {2}</value></data>
+  <data name="operationSummaryDuration" xml:space="preserve"><value>Тривалість: {0}</value></data>
+  <data name="operationSummaryErrors" xml:space="preserve"><value>Останні помилки:</value></data>
+  <data name="operationSummaryMoreErrors" xml:space="preserve"><value>…і ще {0}.</value></data>
+  <data name="helpSwitchPanel" xml:space="preserve"><value>Активувати сусідню файлову панель</value></data>
+  <data name="dataSetReading" xml:space="preserve"><value>Читання схеми та даних DataSet...</value></data>
+  <data name="dataSetOpenFailed" xml:space="preserve"><value>Не вдалося відкрити файл DataSet.</value></data>
+  <data name="dataSetObject" xml:space="preserve"><value>Об’єкт</value></data>
+  <data name="dataSetCount" xml:space="preserve"><value>Кількість</value></data>
+  <data name="dataSetDescription" xml:space="preserve"><value>Опис</value></data>
+  <data name="dataSetTables" xml:space="preserve"><value>Таблиці</value></data>
+  <data name="dataSetRelations" xml:space="preserve"><value>Зв’язки</value></data>
+  <data name="dataSetTablesDescription" xml:space="preserve"><value>Таблиці даних та їхні рядки</value></data>
+  <data name="dataSetRelationsDescription" xml:space="preserve"><value>Батьківсько-дочірні зв’язки зі схеми</value></data>
+  <data name="dataSetTable" xml:space="preserve"><value>Таблиця</value></data>
+  <data name="dataSetRows" xml:space="preserve"><value>Рядки</value></data>
+  <data name="dataSetColumns" xml:space="preserve"><value>Колонки</value></data>
+  <data name="dataSetRelation" xml:space="preserve"><value>Зв’язок</value></data>
+  <data name="dataSetParentTable" xml:space="preserve"><value>Батьківська таблиця</value></data>
+  <data name="dataSetChildTable" xml:space="preserve"><value>Дочірня таблиця</value></data>
+  <data name="dataSetProperty" xml:space="preserve"><value>Властивість</value></data>
+  <data name="dataSetValue" xml:space="preserve"><value>Значення</value></data>
+  <data name="dataSetParentColumns" xml:space="preserve"><value>Батьківські колонки</value></data>
+  <data name="dataSetChildColumns" xml:space="preserve"><value>Дочірні колонки</value></data>
+  <data name="dataSetNested" xml:space="preserve"><value>Вкладений</value></data>
+  <data name="dataSetRowFormat" xml:space="preserve"><value>Рядок {0}</value></data>
 </root>

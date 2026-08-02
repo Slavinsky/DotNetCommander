@@ -9,21 +9,40 @@ using System.Windows.Forms;
 
 namespace DotNetCommander
 {
-    public partial class AddressBarButton : Button
+    public partial class AddressBarButton : Label
     {
+        private bool isActive;
+
         public AddressBarButton()
         {
             InitializeComponent();
+            AutoEllipsis = true;
+            TextAlign = ContentAlignment.MiddleCenter;
+            UseCompatibleTextRendering = false;
         }
 
-        protected override void OnPaint(PaintEventArgs pe)
+        public bool IsActive
         {
-            base.OnPaint(pe);
-            ControlPaint.DrawBorder(pe.Graphics,pe.ClipRectangle,
-                                    FlatAppearance.BorderColor, FlatAppearance.BorderSize, ButtonBorderStyle.Solid,
-                                    FlatAppearance.BorderColor, 0, ButtonBorderStyle.Solid,
-                                    FlatAppearance.BorderColor, FlatAppearance.BorderSize, ButtonBorderStyle.Solid,
-                                    FlatAppearance.BorderColor, 0, ButtonBorderStyle.Solid);
+            get => isActive;
+            set
+            {
+                isActive = value;
+                BackColor = value ? SystemColors.ControlLight : SystemColors.Window;
+            }
+        }
+
+        protected override void OnMouseEnter(EventArgs e)
+        {
+            base.OnMouseEnter(e);
+            if (!isActive)
+                BackColor = SystemColors.ControlLight;
+        }
+
+        protected override void OnMouseLeave(EventArgs e)
+        {
+            base.OnMouseLeave(e);
+            if (!isActive)
+                BackColor = SystemColors.Window;
         }
     }
 }

@@ -144,17 +144,9 @@ namespace DotNetCommander
                     return;
                 }
 
-                using (var stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
-                using (var reader = new StreamReader(stream, Encoding.UTF8, true))
-                {
-                  // Обрабатываем разные типы переносов строк (Windows, Unix, Mac)
-                  //textBox.Text = reader.ReadToEnd();
-                  // Читаем содержимое файла с корректной обработкой переносов строк
-                  string content = reader.ReadToEnd();
-                  // Обрабатываем разные типы переносов строк (Windows, Unix, Mac)
-                  content = content.Replace("\r\n", "\n").Replace("\r", "\n").Replace("\n", Environment.NewLine);
-                  textBox.Text = content;
-                }
+                string content = TextFileEncodingService.ReadAllText(path, out _);
+                content = content.Replace("\r\n", "\n").Replace("\r", "\n").Replace("\n", Environment.NewLine);
+                textBox.Text = content;
 
                 textBox.Visible = true;
                 gedcomGraph.Visible = false;

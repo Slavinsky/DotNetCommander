@@ -316,16 +316,27 @@ namespace DotNetCommander
 
             try
             {
-                FileOperationRunResult result = await FileOperationService.ExecuteCopyOrMoveAsync(
+                FileOperationResult result = await FileOperationService.ExecuteCopyOrMoveAsync(
                     Items,
                     destPath,
                     type,
                     checkBoxOverwriteExisting.Checked,
                     conflictResolutions,
                     progress,
+                    PromptForFailure,
                     operationCancellation.Token);
                 progressRevealTimer.Stop();
-                ActionComplete?.Invoke(result == FileOperationRunResult.Cancelled ? -2 : 0);
+                FileOperationDialogService.ShowSummary(this, result);
+                ActionComplete?.Invoke(result.RunResult == FileOperationRunResult.Cancelled ? -2 : result.FailedEntries > 0 ? -1 : 0);
+                allowClose = true;
+                Close();
+            }
+            catch (OperationCanceledException) when (operationCancellation.IsCancellationRequested)
+            {
+                progressRevealTimer.Stop();
+                var result = new FileOperationResult { RunResult = FileOperationRunResult.Cancelled };
+                FileOperationDialogService.ShowSummary(this, result);
+                ActionComplete?.Invoke(-2);
                 allowClose = true;
                 Close();
             }
@@ -353,6 +364,18 @@ namespace DotNetCommander
                 operationCancellation?.Dispose();
                 operationCancellation = null;
             }
+        }
+
+        private FileOperationFailureAction PromptForFailure(FileOperationFailure failure)
+        {
+            if (InvokeRequired)
+            {
+                return (FileOperationFailureAction)Invoke(
+                    new Func<FileOperationFailure, FileOperationFailureAction>(PromptForFailure),
+                    failure);
+            }
+
+            return FileOperationDialogService.PromptForFailure(this, failure);
         }
 
         private void ResetProgressState()

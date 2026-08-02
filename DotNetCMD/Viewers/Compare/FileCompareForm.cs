@@ -317,9 +317,7 @@ namespace View
 
         private static string ReadTextFile(string path)
         {
-            using var stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
-            using var reader = new StreamReader(stream, Encoding.UTF8, true);
-            string content = reader.ReadToEnd();
+            string content = TextFileEncodingService.ReadAllText(path, out _);
             return content.Replace("\r\n", "\n").Replace("\r", "\n");
         }
 
