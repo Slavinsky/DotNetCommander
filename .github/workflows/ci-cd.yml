@@ -1,0 +1,90 @@
+name: CI/CD
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  create: # fires only when a ref is newly created; used to release on tag creation
+
+
+env:
+  SOLUTION: Commander.NET.slnx
+  CONFIGURATION: Release
+  DOTNET_VERSION: "9.0.x" # SDK; builds the net8.0-windows target and understands .slnx
+
+jobs:
+  # ---------------------------------------------------------------------------
+  # Build
+  # ---------------------------------------------------------------------------
+  build:
+    name: Build
+    runs-on: windows-latest # Windows Forms / net8.0-windows target requires Windows
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Restore
+        run: dotnet restore ${{ env.SOLUTION }}
+
+      - name: Build
+        run: dotnet build ${{ env.SOLUTION }} --configuration ${{ env.CONFIGURATION }} --no-restore
+
+  # ---------------------------------------------------------------------------
+  # Test (template — no test projects exist yet)
+  # ---------------------------------------------------------------------------
+  # test:
+  #   name: Test
+  #   needs: build
+  #   runs-on: windows-latest
+  #   steps:
+  #     - name: Checkout
+  #       uses: actions/checkout@v4
+  #
+  #     - name: Setup .NET
+  #       uses: actions/setup-dotnet@v4
+  #       with:
+  #         dotnet-version: ${{ env.DOTNET_VERSION }}
+  #
+  #     - name: Test
+  #       run: dotnet test ${{ env.SOLUTION }} --configuration ${{ env.CONFIGURATION }}
+
+  # ---------------------------------------------------------------------------
+  # Release (runs only when a tag is created; release name == tag, e.g. "Release 1.7")
+  # ---------------------------------------------------------------------------
+  release:
+    name: Release
+    needs: build
+    if: github.event_name == 'create' && github.event.ref_type == 'tag'
+    runs-on: windows-latest
+    permissions:
+      contents: write # required to create the GitHub Release
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Publish
+        run: dotnet publish ${{ env.SOLUTION }} --configuration ${{ env.CONFIGURATION }} --output publish
+
+      - name: Package
+        shell: pwsh
+        run: Compress-Archive -Path publish/* -DestinationPath "DotNetCommander-${{ github.ref_name }}.zip"
+
+      - name: Create Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: >
+          gh release create "${{ github.ref_name }}"
+          "DotNetCommander-${{ github.ref_name }}.zip"
+          --title "Release ${{ github.ref_name }}"
+          --generate-notes
