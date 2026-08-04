@@ -592,6 +592,9 @@
   <data name="settingsShowStatusHints" xml:space="preserve">
     <value>Befehls-Hinweise in der Hauptstatusleiste anzeigen</value>
   </data>
+  <data name="settingsDirectoriesFirst" xml:space="preserve">
+    <value>Ordner beim Sortieren vor Dateien anzeigen (kann große Listen verlangsamen)</value>
+  </data>
   <data name="settingsLanguage" xml:space="preserve">
     <value>Sprache der Benutzeroberfläche</value>
   </data>

@@ -464,6 +464,9 @@ namespace DotNetCommander
       }
 
       ConfigureDirectoryWatcher();
+      browserView.ShowGroups = browserView.View == System.Windows.Forms.View.Details &&
+        Properties.Settings.Default.FileBrowserDirectoriesFirst;
+      ApplySorting();
     }
 
     /**
@@ -894,7 +897,8 @@ editBox.Focus();*/
       browserView.LargeImageList = fileImagesLarge;
       browserView.SmallImageList = fileImages;
       browserView.View = view;
-      browserView.ShowGroups = view == System.Windows.Forms.View.Details;
+      browserView.ShowGroups = view == System.Windows.Forms.View.Details &&
+        Properties.Settings.Default.FileBrowserDirectoriesFirst;
       if (view == System.Windows.Forms.View.Tile)
       {
         browserView.TileSize = new Size(400, 48);
@@ -928,7 +932,11 @@ editBox.Focus();*/
 
     private void ApplySorting()
     {
-      browserView.ListViewItemSorter = new ListViewItemComparer(sortColumn, sortAscending);
+      browserView.ListViewItemSorter = new ListViewItemComparer(
+        sortColumn,
+        sortAscending,
+        Properties.Settings.Default.FileBrowserDirectoriesFirst,
+        browserView.Groups.Count > 0 ? browserView.Groups[0] : null);
       browserView.Sort();
     }
 
@@ -2130,9 +2138,15 @@ editBox.Focus();*/
 
     private void FileBrowser_SizeChanged(object sender, EventArgs e) {
       FileBrowser self =   sender as FileBrowser;
-      browserView.Width = self.Width-2; 
-      browserView.Height = self.Height-56;
-      addressBarCurrentPath.Width = self.Width - 2;
+      if (self == null)
+        return;
+
+      browserView.Width = Math.Max(0,
+        self.ClientSize.Width - browserView.Left - browserView.Margin.Right);
+      browserView.Height = Math.Max(0,
+        self.ClientSize.Height - browserView.Top - browserView.Margin.Bottom);
+      addressBarCurrentPath.Width = Math.Max(0,
+        self.ClientSize.Width - addressBarCurrentPath.Left - addressBarCurrentPath.Margin.Right);
     }
 
     private void ConfigureDirectoryWatcher()
@@ -2230,11 +2244,19 @@ editBox.Focus();*/
     {
       private readonly int column;
       private readonly bool ascending;
+      private readonly bool directoriesFirst;
+      private readonly ListViewGroup directoryGroup;
 
-      public ListViewItemComparer(int column, bool ascending)
+      public ListViewItemComparer(
+        int column,
+        bool ascending,
+        bool directoriesFirst,
+        ListViewGroup directoryGroup)
       {
         this.column = column;
         this.ascending = ascending;
+        this.directoriesFirst = directoriesFirst;
+        this.directoryGroup = directoryGroup;
       }
 
       public int Compare(object x, object y)
@@ -2244,30 +2266,27 @@ editBox.Focus();*/
         if (itemX == null || itemY == null)
           return 0;
 
+        bool xParent = IsParentItem(GetName(itemX));
+        bool yParent = IsParentItem(GetName(itemY));
+        if (xParent != yParent)
+          return xParent ? -1 : 1;
+        if (xParent)
+          return 0;
+
+        if (directoriesFirst)
+        {
+          bool xDirectory = IsDirectory(itemX);
+          bool yDirectory = IsDirectory(itemY);
+          if (xDirectory != yDirectory)
+            return xDirectory ? -1 : 1;
+        }
+
         int result = CompareItems(itemX, itemY);
         return ascending ? result : -result;
       }
 
       private int CompareItems(ListViewItem x, ListViewItem y)
       {
-        string nameX = GetName(x);
-        string nameY = GetName(y);
-
-        bool xParent = IsParentItem(nameX);
-        bool yParent = IsParentItem(nameY);
-        if (xParent || yParent)
-        {
-          if (xParent && !yParent) return -1;
-          if (!xParent && yParent) return 1;
-        }
-
-        bool xDir = IsDirectory(x);
-        bool yDir = IsDirectory(y);
-        if (xDir != yDir)
-        {
-          return xDir ? -1 : 1;
-        }
-
         if (column == 3)
         {
           long sizeX = ParseSize(GetColumnText(x, column));
@@ -2306,12 +2325,9 @@ editBox.Focus();*/
         return item.Text;
       }
 
-      private static bool IsDirectory(ListViewItem item)
+      private bool IsDirectory(ListViewItem item)
       {
-        string path = item.Tag as string;
-        if (string.IsNullOrEmpty(path))
-          return false;
-        return Directory.Exists(path);
+        return directoryGroup != null && ReferenceEquals(item.Group, directoryGroup);
       }
 
       private static long ParseSize(string text)

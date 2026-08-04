@@ -120,36 +120,44 @@ namespace DotNetCommander
             set
             {
                 path = value;
-                flowLayoutAddressBar.Controls.Clear();
-                if (path == null)
-                    return;
-
-                String[] splitedPaths = path.Split(System.IO.Path.DirectorySeparatorChar);
-                String tempPath = "";
-                string[] visibleParts = splitedPaths.Where(part => part.Length > 0).ToArray();
-                for (int partIndex = 0; partIndex < visibleParts.Length; partIndex++)
+                flowLayoutAddressBar.SuspendLayout();
+                try
                 {
-                    string splitPath = visibleParts[partIndex];
-                    AddressBarButton pathItem = new AddressBarButton
+                    flowLayoutAddressBar.Controls.Clear();
+                    if (path == null)
+                        return;
+
+                    String[] splitedPaths = path.Split(System.IO.Path.DirectorySeparatorChar);
+                    String tempPath = "";
+                    string[] visibleParts = splitedPaths.Where(part => part.Length > 0).ToArray();
+                    for (int partIndex = 0; partIndex < visibleParts.Length; partIndex++)
                     {
-                        Text = splitPath,
-                        AutoSize = false,
-                        BackColor = SystemColors.Window,
-                        Font = Font,
-                        Margin = Padding.Empty,
-                        Padding = Padding.Empty
-                    };
-                    tempPath += splitPath + System.IO.Path.DirectorySeparatorChar;
-                    pathItem.Tag = tempPath;
-                    pathItem.Click += new EventHandler(buttonPath_Click);
-                    ResizePathButton(pathItem);
-                    flowLayoutAddressBar.Controls.Add(pathItem);
-                    if (partIndex < visibleParts.Length - 1)
-                    {
-                        flowLayoutAddressBar.Controls.Add(CreatePathSeparator(pathItem));
+                        string splitPath = visibleParts[partIndex];
+                        AddressBarButton pathItem = new AddressBarButton
+                        {
+                            Text = splitPath,
+                            AutoSize = false,
+                            BackColor = SystemColors.Window,
+                            Font = Font,
+                            Margin = Padding.Empty,
+                            Padding = Padding.Empty
+                        };
+                        tempPath += splitPath + System.IO.Path.DirectorySeparatorChar;
+                        pathItem.Tag = tempPath;
+                        pathItem.Click += new EventHandler(buttonPath_Click);
+                        ResizePathButton(pathItem);
+                        flowLayoutAddressBar.Controls.Add(pathItem);
+                        if (partIndex < visibleParts.Length - 1)
+                        {
+                            flowLayoutAddressBar.Controls.Add(CreatePathSeparator(pathItem));
+                        }
                     }
                 }
-                flowLayoutAddressBar.PerformLayout();
+                finally
+                {
+                    flowLayoutAddressBar.ResumeLayout(true);
+                }
+
                 UpdatePathButtonVisibility();
             }
         }

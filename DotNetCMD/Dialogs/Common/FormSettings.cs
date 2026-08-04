@@ -42,6 +42,7 @@ namespace DotNetCommander
         private readonly CheckBox showEditorStatusBarCheckBox;
         private readonly CheckBox markdownPreviewRerenderOnResizeCheckBox;
         private readonly CheckBox showStatusHintsCheckBox;
+        private readonly CheckBox directoriesFirstCheckBox;
         private readonly CheckBox quickViewCsvEnabledCheckBox;
         private readonly CheckBox overwriteExistingFilesCheckBox;
         private readonly CheckBox openCreatedFolderCheckBox;
@@ -278,6 +279,13 @@ namespace DotNetCommander
                 Text = Language.getString("settingsShowStatusHints")
             };
 
+            directoriesFirstCheckBox = new CheckBox
+            {
+                Dock = DockStyle.Top,
+                Height = 34,
+                Text = Language.getString("settingsDirectoriesFirst")
+            };
+
             loadLargeIconsCheckBox = new CheckBox
             {
                 Dock = DockStyle.Top,
@@ -371,9 +379,10 @@ namespace DotNetCommander
             var optionsPanel = new Panel
             {
                 Dock = DockStyle.Top,
-                Height = 42
+                Height = 76
             };
             optionsPanel.Controls.Add(showStatusHintsCheckBox);
+            optionsPanel.Controls.Add(directoriesFirstCheckBox);
 
             viewPage.Controls.Add(optionsPanel);
             viewPage.Controls.Add(layout);
@@ -549,6 +558,7 @@ namespace DotNetCommander
             quickViewCsvMaxMbNumeric.Value = Math.Max(1, Properties.Settings.Default.QuickViewCsvMaxBytes / (1024 * 1024));
             textEditorWordWrapCheckBox.Checked = Properties.Settings.Default.TextEditorWordWrap;
             showStatusHintsCheckBox.Checked = Properties.Settings.Default.ShowStatusHints;
+            directoriesFirstCheckBox.Checked = Properties.Settings.Default.FileBrowserDirectoriesFirst;
             showEditorStatusBarCheckBox.Checked = Properties.Settings.Default.ShowEditorStatusBar;
             markdownPreviewRerenderOnResizeCheckBox.Checked = Properties.Settings.Default.MarkdownPreviewRerenderOnResize;
 
@@ -585,6 +595,7 @@ namespace DotNetCommander
             Properties.Settings.Default.ShowEditorStatusBar = showEditorStatusBarCheckBox.Checked;
             Properties.Settings.Default.MarkdownPreviewRerenderOnResize = markdownPreviewRerenderOnResizeCheckBox.Checked;
             Properties.Settings.Default.ShowStatusHints = showStatusHintsCheckBox.Checked;
+            Properties.Settings.Default.FileBrowserDirectoriesFirst = directoriesFirstCheckBox.Checked;
             Properties.Settings.Default.FileBrowserNameColumnWidth = (int)nameColumnWidthNumeric.Value;
             Properties.Settings.Default.FileBrowserTypeColumnWidth = (int)typeColumnWidthNumeric.Value;
             Properties.Settings.Default.FileBrowserSizeColumnWidth = (int)sizeColumnWidthNumeric.Value;

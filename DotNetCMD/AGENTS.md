@@ -9,7 +9,7 @@ Namespace: `DotNetCommander`
 
 Поточна активна збірка:
 - `Commander.NET.csproj` — `net8.0-windows10.0.22621.0`
-- Версія: `1.8.0`
+- Версія: `1.8.1`
 
 Історична збірка:
 - `DotNetCommander.csproj` — оригінальний .NET Framework-проєкт
@@ -76,7 +76,7 @@ Namespace: `DotNetCommander`
 - `Ctrl+PgDn` відкриває `.ged` як GEDCOM-панель, `.dsx` як DataSet-панель, перевіряє archive signature, а потім тихо пробує прочитати інші файли як DataSet XML незалежно від розширення;
 - DataSet-панель показує каталоги `Tables` і `Relations`, довільні колонки/рядки таблиць та parent/child columns зв’язків; режим read-only, читання виконується у фоні, а після секундної затримки показується неблокувальний `Wait`;
 - Quick View і `F3` матеріалізують лише вибраний файл архіву в тимчасовий session-каталог; `F5` копіює вибрані записи до пасивної файлової панелі;
-- сортування за колонками у `FileBrowser`;
+- сортування за колонками у `FileBrowser`: `..` завжди перший, а опційне `Options -> View` групування окремо сортує каталоги перед файлами;
 - перемикання режимів перегляду: `Details`, `List`, `Small Icons`, `Large Icons`, `Tiles`;
 - shell-дії для файлів: `Open`, `Open with...`, `Properties` (через `WinContextMenu`);
 - `Shift+Enter` для запуску `.bat/.cmd/.exe/.com/.ps1` у консолі, що не закривається;

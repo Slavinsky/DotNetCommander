@@ -592,6 +592,9 @@
   <data name="settingsShowStatusHints" xml:space="preserve">
     <value>Показувати рядок стану в головному вікні</value>
   </data>
+  <data name="settingsDirectoriesFirst" xml:space="preserve">
+    <value>Під час сортування завжди показувати каталоги перед файлами (може сповільнити великі списки)</value>
+  </data>
   <data name="settingsLanguage" xml:space="preserve">
     <value>Мова інтерфейсу</value>
   </data>

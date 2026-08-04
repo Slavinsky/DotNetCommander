@@ -493,6 +493,18 @@ namespace DotNetCommander.Properties {
 
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool FileBrowserDirectoriesFirst {
+            get {
+                return ((bool)(this["FileBrowserDirectoriesFirst"]));
+            }
+            set {
+                this["FileBrowserDirectoriesFirst"] = value;
+            }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("True")]
         public bool FileBrowserLoadIcons {
             get {

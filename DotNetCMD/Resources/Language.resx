@@ -759,6 +759,9 @@
   <data name="settingsShowStatusHints" xml:space="preserve">
     <value>Show status bar in the main window</value>
   </data>
+  <data name="settingsDirectoriesFirst" xml:space="preserve">
+    <value>Keep folders before files when sorting (may slow down large lists)</value>
+  </data>
   <data name="settingsLanguage" xml:space="preserve">
     <value>Interface language</value>
   </data>

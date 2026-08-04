@@ -102,7 +102,7 @@
       // 
       // addressBarCurrentPath
       // 
-      addressBarCurrentPath.AutoSize = true;
+      addressBarCurrentPath.AutoSize = false;
       addressBarCurrentPath.Location = new System.Drawing.Point(4, 4);
       addressBarCurrentPath.Margin = new System.Windows.Forms.Padding(4);
       addressBarCurrentPath.Name = "addressBarCurrentPath";

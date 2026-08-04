@@ -42,6 +42,7 @@ namespace DotNetCommander
         public AppForm()
         {
             InitializeComponent();
+            splitContainer1.BringToFront();
             modifierKeyMessageFilter = new ModifierKeyMessageFilter(UpdateCommandButtonLabels, TryHandlePanelSwitchMessage);
             browserDrivePaths[fileBrowserLeft] = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
             browserDrivePaths[fileBrowserRight] = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);

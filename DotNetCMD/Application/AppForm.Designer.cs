@@ -141,30 +141,28 @@
       // 
       // splitContainer1
       // 
-      this.splitContainer1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
       this.splitContainer1.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
-      this.splitContainer1.Location = new System.Drawing.Point(0, 52);
+      this.splitContainer1.Dock = System.Windows.Forms.DockStyle.Fill;
+      this.splitContainer1.Location = new System.Drawing.Point(0, 58);
       this.splitContainer1.Name = "splitContainer1";
       // 
       // splitContainer1.Panel1
       // 
       this.splitContainer1.Panel1.Controls.Add(this.fileBrowserLeft);
+      this.splitContainer1.Panel1.Padding = new System.Windows.Forms.Padding(3);
       // 
       // splitContainer1.Panel2
       // 
       this.splitContainer1.Panel2.Controls.Add(this.fileBrowserRight);
-      this.splitContainer1.Size = new System.Drawing.Size(756, 426);
+      this.splitContainer1.Panel2.Padding = new System.Windows.Forms.Padding(3);
+      this.splitContainer1.Size = new System.Drawing.Size(756, 374);
       this.splitContainer1.SplitterDistance = 375;
       this.splitContainer1.TabIndex = 5;
       // 
       // fileBrowserLeft
       // 
-      this.fileBrowserLeft.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
       this.fileBrowserLeft.BackColor = System.Drawing.SystemColors.Control;
+      this.fileBrowserLeft.Dock = System.Windows.Forms.DockStyle.Fill;
       this.fileBrowserLeft.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
       this.fileBrowserLeft.Location = new System.Drawing.Point(3, 3);
       this.fileBrowserLeft.Margin = new System.Windows.Forms.Padding(4);
@@ -176,9 +174,7 @@
       // 
       // fileBrowserRight
       // 
-      this.fileBrowserRight.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+      this.fileBrowserRight.Dock = System.Windows.Forms.DockStyle.Fill;
       this.fileBrowserRight.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
       this.fileBrowserRight.Location = new System.Drawing.Point(3, 3);
       this.fileBrowserRight.Margin = new System.Windows.Forms.Padding(4);
