@@ -339,6 +339,20 @@ namespace View
             }
         }
 
+        public void LoadTextPreview(string content, string displayName)
+        {
+            currentFilePath = null;
+            currentEncoding = new UTF8Encoding(false);
+            previewMode = true;
+            Text = (string.IsNullOrWhiteSpace(displayName) ? "Document" : displayName) + " - View";
+            textBox.ReadOnly = true;
+            ShowStatusMessage("Preview mode");
+            content ??= string.Empty;
+            textBox.Text = content.Replace("\r\n", "\n").Replace("\r", "\n").Replace("\n", Environment.NewLine);
+            MoveCaretToDocumentStart();
+            UpdateStatusBar();
+        }
+
         private void MoveCaretToDocumentStart()
         {
             if (textBox == null)

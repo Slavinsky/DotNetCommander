@@ -27,6 +27,12 @@ namespace DotNetCommander
             TabStop = true;
         }
 
+        public event EventHandler ZoomChanged;
+
+        public float Zoom => zoom;
+
+        public Size ImageSize => image?.Size ?? Size.Empty;
+
         public void SetImage(Image value)
         {
             Image previous = image;
@@ -67,14 +73,6 @@ namespace DotNetCommander
             float x = (ClientSize.Width - width) / 2f + panX;
             float y = (ClientSize.Height - height) / 2f + panY;
             e.Graphics.DrawImage(image, x, y, width, height);
-
-            using var overlayBrush = new SolidBrush(Color.FromArgb(170, 0, 0, 0));
-            using var textBrush = new SolidBrush(Color.WhiteSmoke);
-            using var font = new Font("Segoe UI", 9f);
-            string text = $"{zoom:P0}   Mouse wheel: zoom   Drag: pan";
-            SizeF textSize = e.Graphics.MeasureString(text, font);
-            e.Graphics.FillRectangle(overlayBrush, 6, 6, textSize.Width + 10, textSize.Height + 6);
-            e.Graphics.DrawString(text, font, textBrush, 11, 9);
         }
 
         protected override void OnMouseEnter(EventArgs e)
@@ -175,14 +173,26 @@ namespace DotNetCommander
             panY = relativeY - (relativeY - panY) * factor;
             zoom = nextZoom;
             Invalidate();
+            ZoomChanged?.Invoke(this, EventArgs.Empty);
         }
 
-        private void ResetView()
+        public void ZoomIn()
+        {
+            ZoomAt(Math.Min(MaxZoom, zoom * ZoomFactor), new Point(ClientSize.Width / 2, ClientSize.Height / 2));
+        }
+
+        public void ZoomOut()
+        {
+            ZoomAt(Math.Max(MinZoom, zoom / ZoomFactor), new Point(ClientSize.Width / 2, ClientSize.Height / 2));
+        }
+
+        public void ResetView()
         {
             zoom = 1f;
             panX = 0;
             panY = 0;
             Invalidate();
+            ZoomChanged?.Invoke(this, EventArgs.Empty);
         }
     }
 }

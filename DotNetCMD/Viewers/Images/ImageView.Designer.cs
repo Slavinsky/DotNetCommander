@@ -34,12 +34,11 @@
             this.columnDesc = new System.Windows.Forms.ColumnHeader();
             this.columnValue = new System.Windows.Forms.ColumnHeader();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.pictureBox = new System.Windows.Forms.PictureBox();
+            this.imageViewControl = new DotNetCommander.InteractiveImageViewControl();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabPage1 = new System.Windows.Forms.TabPage();
             this.tabPage2 = new System.Windows.Forms.TabPage();
             this.groupBox1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox)).BeginInit();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tabPage2.SuspendLayout();
@@ -83,7 +82,7 @@
             // 
             // groupBox1
             // 
-            this.groupBox1.Controls.Add(this.pictureBox);
+            this.groupBox1.Controls.Add(this.imageViewControl);
             this.groupBox1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.groupBox1.Location = new System.Drawing.Point(3, 3);
             this.groupBox1.Name = "groupBox1";
@@ -92,15 +91,14 @@
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Preview";
             // 
-            // pictureBox
+            // imageViewControl
             // 
-            this.pictureBox.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.pictureBox.Location = new System.Drawing.Point(3, 16);
-            this.pictureBox.Name = "pictureBox";
-            this.pictureBox.Size = new System.Drawing.Size(208, 442);
-            this.pictureBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
-            this.pictureBox.TabIndex = 0;
-            this.pictureBox.TabStop = false;
+            this.imageViewControl.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.imageViewControl.Location = new System.Drawing.Point(3, 16);
+            this.imageViewControl.Name = "imageViewControl";
+            this.imageViewControl.Size = new System.Drawing.Size(208, 442);
+            this.imageViewControl.TabIndex = 0;
+            this.imageViewControl.Visible = true;
             // 
             // tabControl1
             // 
@@ -145,7 +143,6 @@
             this.Text = "ExifMetadata View";
             this.KeyPreview = true;
             this.groupBox1.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox)).EndInit();
             this.tabControl1.ResumeLayout(false);
             this.tabPage1.ResumeLayout(false);
             this.tabPage2.ResumeLayout(false);
@@ -161,7 +158,7 @@
         private System.Windows.Forms.ColumnHeader columnDesc;
         private System.Windows.Forms.ColumnHeader columnValue;
         private System.Windows.Forms.GroupBox groupBox1;
-        private System.Windows.Forms.PictureBox pictureBox;
+        private DotNetCommander.InteractiveImageViewControl imageViewControl;
         private System.Windows.Forms.TabControl tabControl1;
         private System.Windows.Forms.TabPage tabPage1;
         private System.Windows.Forms.TabPage tabPage2;

@@ -52,6 +52,34 @@ namespace DotNetCommander
                 && string.Equals(Path.GetExtension(path), ".dsx", StringComparison.OrdinalIgnoreCase);
         }
 
+        public static bool IsCompoundFile(string path)
+        {
+            if (string.IsNullOrWhiteSpace(path) || !File.Exists(path))
+                return false;
+
+            byte[] signature = { 0xD0, 0xCF, 0x11, 0xE0, 0xA1, 0xB1, 0x1A, 0xE1 };
+            try
+            {
+                using var stream = new FileStream(
+                    path,
+                    FileMode.Open,
+                    FileAccess.Read,
+                    FileShare.ReadWrite | FileShare.Delete,
+                    signature.Length,
+                    FileOptions.SequentialScan);
+                for (int index = 0; index < signature.Length; index++)
+                {
+                    if (stream.ReadByte() != signature[index])
+                        return false;
+                }
+                return true;
+            }
+            catch (Exception ex) when (ex is IOException || ex is UnauthorizedAccessException)
+            {
+                return false;
+            }
+        }
+
         public static bool TryGetArchiveFormatByExtension(string path, out ArchiveFormat format)
         {
             string normalizedPath = (path ?? string.Empty).Trim().ToLowerInvariant();

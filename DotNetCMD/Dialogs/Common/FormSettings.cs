@@ -47,6 +47,7 @@ namespace DotNetCommander
         private readonly CheckBox overwriteExistingFilesCheckBox;
         private readonly CheckBox openCreatedFolderCheckBox;
         private readonly NumericUpDown quickViewCsvMaxMbNumeric;
+        private readonly NumericUpDown quickViewTextMaxKbNumeric;
         private readonly NumericUpDown dialogFontSizeNumeric;
         private readonly NumericUpDown dialogCaptionFontSizeNumeric;
         private readonly NumericUpDown dialogEmphasisFontSizeNumeric;
@@ -174,6 +175,8 @@ namespace DotNetCommander
             sizeColumnWidthNumeric = CreateNumeric(60, 400, 120);
             dateColumnWidthNumeric = CreateNumeric(80, 500, 120);
             quickViewCsvMaxMbNumeric = CreateNumeric(1, 64, 100);
+            quickViewTextMaxKbNumeric = CreateNumeric(64, 65536, 100);
+            quickViewTextMaxKbNumeric.Increment = 64;
             dialogFontSizeNumeric = CreateNumeric(8, 24, 120);
             dialogCaptionFontSizeNumeric = CreateNumeric(8, 24, 120);
             dialogEmphasisFontSizeNumeric = CreateNumeric(8, 24, 120);
@@ -486,8 +489,31 @@ namespace DotNetCommander
             sizePanel.Controls.Add(quickViewCsvMaxMbNumeric);
             sizePanel.Controls.Add(mbLabel);
 
+            var textSizePanel = new FlowLayoutPanel
+            {
+                Dock = DockStyle.Top,
+                Height = 42,
+                FlowDirection = FlowDirection.LeftToRight,
+                WrapContents = false,
+                Padding = new Padding(0, 4, 0, 0)
+            };
+            textSizePanel.Controls.Add(new Label
+            {
+                AutoSize = true,
+                Text = Language.getString("settingsQuickViewTextMaxSize"),
+                Margin = new Padding(0, 8, 12, 0)
+            });
+            textSizePanel.Controls.Add(quickViewTextMaxKbNumeric);
+            textSizePanel.Controls.Add(new Label
+            {
+                AutoSize = true,
+                Text = "KB",
+                Margin = new Padding(8, 8, 0, 0)
+            });
+
             quickViewPanel.Controls.Add(noteLabel);
             quickViewPanel.Controls.Add(sizePanel);
+            quickViewPanel.Controls.Add(textSizePanel);
             quickViewPanel.Controls.Add(dialogPreviewPanel);
             quickViewPanel.Controls.Add(dialogLayout);
             quickViewPanel.Controls.Add(overwriteExistingFilesCheckBox);
@@ -556,6 +582,9 @@ namespace DotNetCommander
             overwriteExistingFilesCheckBox.Checked = Properties.Settings.Default.OverwriteExistingFiles;
             openCreatedFolderCheckBox.Checked = Properties.Settings.Default.OpenCreatedFolderAfterCreate;
             quickViewCsvMaxMbNumeric.Value = Math.Max(1, Properties.Settings.Default.QuickViewCsvMaxBytes / (1024 * 1024));
+            quickViewTextMaxKbNumeric.Value = Math.Max(
+                quickViewTextMaxKbNumeric.Minimum,
+                Math.Min(quickViewTextMaxKbNumeric.Maximum, Properties.Settings.Default.QuickViewTextMaxBytes / 1024));
             textEditorWordWrapCheckBox.Checked = Properties.Settings.Default.TextEditorWordWrap;
             showStatusHintsCheckBox.Checked = Properties.Settings.Default.ShowStatusHints;
             directoriesFirstCheckBox.Checked = Properties.Settings.Default.FileBrowserDirectoriesFirst;
@@ -605,6 +634,7 @@ namespace DotNetCommander
             Properties.Settings.Default.OverwriteExistingFiles = overwriteExistingFilesCheckBox.Checked;
             Properties.Settings.Default.OpenCreatedFolderAfterCreate = openCreatedFolderCheckBox.Checked;
             Properties.Settings.Default.QuickViewCsvMaxBytes = (int)quickViewCsvMaxMbNumeric.Value * 1024 * 1024;
+            Properties.Settings.Default.QuickViewTextMaxBytes = (int)quickViewTextMaxKbNumeric.Value * 1024;
 
             Properties.Settings.Default.FileBrowserLoadIcons = loadIconsCheckBox.Checked;
             Properties.Settings.Default.FileBrowserLoadLargeIcons = loadLargeIconsCheckBox.Checked;

@@ -317,7 +317,7 @@
     <value>Оновити активну панель</value>
   </data>
   <data name="helpOpenArchiveBySignature" xml:space="preserve">
-    <value>Відкрити архів за сигнатурою, панель GEDCOM або спробувати DataSet XML незалежно від розширення</value>
+    <value>Відкрити архів, структуроване сховище CFBF, панель GEDCOM або спробувати DataSet XML</value>
   </data>
   <data name="helpHistoryBack" xml:space="preserve">
     <value>Повернутися до попереднього розташування панелі</value>
@@ -533,16 +533,22 @@
     <value>Це початок діалогу налаштувань із вкладками. Тут можуть жити загальні параметри програми.</value>
   </data>
   <data name="settingsOperationsIntro" xml:space="preserve">
-    <value>Керуйте поведінкою copy і move операцій разом із типовими параметрами CSV quick preview.</value>
+    <value>Керуйте поведінкою copy і move операцій разом із типовими параметрами Quick View.</value>
   </data>
   <data name="settingsQuickViewTitle" xml:space="preserve">
-    <value>Швидкий перегляд CSV</value>
+    <value>Quick View</value>
   </data>
   <data name="settingsQuickViewCsvEnable" xml:space="preserve">
     <value>Увімкнути табличний перегляд CSV-подібних файлів у Quick View</value>
   </data>
   <data name="settingsQuickViewCsvMaxSize" xml:space="preserve">
-    <value>Максимальний розмір файлу для Quick View:</value>
+    <value>Ліміт перегляду CSV:</value>
+  </data>
+  <data name="settingsQuickViewTextMaxSize" xml:space="preserve">
+    <value>Ліміт перегляду Text / RTF / Markdown:</value>
+  </data>
+  <data name="quickViewEncodingFormat" xml:space="preserve">
+    <value>Кодування: {0}</value>
   </data>
   <data name="settingsQuickViewCsvNote" xml:space="preserve">
     <value>Невеликі таблиці відкриваються прямо в Quick View. Великі файли залишаються доступними через F3, щоб уникнути підвисань UI.</value>
@@ -850,4 +856,110 @@
   <data name="dataSetChildColumns" xml:space="preserve"><value>Дочірні колонки</value></data>
   <data name="dataSetNested" xml:space="preserve"><value>Вкладений</value></data>
   <data name="dataSetRowFormat" xml:space="preserve"><value>Рядок {0}</value></data>
+  <data name="search" xml:space="preserve"><value>Пошук</value></data>
+  <data name="searchTitle" xml:space="preserve"><value>Пошук файлів</value></data>
+  <data name="searchScope" xml:space="preserve"><value>Шукати в</value></data>
+  <data name="searchBrowse" xml:space="preserve"><value>Огляд...</value></data>
+  <data name="searchNamePattern" xml:space="preserve"><value>Маска імені файла</value></data>
+  <data name="searchContentText" xml:space="preserve"><value>Текст у файлі</value></data>
+  <data name="searchRecursive" xml:space="preserve"><value>Шукати у підкаталогах</value></data>
+  <data name="searchIncludeDirectories" xml:space="preserve"><value>Включати відповідні каталоги</value></data>
+  <data name="searchUseRegex" xml:space="preserve"><value>Регулярний вираз для імені</value></data>
+  <data name="searchMaxDepth" xml:space="preserve"><value>Максимальна глибина</value></data>
+  <data name="searchUnlimitedDepth" xml:space="preserve"><value>0 = без обмежень</value></data>
+  <data name="searchStart" xml:space="preserve"><value>Шукати</value></data>
+  <data name="searchResults" xml:space="preserve"><value>Результати пошуку</value></data>
+  <data name="searchColumnLocation" xml:space="preserve"><value>Розташування</value></data>
+  <data name="searchDisplayLocationFormat" xml:space="preserve"><value>Пошук: {0} у {1}</value></data>
+  <data name="searchStarting" xml:space="preserve"><value>Початок пошуку...</value></data>
+  <data name="searchProgressFormat" xml:space="preserve"><value>Переглянуто: {0}   Знайдено: {1}   Пропущено: {2}   {3}</value></data>
+  <data name="searchCompletedFormat" xml:space="preserve"><value>Знайдено: {0}</value></data>
+  <data name="searchCancelled" xml:space="preserve"><value>Пошук скасовано.</value></data>
+  <data name="searchFailed" xml:space="preserve"><value>Помилка пошуку.</value></data>
+  <data name="searchInvalidScope" xml:space="preserve"><value>Каталог пошуку не існує.</value></data>
+  <data name="searchInvalidRegex" xml:space="preserve"><value>Некоректний регулярний вираз</value></data>
+  <data name="compoundReading" xml:space="preserve"><value>Читання структури складеного файла...</value></data>
+  <data name="compoundOpeningStream" xml:space="preserve"><value>Відкриття потоку складеного файла...</value></data>
+  <data name="compoundOpenFailed" xml:space="preserve"><value>Не вдалося відкрити складений файл.</value></data>
+  <data name="compoundStorage" xml:space="preserve"><value>Сховище</value></data>
+  <data name="compoundStream" xml:space="preserve"><value>Потік</value></data>
+  <data name="compoundCopyRequiresFilePanel" xml:space="preserve"><value>Потоки складеного файла можна копіювати лише у фізичну файлову панель.</value></data>
+  <data name="rtfEditorTitle" xml:space="preserve"><value>Редактор RTF</value></data>
+  <data name="rtfEditorTitleFormat" xml:space="preserve"><value>{0} - Редактор RTF</value></data>
+  <data name="rtfPreviewTitleFormat" xml:space="preserve"><value>{0} - Перегляд</value></data>
+  <data name="rtfPreviewMode" xml:space="preserve"><value>Режим перегляду</value></data>
+  <data name="rtfLoadErrorFormat" xml:space="preserve"><value>Помилка завантаження файла: {0}</value></data>
+  <data name="rtfSaveErrorFormat" xml:space="preserve"><value>Помилка збереження файла: {0}</value></data>
+  <data name="rtfSaveFailed" xml:space="preserve"><value>Не вдалося зберегти</value></data>
+  <data name="rtfSavedFormat" xml:space="preserve"><value>Збережено: {0}</value></data>
+  <data name="rtfSaveSuccess" xml:space="preserve"><value>Файл успішно збережено!</value></data>
+  <data name="rtfSuccessTitle" xml:space="preserve"><value>Успішно</value></data>
+  <data name="rtfPreviewReadOnly" xml:space="preserve"><value>Перегляд доступний лише для читання. Натисніть Ctrl+Shift+S, щоб зберегти копію.</value></data>
+  <data name="rtfFileDialogFilter" xml:space="preserve"><value>Формат Rich Text (*.rtf)|*.rtf|Текстові файли (*.txt)|*.txt|Усі файли (*.*)|*.*</value></data>
+  <data name="rtfStatusFormat" xml:space="preserve"><value>Рядків: {0}   Символів: {1:N0}   Виділено: {2:N0}   Рядок {3}, стовпець {4}</value></data>
+  <data name="rtfUndo" xml:space="preserve"><value>Скасувати</value></data>
+  <data name="rtfRedo" xml:space="preserve"><value>Повторити</value></data>
+  <data name="rtfCut" xml:space="preserve"><value>Вирізати</value></data>
+  <data name="rtfCopy" xml:space="preserve"><value>Копіювати</value></data>
+  <data name="rtfPaste" xml:space="preserve"><value>Вставити</value></data>
+  <data name="rtfDelete" xml:space="preserve"><value>Видалити</value></data>
+  <data name="rtfSelectAll" xml:space="preserve"><value>Виділити все</value></data>
+  <data name="rtfStyle" xml:space="preserve"><value>Стиль</value></data>
+  <data name="rtfBold" xml:space="preserve"><value>Напівжирний</value></data>
+  <data name="rtfItalic" xml:space="preserve"><value>Курсив</value></data>
+  <data name="rtfUnderline" xml:space="preserve"><value>Підкреслений</value></data>
+  <data name="rtfFont" xml:space="preserve"><value>Шрифт...</value></data>
+  <data name="rtfStyleNormal" xml:space="preserve"><value>Звичайний</value></data>
+  <data name="rtfStyleCode" xml:space="preserve"><value>Код</value></data>
+  <data name="rtfMarkdownImage" xml:space="preserve"><value>Зображення</value></data>
+  <data name="rtfKeyboardHelp" xml:space="preserve"><value>Редактор RTF
+
+F1 - Показати цю довідку
+F4 - Відкрити файл
+Ctrl+S - Зберегти файл
+Ctrl+Shift+S - Зберегти файл як
+Ctrl+T - Шрифт і колір
+Ctrl+B - Напівжирний
+Ctrl+I - Курсив
+Ctrl+U - Підкреслений
+Ctrl++ / Ctrl+колесо вгору - Збільшити шрифт
+Ctrl+- / Ctrl+колесо вниз - Зменшити шрифт
+Контекстне меню - Стиль - Звичайний / H1..H6 / Код
+Esc - Закрити редактор</value></data>
+  <data name="keyboardHelpShortcut" xml:space="preserve"><value>Клавіші</value></data>
+  <data name="keyboardHelpAction" xml:space="preserve"><value>Дія</value></data>
+  <data name="keyboardHelpCloseHint" xml:space="preserve"><value>Esc закриває це вікно</value></data>
+  <data name="rtfHelpSubtitle" xml:space="preserve"><value>Клавіатурні команди редагування, форматування та навігації</value></data>
+  <data name="rtfHelpShowHelp" xml:space="preserve"><value>Показати цю довідку</value></data>
+  <data name="rtfHelpOpenFile" xml:space="preserve"><value>Відкрити файл</value></data>
+  <data name="rtfHelpSave" xml:space="preserve"><value>Зберегти поточний файл</value></data>
+  <data name="rtfHelpSaveAs" xml:space="preserve"><value>Зберегти під іншою назвою або зберегти копію preview</value></data>
+  <data name="rtfHelpFontColor" xml:space="preserve"><value>Вибрати шрифт і колір тексту</value></data>
+  <data name="rtfHelpBold" xml:space="preserve"><value>Увімкнути або вимкнути напівжирний стиль</value></data>
+  <data name="rtfHelpItalic" xml:space="preserve"><value>Увімкнути або вимкнути курсив</value></data>
+  <data name="rtfHelpUnderline" xml:space="preserve"><value>Увімкнути або вимкнути підкреслення</value></data>
+  <data name="rtfHelpIncreaseFont" xml:space="preserve"><value>Збільшити розмір шрифту</value></data>
+  <data name="rtfHelpDecreaseFont" xml:space="preserve"><value>Зменшити розмір шрифту</value></data>
+  <data name="rtfHelpStyleShortcut" xml:space="preserve"><value>Контекстне меню → Стиль</value></data>
+  <data name="rtfHelpStyleAction" xml:space="preserve"><value>Застосувати стиль Звичайний, H1–H6 або Код</value></data>
+  <data name="rtfHelpClose" xml:space="preserve"><value>Закрити редактор</value></data>
+  <data name="mainHelpSubtitle" xml:space="preserve"><value>Commander-команди, навігація панелей і файлові операції</value></data>
+  <data name="imageViewerTitle" xml:space="preserve"><value>Перегляд зображень</value></data>
+  <data name="imageViewerPreview" xml:space="preserve"><value>Перегляд</value></data>
+  <data name="imageViewerExifData" xml:space="preserve"><value>Дані EXIF</value></data>
+  <data name="imageZoomStatusFormat" xml:space="preserve"><value>Масштаб: {0:P0}   {1} × {2} пкс</value></data>
+  <data name="imageHelpSubtitle" xml:space="preserve"><value>Навігація зображення, масштаб і команди EXIF</value></data>
+  <data name="imageHelpOpen" xml:space="preserve"><value>Відкрити файл зображення</value></data>
+  <data name="imageHelpWheelShortcut" xml:space="preserve"><value>Колесо миші</value></data>
+  <data name="imageHelpWheelAction" xml:space="preserve"><value>Масштабувати відносно вказівника</value></data>
+  <data name="imageHelpZoomKeys" xml:space="preserve"><value>Збільшити або зменшити відносно центра</value></data>
+  <data name="imageHelpReset" xml:space="preserve"><value>Вписати зображення у вікно</value></data>
+  <data name="imageHelpDoubleClickShortcut" xml:space="preserve"><value>Подвійний клік</value></data>
+  <data name="imageHelpDragShortcut" xml:space="preserve"><value>Перетягування лівою кнопкою</value></data>
+  <data name="imageHelpPan" xml:space="preserve"><value>Переміщати збільшене зображення</value></data>
+  <data name="imageHelpFilterExif" xml:space="preserve"><value>Фільтрувати EXIF за ID тега</value></data>
+  <data name="imageHelpShowAllExif" xml:space="preserve"><value>Показати всі теги EXIF</value></data>
+  <data name="imageHelpForceExif" xml:space="preserve"><value>Показати вкладки EXIF для діагностики</value></data>
+  <data name="imageHelpClose" xml:space="preserve"><value>Закрити переглядач</value></data>
+  <data name="imageDescriptionStatusFormat" xml:space="preserve"><value>{0}   —   {1}</value></data>
 </root>

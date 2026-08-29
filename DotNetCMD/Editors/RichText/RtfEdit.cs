@@ -1,12 +1,15 @@
 using System;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Drawing;
+using System.Drawing.Imaging;
 using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using DotNetCommander.Properties;
+using Timer = System.Windows.Forms.Timer;
 
 namespace View
 {
@@ -26,8 +29,10 @@ namespace View
         private Timer markdownResizeTimer;
         private int lastMarkdownRenderWidth;
         private int markdownRenderGeneration;
-        private static Point _savedLocation = new Point(-1, -1);
-        private static Size _savedSize = new Size(0, 0);
+        private Encoding currentTextEncoding = new UTF8Encoding(false);
+        private Font ownedEditorFont;
+        private static Point savedLocation = new Point(-1, -1);
+        private static Size savedSize = new Size(0, 0);
 
         public RtfEdit()
         {
@@ -65,11 +70,13 @@ namespace View
             richTextBox.DetectUrls = true;
             richTextBox.AcceptsTab = true;
             richTextBox.EnableAutoDragDrop = true;
-            richTextBox.Font = CreateEditorFont();
+            ownedEditorFont = CreateEditorFont();
+            richTextBox.Font = ownedEditorFont;
             richTextBox.KeyDown += RichTextBox_KeyDown;
             richTextBox.MouseWheel += RichTextBox_MouseWheel;
             richTextBox.SelectionChanged += (_, __) => UpdateStatusBar();
             richTextBox.TextChanged += (_, __) => UpdateStatusBar();
+            richTextBox.LinkClicked += RichTextBox_LinkClicked;
             richTextBox.ContextMenuStrip = CreateEditorContextMenu();
 
             markdownResizeTimer = new Timer { Interval = 250 };
@@ -88,7 +95,7 @@ namespace View
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new System.Drawing.Size(900, 650);
             Name = "RtfEdit";
-            Text = "RTF Editor";
+            Text = DotNetCommander.Language.getString("rtfEditorTitle");
             KeyPreview = true;
             ResumeLayout(false);
         }
@@ -150,52 +157,70 @@ namespace View
 
         private void ToggleFontStyle(FontStyle style)
         {
-            Font currentFont = richTextBox.SelectionFont ?? richTextBox.Font;
-            FontStyle newStyle;
+            Font selectionFont = richTextBox.SelectionFont;
+            Font currentFont = selectionFont ?? richTextBox.Font;
 
-            if ((currentFont.Style & style) == style)
+            try
             {
-                newStyle = currentFont.Style & ~style;
+                FontStyle newStyle = (currentFont.Style & style) == style
+                    ? currentFont.Style & ~style
+                    : currentFont.Style | style;
+                ApplyFontToSelection(new Font(currentFont, newStyle));
             }
-            else
+            finally
             {
-                newStyle = currentFont.Style | style;
+                selectionFont?.Dispose();
             }
-
-            ApplyFontToSelection(new Font(currentFont, newStyle));
         }
 
         private void ChangeFontSize(float delta)
         {
-            Font currentFont = richTextBox.SelectionFont ?? richTextBox.Font;
-            float newSize = Math.Max(6f, Math.Min(96f, currentFont.Size + delta));
+            Font selectionFont = richTextBox.SelectionFont;
+            Font currentFont = selectionFont ?? richTextBox.Font;
+            try
+            {
+                float newSize = Math.Max(6f, Math.Min(96f, currentFont.Size + delta));
+                if (Math.Abs(newSize - currentFont.Size) < 0.1f)
+                    return;
 
-            if (Math.Abs(newSize - currentFont.Size) < 0.1f)
-                return;
-
-            Font resizedFont = new Font(currentFont.FontFamily, newSize, currentFont.Style);
-            ApplyFontToSelection(resizedFont);
-            UpdateStatusBar();
+                ApplyFontToSelection(new Font(currentFont.FontFamily, newSize, currentFont.Style));
+                UpdateStatusBar();
+            }
+            finally
+            {
+                selectionFont?.Dispose();
+            }
         }
 
         private void ApplyFontToSelection(Font font, bool persistAsDefault = true)
         {
-            if (richTextBox.SelectionLength > 0)
+            try
             {
                 richTextBox.SelectionFont = font;
-            }
-            else
-            {
-                richTextBox.SelectionFont = font;
-                richTextBox.Font = new Font(font.FontFamily, font.Size, font.Style);
-            }
+                if (richTextBox.SelectionLength == 0)
+                {
+                    ReplaceEditorFont(new Font(font.FontFamily, font.Size, font.Style));
+                }
 
-            if (persistAsDefault && richTextBox.SelectionLength == 0)
+                if (persistAsDefault && richTextBox.SelectionLength == 0)
+                {
+                    SaveEditorAppearance(font);
+                }
+            }
+            finally
             {
-                SaveEditorAppearance(font);
+                font.Dispose();
             }
 
             UpdateStatusBar();
+        }
+
+        private void ReplaceEditorFont(Font font)
+        {
+            Font previous = ownedEditorFont;
+            ownedEditorFont = font;
+            richTextBox.Font = font;
+            previous?.Dispose();
         }
 
         private static Font CreateEditorFont()
@@ -209,8 +234,9 @@ namespace View
             {
                 return new Font(fontName, fontSize);
             }
-            catch
+            catch (Exception ex)
             {
+                DotNetCommander.LogService.LogException("RtfEdit.CreateEditorFont", ex);
                 return new Font("Segoe UI", 11f);
             }
         }
@@ -232,8 +258,11 @@ namespace View
 
             using FontDialog dialog = new FontDialog();
             dialog.ShowColor = true;
-            dialog.Font = richTextBox.SelectionFont ?? richTextBox.Font;
+            Font selectionFont = richTextBox.SelectionFont;
+            Font sourceFont = selectionFont ?? richTextBox.Font;
+            dialog.Font = new Font(sourceFont, sourceFont.Style);
             dialog.Color = richTextBox.SelectionColor.IsEmpty ? richTextBox.ForeColor : richTextBox.SelectionColor;
+            selectionFont?.Dispose();
 
             if (dialog.ShowDialog(this) != DialogResult.OK)
                 return;
@@ -242,12 +271,24 @@ namespace View
             richTextBox.SelectionColor = dialog.Color;
             if (richTextBox.SelectionLength == 0)
             {
-                richTextBox.Font = dialog.Font;
+                ReplaceEditorFont(new Font(dialog.Font, dialog.Font.Style));
                 richTextBox.ForeColor = dialog.Color;
                 SaveEditorAppearance(dialog.Font);
             }
 
             UpdateStatusBar();
+        }
+
+        private void RichTextBox_LinkClicked(object sender, LinkClickedEventArgs e)
+        {
+            try
+            {
+                Process.Start(new ProcessStartInfo(e.LinkText) { UseShellExecute = true });
+            }
+            catch (Exception ex)
+            {
+                DotNetCommander.LogService.LogException("RtfEdit.OpenLink", ex);
+            }
         }
 
         private ContextMenuStrip CreateEditorContextMenu()
@@ -283,9 +324,18 @@ namespace View
                 Name = name,
                 Text = name switch
                 {
-                    "SelectAll" => "Select All",
-                    "Style" => "Style",
-                    "Font" => "Font...",
+                    "Undo" => DotNetCommander.Language.getString("rtfUndo"),
+                    "Redo" => DotNetCommander.Language.getString("rtfRedo"),
+                    "Cut" => DotNetCommander.Language.getString("rtfCut"),
+                    "Copy" => DotNetCommander.Language.getString("rtfCopy"),
+                    "Paste" => DotNetCommander.Language.getString("rtfPaste"),
+                    "Delete" => DotNetCommander.Language.getString("rtfDelete"),
+                    "SelectAll" => DotNetCommander.Language.getString("rtfSelectAll"),
+                    "Style" => DotNetCommander.Language.getString("rtfStyle"),
+                    "Bold" => DotNetCommander.Language.getString("rtfBold"),
+                    "Italic" => DotNetCommander.Language.getString("rtfItalic"),
+                    "Underline" => DotNetCommander.Language.getString("rtfUnderline"),
+                    "Font" => DotNetCommander.Language.getString("rtfFont"),
                     _ => name
                 }
             };
@@ -309,7 +359,13 @@ namespace View
 
         private ToolStripMenuItem CreateMarkdownStyleMenuItem(string styleName)
         {
-            ToolStripMenuItem item = new ToolStripMenuItem(styleName)
+            string displayName = styleName switch
+            {
+                "Normal" => DotNetCommander.Language.getString("rtfStyleNormal"),
+                "Code" => DotNetCommander.Language.getString("rtfStyleCode"),
+                _ => styleName
+            };
+            ToolStripMenuItem item = new ToolStripMenuItem(displayName)
             {
                 Tag = styleName
             };
@@ -466,8 +522,9 @@ namespace View
             {
                 ApplyFontToSelection(new Font(fontName, fontSize, fontStyle), false);
             }
-            catch
+            catch (Exception ex)
             {
+                DotNetCommander.LogService.LogException("RtfEdit.ApplyMarkdownStyle", ex);
                 ApplyFontToSelection(new Font(styleName == "Code" ? "Consolas" : "Segoe UI", fontSize, fontStyle), false);
             }
         }
@@ -504,7 +561,13 @@ namespace View
             int lineStart = richTextBox.GetFirstCharIndexOfCurrentLine();
             int caretColumn = Math.Max(1, caretIndex - Math.Max(0, lineStart) + 1);
 
-            statusStatsLabel.Text = $"Lines: {lineCount}   Chars: {textLength:0,0}   Sel: {selectionLength:0,0}   Ln {caretLine}, Col {caretColumn}";
+            statusStatsLabel.Text = string.Format(
+                DotNetCommander.Language.getString("rtfStatusFormat"),
+                lineCount,
+                textLength,
+                selectionLength,
+                caretLine,
+                caretColumn);
         }
 
         public async void LoadFile(string filePath, bool preview = false)
@@ -518,12 +581,13 @@ namespace View
                 lastMarkdownRenderWidth = 0;
                 currentFilePath = filePath;
                 previewMode = preview;
+                currentTextEncoding = new UTF8Encoding(false);
                 UpdateWindowTitle();
 
                 string extension = Path.GetExtension(filePath)?.ToLowerInvariant() ?? string.Empty;
                 if (previewMode && string.Equals(extension, ".md", StringComparison.OrdinalIgnoreCase))
                 {
-                    markdownPreviewSource = File.ReadAllText(filePath, Encoding.UTF8);
+                    markdownPreviewSource = DotNetCommander.TextFileEncodingService.ReadAllText(filePath, out currentTextEncoding);
                     markdownPreviewHasTables = ContainsMarkdownTable(markdownPreviewSource);
                     richTextBox.ReadOnly = true;
                     await RenderMarkdownPreviewAsync(showWaitAfterDelay: true);
@@ -534,18 +598,20 @@ namespace View
                 }
                 else
                 {
-                    string content = File.ReadAllText(filePath, Encoding.UTF8);
+                    string content = DotNetCommander.TextFileEncodingService.ReadAllText(filePath, out currentTextEncoding);
                     richTextBox.Text = content;
                 }
 
                 richTextBox.ReadOnly = previewMode;
-                ShowStatusMessage(previewMode ? "Preview mode" : string.Empty);
+                ShowStatusMessage(previewMode ? DotNetCommander.Language.getString("rtfPreviewMode") : string.Empty);
                 MoveCaretToDocumentStart();
                 UpdateStatusBar();
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error loading file: {ex.Message}", "Error",
+                DotNetCommander.LogService.LogException("RtfEdit.LoadFile", ex);
+                MessageBox.Show(string.Format(DotNetCommander.Language.getString("rtfLoadErrorFormat"), ex.Message),
+                    DotNetCommander.Language.getString("error"),
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
@@ -595,7 +661,7 @@ namespace View
             string markdown = markdownPreviewSource;
             int tableWidth = GetTableWidthTwips();
             lastMarkdownRenderWidth = richTextBox.ClientSize.Width;
-            MarkdownRenderOptions options = CaptureMarkdownRenderOptions();
+            MarkdownRenderOptions options = CaptureMarkdownRenderOptions(Path.GetDirectoryName(currentFilePath));
             int renderGeneration = ++markdownRenderGeneration;
             int selectionStart = richTextBox.SelectionStart;
             int selectionLength = richTextBox.SelectionLength;
@@ -644,7 +710,7 @@ namespace View
             richTextBox.Select(selectionStart, selectionLength);
         }
 
-        private static MarkdownRenderOptions CaptureMarkdownRenderOptions()
+        internal static MarkdownRenderOptions CaptureMarkdownRenderOptions(string baseDirectory = null)
         {
             return new MarkdownRenderOptions
             {
@@ -660,11 +726,13 @@ namespace View
                 H3FontSize = Settings.Default.MarkdownPreviewH3FontSize,
                 H4FontSize = Settings.Default.MarkdownPreviewH4FontSize,
                 H5FontSize = Settings.Default.MarkdownPreviewH5FontSize,
-                H6FontSize = Settings.Default.MarkdownPreviewH6FontSize
+                H6FontSize = Settings.Default.MarkdownPreviewH6FontSize,
+                BaseDirectory = baseDirectory,
+                ImageLabel = DotNetCommander.Language.getString("rtfMarkdownImage")
             };
         }
 
-        private sealed class MarkdownRenderOptions
+        internal sealed class MarkdownRenderOptions
         {
             public string BodyFont { get; init; }
             public string CodeFont { get; init; }
@@ -675,6 +743,8 @@ namespace View
             public int H4FontSize { get; init; }
             public int H5FontSize { get; init; }
             public int H6FontSize { get; init; }
+            public string BaseDirectory { get; init; }
+            public string ImageLabel { get; init; }
         }
 
         private static bool ContainsMarkdownTable(string markdown)
@@ -727,58 +797,27 @@ namespace View
                 return;
             }
 
-            if (string.IsNullOrEmpty(currentFilePath) && !PromptForSavePath())
+            string targetPath = currentFilePath;
+            if (string.IsNullOrEmpty(targetPath) && !TryPromptForSavePath(currentFilePath, out targetPath))
             {
                 return;
             }
 
-            try
+            if (TryWriteContentToDisk(targetPath, "RtfEdit.SaveFile"))
             {
-                string extension = Path.GetExtension(currentFilePath)?.ToLowerInvariant() ?? string.Empty;
-                if (extension == ".rtf")
-                {
-                    richTextBox.SaveFile(currentFilePath, RichTextBoxStreamType.RichText);
-                }
-                else
-                {
-                    File.WriteAllText(currentFilePath, richTextBox.Text, Encoding.UTF8);
-                }
-
+                currentFilePath = targetPath;
                 UpdateWindowTitle();
-                NotifySaveSuccess(currentFilePath);
-            }
-            catch (Exception ex)
-            {
-                ShowStatusMessage("Save failed");
-                MessageBox.Show($"Error saving file: {ex.Message}", "Error",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                NotifySaveSuccess(targetPath);
             }
         }
 
         public void SaveFileAs()
         {
-            string previousPath = currentFilePath;
-            if (!PromptForSavePath())
-            {
-                currentFilePath = previousPath;
+            if (!TryPromptForSavePath(currentFilePath, out string targetPath))
                 return;
-            }
 
-            string targetPath = currentFilePath;
-            currentFilePath = previousPath;
-
-            try
+            if (TryWriteContentToDisk(targetPath, "RtfEdit.SaveFileAs"))
             {
-                string extension = Path.GetExtension(targetPath)?.ToLowerInvariant() ?? string.Empty;
-                if (extension == ".rtf")
-                {
-                    richTextBox.SaveFile(targetPath, RichTextBoxStreamType.RichText);
-                }
-                else
-                {
-                    File.WriteAllText(targetPath, richTextBox.Text, Encoding.UTF8);
-                }
-
                 if (!previewMode)
                 {
                     currentFilePath = targetPath;
@@ -787,24 +826,19 @@ namespace View
 
                 NotifySaveSuccess(targetPath);
             }
-            catch (Exception ex)
-            {
-                ShowStatusMessage("Save failed");
-                MessageBox.Show($"Error saving file: {ex.Message}", "Error",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
         }
 
-        private bool PromptForSavePath()
+        private bool TryPromptForSavePath(string initialPath, out string selectedPath)
         {
+            selectedPath = null;
             using SaveFileDialog saveDialog = new SaveFileDialog();
-            saveDialog.Filter = "Rich Text Format (*.rtf)|*.rtf|Text files (*.txt)|*.txt|All files (*.*)|*.*";
-            saveDialog.FilterIndex = GetRtfSaveFilterIndex(currentFilePath);
+            saveDialog.Filter = DotNetCommander.Language.getString("rtfFileDialogFilter");
+            saveDialog.FilterIndex = GetRtfSaveFilterIndex(initialPath);
 
-            if (!string.IsNullOrWhiteSpace(currentFilePath))
+            if (!string.IsNullOrWhiteSpace(initialPath))
             {
-                saveDialog.FileName = Path.GetFileName(currentFilePath);
-                string initialDirectory = Path.GetDirectoryName(currentFilePath);
+                saveDialog.FileName = Path.GetFileName(initialPath);
+                string initialDirectory = Path.GetDirectoryName(initialPath);
                 if (!string.IsNullOrWhiteSpace(initialDirectory) && Directory.Exists(initialDirectory))
                 {
                     saveDialog.InitialDirectory = initialDirectory;
@@ -814,9 +848,31 @@ namespace View
             if (saveDialog.ShowDialog(this) != DialogResult.OK)
                 return false;
 
-            currentFilePath = saveDialog.FileName;
-            UpdateWindowTitle();
+            selectedPath = saveDialog.FileName;
             return true;
+        }
+
+        private bool TryWriteContentToDisk(string path, string logContext)
+        {
+            try
+            {
+                string extension = Path.GetExtension(path)?.ToLowerInvariant() ?? string.Empty;
+                if (extension == ".rtf")
+                    richTextBox.SaveFile(path, RichTextBoxStreamType.RichText);
+                else
+                    DotNetCommander.TextFileEncodingService.WriteAllText(path, richTextBox.Text, currentTextEncoding);
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                DotNetCommander.LogService.LogException(logContext, ex);
+                ShowStatusMessage(DotNetCommander.Language.getString("rtfSaveFailed"));
+                MessageBox.Show(string.Format(DotNetCommander.Language.getString("rtfSaveErrorFormat"), ex.Message),
+                    DotNetCommander.Language.getString("error"),
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return false;
+            }
         }
 
         private static int GetRtfSaveFilterIndex(string filePath)
@@ -827,7 +883,7 @@ namespace View
 
         private void NotifySaveSuccess(string path)
         {
-            string message = $"Saved: {Path.GetFileName(path)}";
+            string message = string.Format(DotNetCommander.Language.getString("rtfSavedFormat"), Path.GetFileName(path));
             if (Settings.Default.ShowEditorStatusBar)
             {
                 ShowStatusMessage(message);
@@ -835,28 +891,32 @@ namespace View
                 return;
             }
 
-            MessageBox.Show("File saved successfully!", "Success",
+            MessageBox.Show(DotNetCommander.Language.getString("rtfSaveSuccess"),
+                DotNetCommander.Language.getString("rtfSuccessTitle"),
                 MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
         private void NotifySaveBlocked()
         {
-            const string message = "Preview is read-only. Use Ctrl+Shift+S to save a copy.";
+            string message = DotNetCommander.Language.getString("rtfPreviewReadOnly");
             if (Settings.Default.ShowEditorStatusBar)
             {
                 ShowStatusMessage(message);
                 return;
             }
 
-            MessageBox.Show(message, "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            MessageBox.Show(message, DotNetCommander.Language.getString("Info"),
+                MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
         private void UpdateWindowTitle()
         {
             if (string.IsNullOrEmpty(currentFilePath))
-                Text = "RTF Editor";
+                Text = DotNetCommander.Language.getString("rtfEditorTitle");
             else
-                Text = Path.GetFileName(currentFilePath) + (previewMode ? " - Preview" : " - RTF Editor");
+                Text = string.Format(
+                    DotNetCommander.Language.getString(previewMode ? "rtfPreviewTitleFormat" : "rtfEditorTitleFormat"),
+                    Path.GetFileName(currentFilePath));
         }
 
         private void LoadRtfDocument(string filePath)
@@ -873,7 +933,7 @@ namespace View
             }
             catch (ArgumentException)
             {
-                string content = File.ReadAllText(filePath, Encoding.UTF8);
+                string content = DotNetCommander.TextFileEncodingService.ReadAllText(filePath, out currentTextEncoding);
                 if (string.IsNullOrWhiteSpace(content))
                 {
                     richTextBox.Rtf = EmptyDocumentRtf;
@@ -884,28 +944,50 @@ namespace View
             }
         }
 
-        private string EscapeRtf(string text)
+        private static string EscapeRtf(string text)
         {
             if (string.IsNullOrEmpty(text))
                 return string.Empty;
 
             StringBuilder sb = new StringBuilder();
-            foreach (char c in text)
+            for (int index = 0; index < text.Length; index++)
             {
+                char c = text[index];
                 if (c == '\\') sb.Append("\\\\");
                 else if (c == '{') sb.Append("\\{");
                 else if (c == '}') sb.Append("\\}");
                 else if (c == '\n') sb.Append("\\par ");
                 else if (c <= 0x7f)
                     sb.Append(c);
+                else if (char.IsHighSurrogate(c))
+                {
+                    if (index + 1 < text.Length && char.IsLowSurrogate(text[index + 1]))
+                    {
+                        AppendRtfUnicodeCodeUnit(sb, c);
+                        AppendRtfUnicodeCodeUnit(sb, text[++index]);
+                    }
+                    else
+                    {
+                        AppendRtfUnicodeCodeUnit(sb, '\uFFFD');
+                    }
+                }
+                else if (char.IsLowSurrogate(c))
+                    AppendRtfUnicodeCodeUnit(sb, '\uFFFD');
                 else
-                    sb.Append("\\u" + Convert.ToInt32(c) + "?");
+                    AppendRtfUnicodeCodeUnit(sb, c);
             }
 
             return sb.ToString();
         }
 
-        private string ConvertMarkdownToRtf(string markdown, int tableWidth, MarkdownRenderOptions options)
+        private static void AppendRtfUnicodeCodeUnit(StringBuilder sb, char value)
+        {
+            sb.Append("\\u");
+            sb.Append(unchecked((short)value));
+            sb.Append('?');
+        }
+
+        internal static string ConvertMarkdownToRtf(string markdown, int tableWidth, MarkdownRenderOptions options)
         {
             var sb = new StringBuilder();
             string bodyFont = options.BodyFont;
@@ -919,15 +1001,32 @@ namespace View
             sb.Append(";}}\\uc1\\fs");
             sb.Append(bodySize);
 
-            var lines = markdown.Replace("\r\n", "\n").Replace("\r", "\n").Split('\n');
+            var lines = (markdown ?? string.Empty).Replace("\r\n", "\n").Replace("\r", "\n").Split('\n');
             int lineIndex = 0;
+            bool inCodeBlock = false;
             while (lineIndex < lines.Length)
             {
                 string line = lines[lineIndex].TrimEnd();
 
+                if (line.TrimStart().StartsWith("```", StringComparison.Ordinal))
+                {
+                    inCodeBlock = !inCodeBlock;
+                    sb.Append(inCodeBlock ? "\\pard\\li360\\f1 " : "\\pard\\li0\\f0\\par ");
+                    lineIndex++;
+                    continue;
+                }
+
+                if (inCodeBlock)
+                {
+                    sb.Append(EscapeRtf(line));
+                    sb.Append("\\line ");
+                    lineIndex++;
+                    continue;
+                }
+
                 if (IsTableRow(line) && lineIndex + 1 < lines.Length && IsTableSeparatorRow(lines[lineIndex + 1]))
                 {
-                    lineIndex = AppendMarkdownTable(sb, lines, lineIndex, bodySize, tableWidth);
+                    lineIndex = AppendMarkdownTable(sb, lines, lineIndex, bodySize, tableWidth, options);
                     continue;
                 }
 
@@ -941,21 +1040,25 @@ namespace View
                 if (line.Trim() == "---")
                     AppendMarkdownHorizontalRule(sb, tableWidth, bodySize);
                 else if (line.StartsWith("###### "))
-                    sb.Append("\\fs" + ToRtfHalfPoints(options.H6FontSize, 9) + "\\b " + ApplyInlineMarkdown(line.Substring(7)) + "\\b0\\fs" + bodySize + "\\par ");
+                    sb.Append("\\fs" + ToRtfHalfPoints(options.H6FontSize, 9) + "\\b " + ApplyInlineMarkdown(line.Substring(7), options, tableWidth) + "\\b0\\fs" + bodySize + "\\par ");
                 else if (line.StartsWith("##### "))
-                    sb.Append("\\fs" + ToRtfHalfPoints(options.H5FontSize, 10) + "\\b " + ApplyInlineMarkdown(line.Substring(6)) + "\\b0\\fs" + bodySize + "\\par ");
+                    sb.Append("\\fs" + ToRtfHalfPoints(options.H5FontSize, 10) + "\\b " + ApplyInlineMarkdown(line.Substring(6), options, tableWidth) + "\\b0\\fs" + bodySize + "\\par ");
                 else if (line.StartsWith("#### "))
-                    sb.Append("\\fs" + ToRtfHalfPoints(options.H4FontSize, 11) + "\\b " + ApplyInlineMarkdown(line.Substring(5)) + "\\b0\\fs" + bodySize + "\\par ");
+                    sb.Append("\\fs" + ToRtfHalfPoints(options.H4FontSize, 11) + "\\b " + ApplyInlineMarkdown(line.Substring(5), options, tableWidth) + "\\b0\\fs" + bodySize + "\\par ");
                 else if (line.StartsWith("### "))
-                    sb.Append("\\fs" + ToRtfHalfPoints(options.H3FontSize, 12) + "\\b " + ApplyInlineMarkdown(line.Substring(4)) + "\\b0\\fs" + bodySize + "\\par ");
+                    sb.Append("\\fs" + ToRtfHalfPoints(options.H3FontSize, 12) + "\\b " + ApplyInlineMarkdown(line.Substring(4), options, tableWidth) + "\\b0\\fs" + bodySize + "\\par ");
                 else if (line.StartsWith("## "))
-                    sb.Append("\\fs" + ToRtfHalfPoints(options.H2FontSize, 13) + "\\b " + ApplyInlineMarkdown(line.Substring(3)) + "\\b0\\fs" + bodySize + "\\par ");
+                    sb.Append("\\fs" + ToRtfHalfPoints(options.H2FontSize, 13) + "\\b " + ApplyInlineMarkdown(line.Substring(3), options, tableWidth) + "\\b0\\fs" + bodySize + "\\par ");
                 else if (line.StartsWith("# "))
-                    sb.Append("\\fs" + ToRtfHalfPoints(options.H1FontSize, 14) + "\\b " + ApplyInlineMarkdown(line.Substring(2)) + "\\b0\\fs" + bodySize + "\\par ");
-                else if (line.StartsWith("- ") || line.StartsWith("* "))
-                    sb.Append("\\par {\\pntext\\f1\\'B7\\tab} " + ApplyInlineMarkdown(line.Substring(2)) + "\\par ");
+                    sb.Append("\\fs" + ToRtfHalfPoints(options.H1FontSize, 14) + "\\b " + ApplyInlineMarkdown(line.Substring(2), options, tableWidth) + "\\b0\\fs" + bodySize + "\\par ");
+                else if (TryAppendMarkdownQuote(sb, line, options, tableWidth, bodySize))
+                {
+                }
+                else if (TryAppendMarkdownListItem(sb, line, options, tableWidth, bodySize))
+                {
+                }
                 else
-                    sb.Append(ApplyInlineMarkdown(line) + "\\par ");
+                    sb.Append(ApplyInlineMarkdown(line, options, tableWidth) + "\\par ");
 
                 lineIndex++;
             }
@@ -1000,6 +1103,12 @@ namespace View
         }
 
         private static readonly Regex UnescapedPipeSplitRegex = new Regex(@"(?<!\\)\|", RegexOptions.Compiled);
+        private static readonly Regex UnorderedListRegex = new Regex(
+            @"^(?<indent>\s*)[-+*]\s+(?<text>.+)$",
+            RegexOptions.Compiled | RegexOptions.CultureInvariant);
+        private static readonly Regex OrderedListRegex = new Regex(
+            @"^(?<indent>\s*)(?<number>\d+)[.)]\s+(?<text>.+)$",
+            RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
         private static System.Collections.Generic.List<string> SplitMarkdownTableRow(string line)
         {
@@ -1044,7 +1153,8 @@ namespace View
             return result;
         }
 
-        private int AppendMarkdownTable(StringBuilder sb, string[] lines, int startIndex, int bodySize, int tableWidth)
+        private static int AppendMarkdownTable(StringBuilder sb, string[] lines, int startIndex, int bodySize,
+            int tableWidth, MarkdownRenderOptions options)
         {
             var headerCells = SplitMarkdownTableRow(lines[startIndex].TrimEnd());
             var alignments = ParseTableAlignments(lines[startIndex + 1].TrimEnd(), headerCells.Count);
@@ -1064,10 +1174,10 @@ namespace View
             int columnCount = Math.Max(1, headerCells.Count);
             int[] colWidths = CalculateColumnWidths(headerCells, bodyRows, columnCount, tableWidth);
 
-            AppendMarkdownTableRow(sb, headerCells, alignments, columnCount, colWidths, true);
+            AppendMarkdownTableRow(sb, headerCells, alignments, columnCount, colWidths, true, options, tableWidth);
             foreach (var row in bodyRows)
             {
-                AppendMarkdownTableRow(sb, row, alignments, columnCount, colWidths, false);
+                AppendMarkdownTableRow(sb, row, alignments, columnCount, colWidths, false, options, tableWidth);
             }
 
             sb.Append("\\pard\\fs" + bodySize + "\\par ");
@@ -1141,8 +1251,9 @@ namespace View
             return colWidths;
         }
 
-        private void AppendMarkdownTableRow(StringBuilder sb, System.Collections.Generic.List<string> cells,
-            System.Collections.Generic.List<char> alignments, int columnCount, int[] colWidths, bool isHeader)
+        private static void AppendMarkdownTableRow(StringBuilder sb, System.Collections.Generic.List<string> cells,
+            System.Collections.Generic.List<char> alignments, int columnCount, int[] colWidths, bool isHeader,
+            MarkdownRenderOptions options, int tableWidth)
         {
             sb.Append("\\trowd\\trgaph108\\trleft-108");
 
@@ -1168,7 +1279,7 @@ namespace View
                 if (isHeader)
                     sb.Append("\\b ");
 
-                sb.Append(ApplyInlineMarkdown(cellText));
+                sb.Append(ApplyInlineMarkdown(cellText, options, tableWidth));
 
                 if (isHeader)
                     sb.Append("\\b0 ");
@@ -1185,89 +1296,281 @@ namespace View
             return Math.Max(12, pointSize * 2);
         }
 
-        private string ApplyInlineMarkdown(string text)
+        private static bool TryAppendMarkdownQuote(StringBuilder sb, string line, MarkdownRenderOptions options,
+            int tableWidth, int bodySize)
+        {
+            int index = 0;
+            int depth = 0;
+            while (index < line.Length)
+            {
+                while (index < line.Length && char.IsWhiteSpace(line[index]))
+                    index++;
+                if (index >= line.Length || line[index] != '>')
+                    break;
+                depth++;
+                index++;
+                if (index < line.Length && line[index] == ' ')
+                    index++;
+            }
+
+            if (depth == 0)
+                return false;
+
+            int indent = Math.Min(6, depth) * 360;
+            sb.Append("\\pard\\li");
+            sb.Append(indent);
+            sb.Append("\\brdrl\\brdrs\\brdrw15\\brsp120\\i ");
+            sb.Append(ApplyInlineMarkdown(line.Substring(index), options, tableWidth));
+            sb.Append("\\i0\\par\\pard\\li0\\fs");
+            sb.Append(bodySize);
+            sb.Append(' ');
+            return true;
+        }
+
+        private static bool TryAppendMarkdownListItem(StringBuilder sb, string line, MarkdownRenderOptions options,
+            int tableWidth, int bodySize)
+        {
+            Match match = OrderedListRegex.Match(line);
+            bool ordered = match.Success;
+            if (!ordered)
+                match = UnorderedListRegex.Match(line);
+            if (!match.Success)
+                return false;
+
+            int indentLevel = Math.Min(8, match.Groups["indent"].Value.Replace("\t", "    ").Length / 2);
+            int indent = 360 + indentLevel * 360;
+            sb.Append("\\pard\\li");
+            sb.Append(indent);
+            sb.Append("\\fi-240 ");
+            if (ordered)
+            {
+                sb.Append(EscapeRtf(match.Groups["number"].Value));
+                sb.Append(".\\tab ");
+            }
+            else
+            {
+                sb.Append("{\\f1\\'B7}\\tab ");
+            }
+
+            sb.Append(ApplyInlineMarkdown(match.Groups["text"].Value, options, tableWidth));
+            sb.Append("\\par\\pard\\li0\\fi0\\fs");
+            sb.Append(bodySize);
+            sb.Append(' ');
+            return true;
+        }
+
+        private static string ApplyInlineMarkdown(string text, MarkdownRenderOptions options, int tableWidth)
         {
             if (string.IsNullOrEmpty(text))
                 return string.Empty;
 
-            // Inline markdown: code, bold, italic, underline.
-            var rx = new Regex("`([^`]+?)`|<code>(.+?)</code>|\\*\\*(.+?)\\*\\*|__(.+?)__|\\*(.+?)\\*|_(.+?)_|<u>(.+?)</u>", RegexOptions.Compiled | RegexOptions.IgnoreCase);
-
-            var sb = new StringBuilder();
-            int lastIndex = 0;
-            foreach (Match m in rx.Matches(text))
-            {
-                if (m.Index > lastIndex)
-                {
-                    sb.Append(EscapeRtf(text.Substring(lastIndex, m.Index - lastIndex)));
-                }
-
-                string content = null;
-                string prefix = null;
-                string suffix = null;
-
-                if (m.Groups[1].Success)
-                {
-                    // `code`
-                    content = m.Groups[1].Value;
-                    prefix = "\\f1 "; suffix = "\\f0 ";
-                }
-                else if (m.Groups[2].Success)
-                {
-                    // <code>code</code>
-                    content = m.Groups[2].Value;
-                    prefix = "\\f1 "; suffix = "\\f0 ";
-                }
-                else if (m.Groups[3].Success)
-                {
-                    // **bold**
-                    content = m.Groups[3].Value;
-                    prefix = "\\b "; suffix = "\\b0 ";
-                }
-                else if (m.Groups[4].Success)
-                {
-                    // __bold__
-                    content = m.Groups[4].Value;
-                    prefix = "\\b "; suffix = "\\b0 ";
-                }
-                else if (m.Groups[5].Success)
-                {
-                    // *italic*
-                    content = m.Groups[5].Value;
-                    prefix = "\\i "; suffix = "\\i0 ";
-                }
-                else if (m.Groups[6].Success)
-                {
-                    // _italic_
-                    content = m.Groups[6].Value;
-                    prefix = "\\i "; suffix = "\\i0 ";
-                }
-                else if (m.Groups[7].Success)
-                {
-                    // <u>underline</u>
-                    content = m.Groups[7].Value;
-                    prefix = "\\ul "; suffix = "\\ul0 ";
-                }
-
-                if (content != null)
-                {
-                    sb.Append(prefix);
-                    sb.Append(EscapeRtf(content));
-                    sb.Append(suffix);
-                }
-
-                lastIndex = m.Index + m.Length;
-            }
-
-            if (lastIndex < text.Length)
-                sb.Append(EscapeRtf(text.Substring(lastIndex)));
-
+            var sb = new StringBuilder(text.Length + 32);
+            AppendInlineMarkdown(sb, text, options, tableWidth, 0);
             return sb.ToString();
         }
 
-        private string RegexReplace(string input, string pattern, string replacementPrefix, string replacementSuffix)
+        private static void AppendInlineMarkdown(StringBuilder sb, string text, MarkdownRenderOptions options,
+            int tableWidth, int depth)
         {
-            return Regex.Replace(input, pattern, match => replacementPrefix + EscapeRtf(match.Groups[1].Value) + replacementSuffix);
+            if (depth > 16)
+            {
+                sb.Append(EscapeRtf(text));
+                return;
+            }
+
+            int index = 0;
+            while (index < text.Length)
+            {
+                if (text[index] == '\\' && index + 1 < text.Length)
+                {
+                    sb.Append(EscapeRtf(text.Substring(index + 1, 1)));
+                    index += 2;
+                    continue;
+                }
+
+                if (TryParseMarkdownLink(text, index, true, out string imageAlt, out string imageTarget, out int imageEnd))
+                {
+                    if (!TryAppendMarkdownImage(sb, imageAlt, imageTarget, options, tableWidth))
+                        AppendMarkdownImageFallback(sb, imageAlt, imageTarget, options, tableWidth, depth);
+                    index = imageEnd;
+                    continue;
+                }
+
+                if (TryParseMarkdownLink(text, index, false, out string linkText, out string linkTarget, out int linkEnd))
+                {
+                    AppendMarkdownLink(sb, linkText, linkTarget, options, tableWidth, depth);
+                    index = linkEnd;
+                    continue;
+                }
+
+                if (TryAppendDelimitedInline(sb, text, ref index, "`", "`", "{\\f1 ", "}",
+                    options, tableWidth, depth, parseNested: false) ||
+                    TryAppendDelimitedInline(sb, text, ref index, "<code>", "</code>", "{\\f1 ", "}",
+                        options, tableWidth, depth, parseNested: false, ignoreCase: true) ||
+                    TryAppendDelimitedInline(sb, text, ref index, "**", "**", "{\\b ", "}",
+                        options, tableWidth, depth, parseNested: true) ||
+                    TryAppendDelimitedInline(sb, text, ref index, "__", "__", "{\\b ", "}",
+                        options, tableWidth, depth, parseNested: true) ||
+                    TryAppendDelimitedInline(sb, text, ref index, "~~", "~~", "{\\strike ", "}",
+                        options, tableWidth, depth, parseNested: true) ||
+                    TryAppendDelimitedInline(sb, text, ref index, "<u>", "</u>", "{\\ul ", "}",
+                        options, tableWidth, depth, parseNested: true, ignoreCase: true) ||
+                    TryAppendDelimitedInline(sb, text, ref index, "*", "*", "{\\i ", "}",
+                        options, tableWidth, depth, parseNested: true) ||
+                    TryAppendDelimitedInline(sb, text, ref index, "_", "_", "{\\i ", "}",
+                        options, tableWidth, depth, parseNested: true))
+                {
+                    continue;
+                }
+
+                int literalLength = char.IsHighSurrogate(text[index]) &&
+                    index + 1 < text.Length &&
+                    char.IsLowSurrogate(text[index + 1])
+                        ? 2
+                        : 1;
+                sb.Append(EscapeRtf(text.Substring(index, literalLength)));
+                index += literalLength;
+            }
+        }
+
+        private static bool TryAppendDelimitedInline(StringBuilder sb, string text, ref int index,
+            string opening, string closing, string rtfPrefix, string rtfSuffix, MarkdownRenderOptions options,
+            int tableWidth, int depth, bool parseNested, bool ignoreCase = false)
+        {
+            StringComparison comparison = ignoreCase ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal;
+            if (index + opening.Length > text.Length ||
+                !text.AsSpan(index, opening.Length).Equals(opening.AsSpan(), comparison))
+                return false;
+
+            int contentStart = index + opening.Length;
+            int closingIndex = text.IndexOf(closing, contentStart, comparison);
+            if (closingIndex < contentStart || closingIndex == contentStart)
+                return false;
+
+            string content = text.Substring(contentStart, closingIndex - contentStart);
+            sb.Append(rtfPrefix);
+            if (parseNested)
+                AppendInlineMarkdown(sb, content, options, tableWidth, depth + 1);
+            else
+                sb.Append(EscapeRtf(content));
+            sb.Append(rtfSuffix);
+            index = closingIndex + closing.Length;
+            return true;
+        }
+
+        private static bool TryParseMarkdownLink(string text, int index, bool image, out string label,
+            out string target, out int endIndex)
+        {
+            label = null;
+            target = null;
+            endIndex = index;
+            string opening = image ? "![" : "[";
+            if (index + opening.Length > text.Length ||
+                !text.AsSpan(index, opening.Length).SequenceEqual(opening.AsSpan()))
+                return false;
+
+            int labelStart = index + opening.Length;
+            int labelEnd = text.IndexOf("](", labelStart, StringComparison.Ordinal);
+            if (labelEnd < labelStart)
+                return false;
+
+            int targetEnd = text.IndexOf(')', labelEnd + 2);
+            if (targetEnd < 0)
+                return false;
+
+            label = text.Substring(labelStart, labelEnd - labelStart);
+            target = text.Substring(labelEnd + 2, targetEnd - labelEnd - 2).Trim();
+            if (target.Length == 0)
+                return false;
+
+            endIndex = targetEnd + 1;
+            return true;
+        }
+
+        private static void AppendMarkdownLink(StringBuilder sb, string label, string target,
+            MarkdownRenderOptions options, int tableWidth, int depth)
+        {
+            sb.Append("{\\ul ");
+            AppendInlineMarkdown(sb, label, options, tableWidth, depth + 1);
+            sb.Append("} (");
+            sb.Append(EscapeRtf(target));
+            sb.Append(')');
+        }
+
+        private static void AppendMarkdownImageFallback(StringBuilder sb, string alt, string target,
+            MarkdownRenderOptions options, int tableWidth, int depth)
+        {
+            sb.Append("{\\i [");
+            sb.Append(EscapeRtf(string.IsNullOrWhiteSpace(options.ImageLabel) ? "Image" : options.ImageLabel));
+            if (!string.IsNullOrWhiteSpace(alt))
+            {
+                sb.Append(": ");
+                AppendInlineMarkdown(sb, alt, options, tableWidth, depth + 1);
+            }
+            sb.Append("]} ");
+            AppendMarkdownLink(sb, target, target, options, tableWidth, depth + 1);
+        }
+
+        private static bool TryAppendMarkdownImage(StringBuilder sb, string alt, string target,
+            MarkdownRenderOptions options, int tableWidth)
+        {
+            const long maxSourceBytes = 8L * 1024 * 1024;
+            try
+            {
+                if (string.IsNullOrWhiteSpace(options.BaseDirectory))
+                    return false;
+
+                string source = target.Trim().Trim('<', '>');
+                string imagePath;
+                if (Uri.TryCreate(source, UriKind.Absolute, out Uri uri))
+                {
+                    if (!uri.IsFile)
+                        return false;
+                    imagePath = uri.LocalPath;
+                }
+                else
+                {
+                    source = Uri.UnescapeDataString(source.Replace('/', Path.DirectorySeparatorChar));
+                    imagePath = Path.GetFullPath(Path.Combine(options.BaseDirectory, source));
+                }
+
+                var fileInfo = new FileInfo(imagePath);
+                if (!fileInfo.Exists || fileInfo.Length <= 0 || fileInfo.Length > maxSourceBytes)
+                    return false;
+
+                using Image image = Image.FromFile(imagePath);
+                if (image.Width <= 0 || image.Height <= 0)
+                    return false;
+
+                using var stream = new MemoryStream();
+                image.Save(stream, ImageFormat.Png);
+                if (stream.Length > maxSourceBytes * 2)
+                    return false;
+
+                int widthGoal = Math.Max(720, tableWidth);
+                int naturalWidth = (int)Math.Round(image.Width * 1440d / Math.Max(1f, image.HorizontalResolution));
+                int naturalHeight = (int)Math.Round(image.Height * 1440d / Math.Max(1f, image.VerticalResolution));
+                double scale = naturalWidth > widthGoal ? (double)widthGoal / naturalWidth : 1d;
+                int heightGoal = Math.Max(1, (int)Math.Round(naturalHeight * scale));
+
+                sb.Append("{\\pict\\pngblip\\picw");
+                sb.Append(image.Width);
+                sb.Append("\\pich");
+                sb.Append(image.Height);
+                sb.Append("\\picwgoal");
+                sb.Append(Math.Max(1, (int)Math.Round(naturalWidth * scale)));
+                sb.Append("\\pichgoal");
+                sb.Append(heightGoal);
+                foreach (byte value in stream.ToArray())
+                    sb.Append(value.ToString("x2"));
+                sb.Append('}');
+                return true;
+            }
+            catch (Exception ex)
+            {
+                DotNetCommander.LogService.LogException("RtfEdit.MarkdownImage", ex);
+                return false;
+            }
         }
 
         protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
@@ -1281,7 +1584,7 @@ namespace View
             {
                 using (OpenFileDialog openDialog = new OpenFileDialog())
                 {
-                    openDialog.Filter = "Rich Text Format (*.rtf)|*.rtf|Text files (*.txt)|*.txt|All files (*.*)|*.*";
+                    openDialog.Filter = DotNetCommander.Language.getString("rtfFileDialogFilter");
                     openDialog.FilterIndex = 1;
 
                     if (openDialog.ShowDialog() == DialogResult.OK)
@@ -1302,42 +1605,46 @@ namespace View
 
         private void ShowKeyboardHelp()
         {
-            StringBuilder builder = new StringBuilder();
-            builder.AppendLine("RTF Editor");
-            builder.AppendLine();
-            builder.AppendLine("F1 - Show this help");
-            builder.AppendLine("F4 - Open file");
-            builder.AppendLine("Ctrl+S - Save file");
-            builder.AppendLine("Ctrl+Shift+S - Save file as");
-            builder.AppendLine("Ctrl+T - Font and color");
-            builder.AppendLine("Ctrl+B - Bold");
-            builder.AppendLine("Ctrl+I - Italic");
-            builder.AppendLine("Ctrl+U - Underline");
-            builder.AppendLine("Ctrl++ / Ctrl+Wheel Up - Increase font size");
-            builder.AppendLine("Ctrl+- / Ctrl+Wheel Down - Decrease font size");
-            builder.AppendLine("Context menu -> Style -> Normal / H1..H6 / Code");
-            builder.AppendLine("Esc - Close editor");
-            MessageBox.Show(this, builder.ToString(), Text, MessageBoxButtons.OK, MessageBoxIcon.Information);
+            var items = new[]
+            {
+                new DotNetCommander.KeyboardHelpItem("F1", DotNetCommander.Language.getString("rtfHelpShowHelp")),
+                new DotNetCommander.KeyboardHelpItem("F4", DotNetCommander.Language.getString("rtfHelpOpenFile")),
+                new DotNetCommander.KeyboardHelpItem("Ctrl+S", DotNetCommander.Language.getString("rtfHelpSave")),
+                new DotNetCommander.KeyboardHelpItem("Ctrl+Shift+S", DotNetCommander.Language.getString("rtfHelpSaveAs")),
+                new DotNetCommander.KeyboardHelpItem("Ctrl+T", DotNetCommander.Language.getString("rtfHelpFontColor")),
+                new DotNetCommander.KeyboardHelpItem("Ctrl+B", DotNetCommander.Language.getString("rtfHelpBold")),
+                new DotNetCommander.KeyboardHelpItem("Ctrl+I", DotNetCommander.Language.getString("rtfHelpItalic")),
+                new DotNetCommander.KeyboardHelpItem("Ctrl+U", DotNetCommander.Language.getString("rtfHelpUnderline")),
+                new DotNetCommander.KeyboardHelpItem("Ctrl++ / Ctrl+Wheel Up", DotNetCommander.Language.getString("rtfHelpIncreaseFont")),
+                new DotNetCommander.KeyboardHelpItem("Ctrl+- / Ctrl+Wheel Down", DotNetCommander.Language.getString("rtfHelpDecreaseFont")),
+                new DotNetCommander.KeyboardHelpItem(DotNetCommander.Language.getString("rtfHelpStyleShortcut"), DotNetCommander.Language.getString("rtfHelpStyleAction")),
+                new DotNetCommander.KeyboardHelpItem("Esc", DotNetCommander.Language.getString("rtfHelpClose"))
+            };
+            using var helpForm = new DotNetCommander.FormKeyboardHelp(
+                DotNetCommander.Language.getString("rtfEditorTitle"),
+                DotNetCommander.Language.getString("rtfHelpSubtitle"),
+                items);
+            helpForm.ShowDialog(this);
         }
 
         protected override void OnFormClosing(FormClosingEventArgs e)
         {
             markdownResizeTimer?.Stop();
-            _savedSize = Size;
-            _savedLocation = Location;
+            savedSize = Size;
+            savedLocation = Location;
             base.OnFormClosing(e);
         }
 
         protected override void OnLoad(EventArgs e)
         {
-            if (_savedSize.Width > 0 && _savedSize.Height > 0)
+            if (savedSize.Width > 0 && savedSize.Height > 0)
             {
-                Size = _savedSize;
+                Size = savedSize;
             }
 
-            if (_savedLocation.X >= 0 && _savedLocation.Y >= 0)
+            if (savedLocation.X >= 0 && savedLocation.Y >= 0)
             {
-                Location = _savedLocation;
+                Location = savedLocation;
             }
 
             ApplyStatusBarSettings();
@@ -1350,6 +1657,9 @@ namespace View
             if (disposing)
             {
                 markdownResizeTimer?.Dispose();
+                editorContextMenu?.Dispose();
+                ownedEditorFont?.Dispose();
+                ownedEditorFont = null;
             }
 
             base.Dispose(disposing);

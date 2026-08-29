@@ -9,7 +9,7 @@ Namespace: `DotNetCommander`
 
 Поточна активна збірка:
 - `Commander.NET.csproj` — `net8.0-windows10.0.22621.0`
-- Версія: `1.8.1`
+- Версія: `1.8.2`
 
 Історична збірка:
 - `DotNetCommander.csproj` — оригінальний .NET Framework-проєкт
@@ -25,11 +25,12 @@ Namespace: `DotNetCommander`
 - `Dialogs/Operations/FormArchiveOperation.cs` — асинхронний діалог створення й розпакування архівів з прогресом і скасуванням
 - `Dialogs/Common/FormSettings.cs` — commander-style `Options` з категоріями `View`, `Editor`, `Rich Text`, `Operations`, `Performance`
 - `Dialogs/Common/FormAbout.cs` — `About` з версією, описом і шляхом до `user.config`
+- `Dialogs/Common/FormKeyboardHelp.cs` — спільне commander-style вікно клавіатурної довідки з локалізованою таблицею shortcut/action
 - `Dialogs/Common/FormNewFile.cs` — commander-style створення нового файла з вибором редактора
 - `Dialogs/Common/FormNewFolder.cs` — commander-style створення каталогів і підкаталогів
-- `Viewers/Images/ImageView.cs` — перегляд зображень і EXIF; EXIF-залежності лежать у цій самій гілці
+- `Viewers/Images/ImageView.cs` — інтерактивний перегляд зображень із zoom/pan/status bar та EXIF; EXIF-залежності лежать у цій самій гілці
 - `Editors/Text/TextEdit.cs` — редактор текстових і Markdown-файлів
-- `Editors/RichText/RtfEdit.cs` — редактор RTF
+- `Editors/RichText/RtfEdit.cs` — редактор RTF і фоновий Markdown-to-RTF renderer з таблицями, списками, цитатами, links, локальними images та вкладеним inline-форматуванням
 - `Viewers/Csv/CsvView.cs` — окремий переглядач CSV-подібних файлів разом із CSV loader
 - `Viewers/Compare/FileCompareForm.cs` — side-by-side порівняння (`Shift+F3`): text diff, CSV diff, image compare, binary fallback
 - `Viewers/Raw/RawFileView.cs` — потоковий RAW/Hex viewer для довільних файлів із block navigation, hexadecimal offsets та ASCII column
@@ -41,6 +42,9 @@ Namespace: `DotNetCommander`
 - `Browsers/Archives/` — read-only archive panel, читання entries і матеріалізація окремих файлів для Quick View / `F3`
 - `Browsers/Gedcom/` — ієрархічна GEDCOM-панель для всіх level-0 tags (`INDI`, `FAM`, `NOTE` та інші), типізовані каталоги персон/сімей, generic records, Quick View родинного графа та векторні піктограми статі
 - `Browsers/DataSets/` — read-only DataSet-панель для `.dsx`: таблиці, рядки, schema relations і безпечне XML-читання зі strict-first fallback для невалідних XML 1.0 символів
+- `Browsers/Search/` — панель результатів асинхронного пошуку за маскою/regex та вмістом із прогресом і скасуванням
+- `Browsers/Compound/` — read-only CFBF/OLE2 provider: storages, streams, класифікація документа та безпечна матеріалізація окремих потоків
+- `ThirdParty/OpenMcdf/` — локальний source snapshot OpenMcdf, який компілюється безпосередньо в `DotNetCommander.dll`; upstream commit зафіксований, MPL-2.0 збережено, окрема DLL і NuGet не використовуються
 - `Controls/Preview/` — загальний Quick View та інтерактивний перегляд зображень
 - `Controls/Navigation/` — breadcrumb-навігація та її сегментні кнопки
 - `Services/Operations/FileOperationService.cs` — планування та виконання `copy/move/delete`
@@ -56,17 +60,23 @@ Namespace: `DotNetCommander`
 
 ## Поточні можливості
 - двопанельна навігація по файловій системі з адресним рядком і панеллю дисків;
+- `Alt+F7` запускає фоновий пошук у каталозі за маскою/regex та текстом; результати відображаються як `SearchBrowser` і підтримують preview, copy/move/delete;
 - Файлова, GEDCOM та DataSet-панелі використовують `AddressBar` із компактними breadcrumb-сегментами та mouse-friendly кнопками `Back`, `Up` і `Refresh`, що викликають ті самі команди, що `Backspace`, `Ctrl+PgUp` і `Ctrl+R`;
 - commander-style командний рядок під панелями: запуск програм і команд із параметрами в каталозі активної панелі, історія через `Up/Down`, фокус через `Ctrl+L`, `Ctrl+Enter` вставляє назву поточного елемента, `Shift+Enter` залишає консоль відкритою;
 - `Quick View` для тексту, зображень і невеликих CSV-подібних файлів;
+- Quick View асинхронно показує text, formatted RTF/Markdown, image, CSV, GEDCOM graph і Word Binary plain text; text/RTF fonts та size limits беруться з `Options`, для plain text видно визначене кодування;
+- Quick View і `ImageView` по `F3` спільно використовують `InteractiveImageViewControl`: zoom-at-cursor колесом, `+`/`-`, pan, reset-to-fit; масштаб і розміри показуються в status рядку без накладки поверх зображення;
+- для image Quick View і `ImageView` status рядок доповнюється описом із `descript.ion` у каталозі зображення; parser підтримує quoted filenames, UTF-8/BOM та системне ANSI-кодування;
 - `Quick View` у GEDCOM-панелі показує інтерактивний родинний граф вибраної особи з pan/zoom;
 - GEDCOM-панель відкривається кореневим каталогом типів: `Persons (INDI)`, `Families (FAM)`, `Notes (NOTE)` і динамічними розділами для решти тегів нульового рівня;
 - вбудоване порівняння файлів (`Shift+F3`): text diff, CSV diff, image compare, binary fallback;
 - `F3` відкриває binary/unknown/archive файли у потоковому RAW/Hex viewer, але XML declaration `<?xml` у binary/unknown файла переводить їх у текстовий preview; `Ctrl+F3` примусово показує RAW для будь-якого вибраного файла незалежно від розширення;
+- `F3` для Word Binary `.doc`/CFBF витягує main story як plain text через `FIB`, `0Table`/`1Table` і `CLX/Piece Table`; те саме працює для потоку `WordDocument` усередині `CompoundBrowser` та в Quick View, а `Ctrl+F3` лишається RAW;
 - текстовий viewer, Quick View і text compare враховують BOM та `encoding="..."` з XML declaration (зокрема `windows-1251` у `.fb2`), а `TextEdit` зберігає виявлене кодування;
 - великі RTF, text та image файли не блокуються загальним preview-size limit; ліміт `9 MiB` застосовується лише до Markdown-to-RTF render, після нього `F3` переходить у RAW;
 - окремі вікна для `ImageView`, `TextEdit`, `RtfEdit`, `CsvView`;
-- `TextEdit` і `RtfEdit` мають `F1`-help, `Save As...`, status bar і окремі налаштування editor/viewer UX;
+- `TextEdit`, `RtfEdit` та `ImageView` мають `F1`-help; `RtfEdit` і `ImageView` використовують структуроване commander-style вікно довідки замість `MessageBox`;
+- `RtfEdit` локалізовано для `EN/UK/DE`; plain text і Markdown зберігають визначене кодування, а Markdown preview підтримує fenced code, списки, цитати, links, локальні images, emoji та вкладені styles;
 - drag-and-drop з `Explorer`, інших файлових менеджерів і між панелями;
 - конфлікт-орієнтовані `copy/move` з `overwrite`, `skip`, `rename` і масовими рішеннями (`apply to all`);
 - стійкі пакетні `copy/move/delete`: помилка окремого елемента підтримує retry/skip/cancel, завершення показує структурований підсумок, а операції виконуються через неблокуючу послідовну чергу;
@@ -74,6 +84,7 @@ Namespace: `DotNetCommander`
 - вхід у підтримуваний архів подвійним кліком або `Enter` як у каталог; відкритий архів тимчасово відображається як логічний пристрій у drive toolbar і зникає після виходу;
 - `Backspace` відновлює попередній список поточної панелі навіть між різними фізичними/архівними пристроями; `Ctrl+PgUp` завжди переходить лише до батьківського каталогу;
 - `Ctrl+PgDn` відкриває `.ged` як GEDCOM-панель, `.dsx` як DataSet-панель, перевіряє archive signature, а потім тихо пробує прочитати інші файли як DataSet XML незалежно від розширення;
+- `Ctrl+PgDn` також розпізнає CFBF/OLE2 signature незалежно від розширення та відкриває `CompoundBrowser`; звичайний `Enter` для Office-документів лишається системним відкриттям;
 - DataSet-панель показує каталоги `Tables` і `Relations`, довільні колонки/рядки таблиць та parent/child columns зв’язків; режим read-only, читання виконується у фоні, а після секундної затримки показується неблокувальний `Wait`;
 - Quick View і `F3` матеріалізують лише вибраний файл архіву в тимчасовий session-каталог; `F5` копіює вибрані записи до пасивної файлової панелі;
 - сортування за колонками у `FileBrowser`: `..` завжди перший, а опційне `Options -> View` групування окремо сортує каталоги перед файлами;
@@ -97,7 +108,7 @@ Namespace: `DotNetCommander`
 - Локалізація централізована через `Language.cs` і ресурси `Resources/Language*.resx`.
 - `OS.cs` лишається фасадом між Windows- і Unix-специфічною логікою, хоча практичний фокус проєкту зараз — Windows.
 - `Dialogs/Common/` і `Dialogs/Operations/` — актуальні службові діалоги; `Dialogs/Legacy/` — сумісний legacy-шар, візуально вирівняний через `DialogStyleService`.
-- `FileBrowser`, `ArchiveBrowser`, `GedcomBrowser` і `DataSetBrowser` наслідують `BrowserPanelBase`; `FileBrowser` лишається сумісним host-контролом для `AppForm` і перемикає фізичний/віртуальні режими без заміни панелі у layout.
+- `FileBrowser`, `ArchiveBrowser`, `GedcomBrowser`, `DataSetBrowser`, `SearchBrowser` і `CompoundBrowser` наслідують `BrowserPanelBase`; `FileBrowser` лишається сумісним host-контролом для `AppForm` і перемикає фізичний/віртуальні режими без заміни панелі у layout.
 
 ## Структура проєкту
 ```text

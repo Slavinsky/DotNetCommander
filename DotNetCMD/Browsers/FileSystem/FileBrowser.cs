@@ -11,6 +11,7 @@ using System.IO;
 using System.Collections.Specialized;
 using System.Diagnostics;
 using System.Threading.Tasks;
+using Timer = System.Windows.Forms.Timer;
 
 
 namespace DotNetCommander
@@ -37,6 +38,11 @@ namespace DotNetCommander
     private readonly DataSetBrowser dataSetBrowser;
     private bool dataSetMode;
     private string dataSetReturnFileName;
+    private readonly SearchBrowser searchBrowser;
+    private bool searchMode;
+    private readonly CompoundBrowser compoundBrowser;
+    private bool compoundMode;
+    private string compoundReturnFileName;
     private readonly List<BrowserHistoryEntry> navigationHistory = new List<BrowserHistoryEntry>();
     private int navigationHistoryIndex = -1;
     private bool navigatingHistory;
@@ -90,6 +96,29 @@ namespace DotNetCommander
       dataSetBrowser.LeaveDataSetRequested += (_, __) => ExitDataSet(true);
       dataSetBrowser.NavigateBackRequested += (_, __) => _ = NavigateBackAsync();
       Controls.Add(dataSetBrowser);
+
+      searchBrowser = new SearchBrowser
+      {
+        Dock = DockStyle.Fill,
+        Visible = false
+      };
+      searchBrowser.SelectionChanged += SearchBrowser_SelectionChanged;
+      searchBrowser.BrowserLocationChanged += SearchBrowser_LocationChanged;
+      searchBrowser.LeaveRequested += (_, __) => ExitSearch();
+      searchBrowser.ResultActivated += SearchBrowser_ResultActivated;
+      searchBrowser.SetImageLists(fileImages, fileImagesLarge);
+      Controls.Add(searchBrowser);
+
+      compoundBrowser = new CompoundBrowser
+      {
+        Dock = DockStyle.Fill,
+        Visible = false
+      };
+      compoundBrowser.SelectionChanged += CompoundBrowser_SelectionChanged;
+      compoundBrowser.BrowserLocationChanged += CompoundBrowser_LocationChanged;
+      compoundBrowser.LeaveCompoundRequested += (_, __) => ExitCompound(true);
+      compoundBrowser.NavigateBackRequested += (_, __) => _ = NavigateBackAsync();
+      Controls.Add(compoundBrowser);
 
       directoryRefreshTimer = new Timer();
       directoryRefreshTimer.Interval = 350;
@@ -173,7 +202,9 @@ namespace DotNetCommander
     public bool IsArchiveMode => archiveMode;
     public bool IsGedcomMode => gedcomMode;
     public bool IsDataSetMode => dataSetMode;
-    public bool IsVirtualMode => archiveMode || gedcomMode || dataSetMode;
+    public bool IsSearchMode => searchMode;
+    public bool IsCompoundMode => compoundMode;
+    public bool IsVirtualMode => archiveMode || gedcomMode || dataSetMode || searchMode || compoundMode;
     internal GedcomPersonEntry SelectedGedcomPerson => gedcomMode ? gedcomBrowser.SelectedPerson : null;
     internal bool SelectGedcomPerson(string personId)
     {
@@ -187,8 +218,11 @@ namespace DotNetCommander
         ? dataSetBrowser.DataSetPath
         : archiveMode
           ? archiveBrowser.ArchivePath
-          : null;
+          : compoundMode
+            ? compoundBrowser.CompoundPath
+            : null;
     public string[] SelectedArchiveEntryNames => archiveMode ? archiveBrowser.SelectedEntryNames : Array.Empty<string>();
+    public string[] SelectedCompoundStreamPaths => compoundMode ? compoundBrowser.SelectedStreamPaths : Array.Empty<string>();
 
     public void ActivatePanel()
     {
@@ -204,6 +238,14 @@ namespace DotNetCommander
       else if (dataSetMode)
       {
         dataSetBrowser.FocusItems();
+      }
+      else if (searchMode)
+      {
+        searchBrowser.FocusItems();
+      }
+      else if (compoundMode)
+      {
+        compoundBrowser.FocusItems();
       }
       else
       {
@@ -224,25 +266,33 @@ namespace DotNetCommander
     public override string DisplayLocation => archiveMode
       ? archiveBrowser.DisplayLocation
       : gedcomMode ? gedcomBrowser.DisplayLocation
-      : dataSetMode ? dataSetBrowser.DisplayLocation : CurrentPath;
+      : dataSetMode ? dataSetBrowser.DisplayLocation
+      : searchMode ? searchBrowser.DisplayLocation
+      : compoundMode ? compoundBrowser.DisplayLocation : CurrentPath;
     public override IReadOnlyList<BrowserItemInfo> Items => archiveMode
       ? archiveBrowser.Items
       : gedcomMode ? gedcomBrowser.Items
-      : dataSetMode ? dataSetBrowser.Items : browserView.Items.Cast<ListViewItem>()
+      : dataSetMode ? dataSetBrowser.Items
+      : searchMode ? searchBrowser.Items
+      : compoundMode ? compoundBrowser.Items : browserView.Items.Cast<ListViewItem>()
         .Where(item => !IsParentNavigationItem(item))
         .Select(CreateBrowserItemInfo)
         .ToArray();
     public override IReadOnlyList<BrowserItemInfo> SelectedItems => archiveMode
       ? archiveBrowser.SelectedItems
       : gedcomMode ? gedcomBrowser.SelectedItems
-      : dataSetMode ? dataSetBrowser.SelectedItems : browserView.SelectedItems.Cast<ListViewItem>()
+      : dataSetMode ? dataSetBrowser.SelectedItems
+      : searchMode ? searchBrowser.SelectedItems
+      : compoundMode ? compoundBrowser.SelectedItems : browserView.SelectedItems.Cast<ListViewItem>()
         .Where(item => !IsParentNavigationItem(item))
         .Select(CreateBrowserItemInfo)
         .ToArray();
     public override BrowserPanelCapabilities Capabilities => archiveMode
       ? BrowserPanelCapabilities.ReadOnlyVirtual
       : gedcomMode ? gedcomBrowser.Capabilities
-      : dataSetMode ? dataSetBrowser.Capabilities : BrowserPanelCapabilities.FullFileSystem;
+      : dataSetMode ? dataSetBrowser.Capabilities
+      : searchMode ? searchBrowser.Capabilities
+      : compoundMode ? compoundBrowser.Capabilities : BrowserPanelCapabilities.FullFileSystem;
 
     public override bool Navigate(string location)
     {
@@ -257,6 +307,14 @@ namespace DotNetCommander
       if (dataSetMode)
       {
         return dataSetBrowser.Navigate(location);
+      }
+      if (searchMode)
+      {
+        return searchBrowser.Navigate(location);
+      }
+      if (compoundMode)
+      {
+        return compoundBrowser.Navigate(location);
       }
 
       return browseTo(location) != null;
@@ -275,6 +333,15 @@ namespace DotNetCommander
       if (dataSetMode)
       {
         return dataSetBrowser.NavigateParent();
+      }
+      if (searchMode)
+      {
+        ExitSearch();
+        return true;
+      }
+      if (compoundMode)
+      {
+        return compoundBrowser.NavigateParent();
       }
 
       if (string.IsNullOrWhiteSpace(CurrentPath))
@@ -295,6 +362,12 @@ namespace DotNetCommander
 
     public override async Task<bool> NavigateBackAsync()
     {
+      if (searchMode)
+      {
+        ExitSearch(false);
+        return true;
+      }
+
       if (navigationHistoryIndex <= 0)
       {
         return false;
@@ -307,7 +380,24 @@ namespace DotNetCommander
       try
       {
         bool navigated;
-        if (target.IsDataSet)
+        if (target.IsCompound)
+        {
+          if (!compoundMode || !string.Equals(compoundBrowser.CompoundPath, target.Location, StringComparison.OrdinalIgnoreCase))
+          {
+            navigated = await EnterCompoundAsync(target.Location, true);
+          }
+          else
+          {
+            navigated = true;
+          }
+
+          if (navigated)
+          {
+            navigated = compoundBrowser.Navigate(target.InternalPath);
+            compoundBrowser.SelectLocation(target.SelectedLocation);
+          }
+        }
+        else if (target.IsDataSet)
         {
           if (!dataSetMode || !string.Equals(dataSetBrowser.DataSetPath, target.Location, StringComparison.OrdinalIgnoreCase))
           {
@@ -383,6 +473,10 @@ namespace DotNetCommander
           {
             ExitDataSet(false, false);
           }
+          if (compoundMode)
+          {
+            ExitCompound(false, false);
+          }
 
           navigated = browseTo(target.Location) != null;
           if (navigated && !string.IsNullOrWhiteSpace(target.SelectedLocation))
@@ -450,6 +544,8 @@ namespace DotNetCommander
       archiveBrowser.ApplyUserSettings(browserFont, GetColumnWidths(), browserView.View);
       gedcomBrowser.ApplyUserSettings(browserFont, GetColumnWidths(), browserView.View);
       dataSetBrowser.ApplyUserSettings(browserFont);
+      searchBrowser.ApplyUserSettings(browserFont, GetColumnWidths(), browserView.View);
+      compoundBrowser.ApplyUserSettings(browserFont, GetColumnWidths(), browserView.View);
 
       if (!Properties.Settings.Default.FileBrowserLoadIcons)
       {
@@ -496,6 +592,14 @@ namespace DotNetCommander
       if (dataSetMode)
       {
         ExitDataSet(false, false);
+      }
+      if (searchMode)
+      {
+        ExitSearch(false);
+      }
+      if (compoundMode)
+      {
+        ExitCompound(false, false);
       }
 
       try
@@ -972,6 +1076,14 @@ editBox.Focus();*/
       {
         ExitDataSet(false, false);
       }
+      if (searchMode)
+      {
+        ExitSearch(false);
+      }
+      if (compoundMode)
+      {
+        ExitCompound(false, false);
+      }
 
       archiveReturnFileName = Path.GetFileName(archivePath);
       archiveMode = true;
@@ -1025,7 +1137,7 @@ editBox.Focus();*/
         : false;
     }
 
-    public async Task<bool> OpenSelectedContainerAsync()
+    public async Task<bool> OpenSelectedContainerAsync(bool includeCompound = false)
     {
       if (IsVirtualMode || browserView.SelectedItems.Count != 1)
       {
@@ -1053,6 +1165,11 @@ editBox.Focus();*/
         return true;
       }
 
+      if (includeCompound && FileTypeClassifier.IsCompoundFile(selectedPath))
+      {
+        return await EnterCompoundAsync(selectedPath);
+      }
+
       return await EnterDataSetAsync(selectedPath, true);
     }
 
@@ -1071,6 +1188,14 @@ editBox.Focus();*/
       if (dataSetMode)
       {
         ExitDataSet(false, false);
+      }
+      if (searchMode)
+      {
+        ExitSearch(false);
+      }
+      if (compoundMode)
+      {
+        ExitCompound(false, false);
       }
 
       gedcomReturnFileName = Path.GetFileName(gedcomPath);
@@ -1115,6 +1240,14 @@ editBox.Focus();*/
       if (gedcomMode)
       {
         ExitGedcom(false, false);
+      }
+      if (searchMode)
+      {
+        ExitSearch(false);
+      }
+      if (compoundMode)
+      {
+        ExitCompound(false, false);
       }
 
       bool opened = await dataSetBrowser.OpenDataSetAsync(path, !silentProbe);
@@ -1267,6 +1400,223 @@ editBox.Focus();*/
       browserView.Focus();
     }
 
+    internal async Task<bool> EnterCompoundAsync(string path, bool silent = false)
+    {
+      if (!FileTypeClassifier.IsCompoundFile(path))
+      {
+        return false;
+      }
+
+      if (archiveMode)
+      {
+        ExitArchive(false, false);
+      }
+      if (gedcomMode)
+      {
+        ExitGedcom(false, false);
+      }
+      if (dataSetMode)
+      {
+        ExitDataSet(false, false);
+      }
+      if (searchMode)
+      {
+        ExitSearch(false);
+      }
+
+      bool opened = await compoundBrowser.OpenCompoundAsync(path, !silent);
+      if (!opened)
+      {
+        return false;
+      }
+
+      compoundReturnFileName = Path.GetFileName(path);
+      compoundMode = true;
+      selectedFiles = Array.Empty<string>();
+      browserView.Visible = false;
+      addressBarCurrentPath.Visible = false;
+      compoundBrowser.Visible = true;
+      compoundBrowser.BringToFront();
+      ConfigureDirectoryWatcher();
+      RaiseSelectionChanged();
+      RecordHistory(new BrowserHistoryEntry
+      {
+        IsCompound = true,
+        Location = compoundBrowser.CompoundPath,
+        InternalPath = compoundBrowser.InternalPath
+      });
+      PathChange?.Invoke(this, DisplayLocation);
+      compoundBrowser.FocusItems();
+      return true;
+    }
+
+    public void ExitCompound(bool restoreSelection, bool recordHistory = true)
+    {
+      if (!compoundMode)
+      {
+        return;
+      }
+
+      string fileToSelect = compoundReturnFileName;
+      compoundMode = false;
+      compoundBrowser.Visible = false;
+      browserView.Visible = true;
+      addressBarCurrentPath.Visible = true;
+      browserView.BringToFront();
+      addressBarCurrentPath.BringToFront();
+      ConfigureDirectoryWatcher();
+      if (restoreSelection && !string.IsNullOrWhiteSpace(fileToSelect))
+      {
+        selectFile(fileToSelect);
+      }
+      if (recordHistory)
+      {
+        RecordHistory(new BrowserHistoryEntry
+        {
+          Location = CurrentPath,
+          SelectedLocation = browserView.SelectedItems.Count == 1 ? browserView.SelectedItems[0].Tag as string : null
+        });
+      }
+      PathChange?.Invoke(this, CurrentPath);
+      RaiseLocationChanged(CurrentPath);
+      RaiseSelectionChanged();
+      browserView.Focus();
+    }
+
+    public Task<string> MaterializeSelectedCompoundStreamAsync()
+    {
+      return compoundMode ? compoundBrowser.MaterializeSelectedStreamAsync() : Task.FromResult<string>(null);
+    }
+
+    public Task<string[]> MaterializeSelectedCompoundStreamsAsync()
+    {
+      return compoundMode ? compoundBrowser.MaterializeSelectedStreamsAsync() : Task.FromResult(Array.Empty<string>());
+    }
+
+    internal async Task EnterSearchAsync(SearchQuery query)
+    {
+      if (query == null)
+      {
+        throw new ArgumentNullException(nameof(query));
+      }
+
+      if (archiveMode)
+      {
+        ExitArchive(false, false);
+      }
+      if (gedcomMode)
+      {
+        ExitGedcom(false, false);
+      }
+      if (dataSetMode)
+      {
+        ExitDataSet(false, false);
+      }
+      if (compoundMode)
+      {
+        ExitCompound(false, false);
+      }
+
+      searchMode = true;
+      selectedFiles = Array.Empty<string>();
+      browserView.Visible = false;
+      addressBarCurrentPath.Visible = false;
+      searchBrowser.Visible = true;
+      searchBrowser.BringToFront();
+      ConfigureDirectoryWatcher();
+      PathChange?.Invoke(this, searchBrowser.DisplayLocation);
+      RaiseLocationChanged(searchBrowser.DisplayLocation);
+      RaiseSelectionChanged();
+      searchBrowser.FocusItems();
+      await searchBrowser.StartSearchAsync(query);
+      if (searchMode)
+      {
+        PathChange?.Invoke(this, searchBrowser.DisplayLocation);
+        RaiseLocationChanged(searchBrowser.DisplayLocation);
+        RaiseSelectionChanged();
+      }
+    }
+
+    public void ExitSearch(bool focusItems = true)
+    {
+      if (!searchMode)
+      {
+        return;
+      }
+
+      searchBrowser.CancelSearch();
+      searchMode = false;
+      searchBrowser.Visible = false;
+      browserView.Visible = true;
+      addressBarCurrentPath.Visible = true;
+      browserView.BringToFront();
+      addressBarCurrentPath.BringToFront();
+      ConfigureDirectoryWatcher();
+      PathChange?.Invoke(this, CurrentPath);
+      RaiseLocationChanged(CurrentPath);
+      RaiseSelectionChanged();
+      if (focusItems)
+      {
+        browserView.Focus();
+      }
+    }
+
+    private void SearchBrowser_SelectionChanged(object sender, EventArgs e)
+    {
+      selectedFiles = searchBrowser.SelectedItems
+        .Select(item => item.NativePath)
+        .Where(path => !string.IsNullOrWhiteSpace(path))
+        .ToArray();
+      RaiseSelectionChanged();
+    }
+
+    private void SearchBrowser_LocationChanged(object sender, BrowserLocationChangedEventArgs e)
+    {
+      if (!searchMode)
+      {
+        return;
+      }
+
+      RaiseLocationChanged(e.Location);
+      PathChange?.Invoke(this, e.Location);
+    }
+
+    private void SearchBrowser_ResultActivated(object sender, SearchResultActivatedEventArgs e)
+    {
+      if (e.IsDirectory)
+      {
+        browseTo(e.Path);
+      }
+      else if (File.Exists(e.Path))
+      {
+        WinContextMenu.Open(e.Path);
+      }
+    }
+
+    private void CompoundBrowser_SelectionChanged(object sender, EventArgs e)
+    {
+      selectedFiles = Array.Empty<string>();
+      UpdateCurrentHistorySelection();
+      RaiseSelectionChanged();
+    }
+
+    private void CompoundBrowser_LocationChanged(object sender, BrowserLocationChangedEventArgs e)
+    {
+      if (!compoundMode)
+      {
+        return;
+      }
+
+      RaiseLocationChanged(e.Location);
+      RecordHistory(new BrowserHistoryEntry
+      {
+        IsCompound = true,
+        Location = compoundBrowser.CompoundPath,
+        InternalPath = compoundBrowser.InternalPath
+      });
+      PathChange?.Invoke(this, e.Location);
+    }
+
     private void ArchiveBrowser_SelectionChanged(object sender, EventArgs e)
     {
       selectedFiles = Array.Empty<string>();
@@ -1398,7 +1748,13 @@ editBox.Focus();*/
       {
         current.SelectedLocation = dataSetBrowser.SelectedLocation;
       }
-      else if (!IsVirtualMode && !current.IsArchive && !current.IsGedcom && !current.IsDataSet &&
+      else if (compoundMode && current.IsCompound &&
+               string.Equals(current.Location, compoundBrowser.CompoundPath, StringComparison.OrdinalIgnoreCase) &&
+               string.Equals(current.InternalPath ?? string.Empty, compoundBrowser.InternalPath ?? string.Empty, StringComparison.Ordinal))
+      {
+        current.SelectedLocation = compoundBrowser.SelectedLocation;
+      }
+      else if (!IsVirtualMode && !current.IsArchive && !current.IsGedcom && !current.IsDataSet && !current.IsCompound &&
                string.Equals(current.Location, CurrentPath, StringComparison.OrdinalIgnoreCase))
       {
         current.SelectedLocation = browserView.SelectedItems.Count == 1
@@ -1423,6 +1779,16 @@ editBox.Focus();*/
         dataSetBrowser.RefreshPanel();
         return;
       }
+      if (searchMode)
+      {
+        searchBrowser.RefreshPanel();
+        return;
+      }
+      if (compoundMode)
+      {
+        compoundBrowser.RefreshPanel();
+        return;
+      }
 
       browseTo(CurrentPath);
     }
@@ -1444,6 +1810,16 @@ editBox.Focus();*/
         dataSetBrowser.RefreshPanel();
         return;
       }
+      if (searchMode)
+      {
+        searchBrowser.RefreshPanel();
+        return;
+      }
+      if (compoundMode)
+      {
+        compoundBrowser.RefreshPanel();
+        return;
+      }
 
       if (string.IsNullOrWhiteSpace(CurrentPath))
         return;
@@ -1462,6 +1838,54 @@ editBox.Focus();*/
 
     public BrowserStatusInfo GetStatusInfo()
     {
+      if (compoundMode)
+      {
+        BrowserItemInfo[] items = compoundBrowser.Items.ToArray();
+        BrowserItemInfo[] selectedItems = compoundBrowser.SelectedItems.ToArray();
+        BrowserStatusInfo compoundInfo = new BrowserStatusInfo
+        {
+          DirectoryCount = items.Count(item => item.IsDirectory),
+          FileCount = items.Count(item => !item.IsDirectory),
+          SelectedCount = selectedItems.Length,
+          SelectedDirectoryCount = selectedItems.Count(item => item.IsDirectory),
+          SelectedFileCount = selectedItems.Count(item => !item.IsDirectory)
+        };
+        if (selectedItems.Length == 1)
+        {
+          BrowserItemInfo selected = selectedItems[0];
+          compoundInfo.CurrentItemName = selected.Name;
+          compoundInfo.CurrentItemPath = compoundBrowser.CompoundPath + " :: " + selected.Location;
+          compoundInfo.CurrentItemModifiedText = selected.Modified?.ToString("g");
+          compoundInfo.CurrentItemIsDirectory = selected.IsDirectory;
+          compoundInfo.CurrentItemSizeBytes = selected.Size;
+        }
+        return compoundInfo;
+      }
+
+      if (searchMode)
+      {
+        BrowserItemInfo[] items = searchBrowser.Items.ToArray();
+        BrowserItemInfo[] selectedItems = searchBrowser.SelectedItems.ToArray();
+        BrowserStatusInfo searchInfo = new BrowserStatusInfo
+        {
+          DirectoryCount = items.Count(item => item.IsDirectory),
+          FileCount = items.Count(item => !item.IsDirectory),
+          SelectedCount = selectedItems.Length,
+          SelectedDirectoryCount = selectedItems.Count(item => item.IsDirectory),
+          SelectedFileCount = selectedItems.Count(item => !item.IsDirectory)
+        };
+        if (selectedItems.Length == 1)
+        {
+          BrowserItemInfo selected = selectedItems[0];
+          searchInfo.CurrentItemName = selected.Name;
+          searchInfo.CurrentItemPath = selected.NativePath;
+          searchInfo.CurrentItemModifiedText = selected.Modified?.ToString("g");
+          searchInfo.CurrentItemIsDirectory = selected.IsDirectory;
+          searchInfo.CurrentItemSizeBytes = selected.Size;
+        }
+        return searchInfo;
+      }
+
       if (archiveMode)
       {
         BrowserItemInfo[] archiveItems = archiveBrowser.Items.ToArray();
@@ -2037,6 +2461,14 @@ editBox.Focus();*/
       {
         return dataSetBrowser.CurrentItemName;
       }
+      if (searchMode)
+      {
+        return searchBrowser.SelectedItems.FirstOrDefault()?.Name;
+      }
+      if (compoundMode)
+      {
+        return compoundBrowser.CurrentItemName;
+      }
 
       if (browserView.SelectedItems.Count == 0)
         return null;
@@ -2446,6 +2878,7 @@ editBox.Focus();*/
     public bool IsArchive { get; set; }
     public bool IsGedcom { get; set; }
     public bool IsDataSet { get; set; }
+    public bool IsCompound { get; set; }
     public string Location { get; set; }
     public string InternalPath { get; set; }
     public string SelectedLocation { get; set; }
@@ -2456,8 +2889,9 @@ editBox.Focus();*/
         IsArchive == other.IsArchive &&
         IsGedcom == other.IsGedcom &&
         IsDataSet == other.IsDataSet &&
+        IsCompound == other.IsCompound &&
         string.Equals(Location, other.Location, StringComparison.OrdinalIgnoreCase) &&
-        (!(IsArchive || IsGedcom || IsDataSet) || string.Equals(InternalPath ?? string.Empty, other.InternalPath ?? string.Empty, StringComparison.OrdinalIgnoreCase));
+        (!(IsArchive || IsGedcom || IsDataSet || IsCompound) || string.Equals(InternalPath ?? string.Empty, other.InternalPath ?? string.Empty, StringComparison.OrdinalIgnoreCase));
     }
   }
 

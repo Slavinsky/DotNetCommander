@@ -62,12 +62,34 @@ namespace DotNetCommander
         {
             try
             {
+                if (source?.IsCompoundMode == true && IsSelectedWordDocumentStream(source))
+                {
+                    string wordText = await WordBinaryTextExtractor.TryExtractMainTextAsync(source.OpenVirtualSourcePath);
+                    if (wordText != null)
+                    {
+                        ShowWordTextPreview(wordText, source.OpenVirtualSourcePath, owner);
+                        return;
+                    }
+                }
+
                 string filePath = source?.IsArchiveMode == true
                     ? await source.MaterializeSelectedArchiveFileAsync()
-                    : GetFirstSelectedFile(source);
+                    : source?.IsCompoundMode == true
+                        ? await source.MaterializeSelectedCompoundStreamAsync()
+                        : GetFirstSelectedFile(source);
                 if (string.IsNullOrWhiteSpace(filePath))
                 {
                     return;
+                }
+
+                if (FileTypeClassifier.IsCompoundFile(filePath))
+                {
+                    string wordText = await WordBinaryTextExtractor.TryExtractMainTextAsync(filePath);
+                    if (wordText != null)
+                    {
+                        ShowWordTextPreview(wordText, filePath, owner);
+                        return;
+                    }
                 }
 
                 FileContentKind kind = FileTypeClassifier.Classify(filePath);
@@ -136,6 +158,20 @@ namespace DotNetCommander
             }
         }
 
+        private static bool IsSelectedWordDocumentStream(FileBrowser source)
+        {
+            string[] selected = source?.SelectedCompoundStreamPaths;
+            return selected?.Length == 1 &&
+                string.Equals(selected[0], "WordDocument", StringComparison.OrdinalIgnoreCase);
+        }
+
+        private static void ShowWordTextPreview(string text, string sourcePath, IWin32Window owner)
+        {
+            View.TextEdit preview = new View.TextEdit();
+            preview.LoadTextPreview(text, Path.GetFileName(sourcePath));
+            ShowOwned(preview, owner);
+        }
+
         public async void ViewSelectionRaw(FileBrowser source, IWin32Window owner)
         {
             try
@@ -147,7 +183,13 @@ namespace DotNetCommander
                     if (string.IsNullOrWhiteSpace(filePath))
                         filePath = source.OpenVirtualSourcePath;
                 }
-                else if (source?.IsVirtualMode == true)
+                else if (source?.IsCompoundMode == true)
+                {
+                    filePath = await source.MaterializeSelectedCompoundStreamAsync();
+                    if (string.IsNullOrWhiteSpace(filePath))
+                        filePath = source.OpenVirtualSourcePath;
+                }
+                else if (source?.IsVirtualMode == true && source.IsSearchMode != true)
                 {
                     filePath = source.OpenVirtualSourcePath;
                 }
@@ -169,7 +211,7 @@ namespace DotNetCommander
 
         public void EditSelection(FileBrowser source, IWin32Window owner)
         {
-            if (source?.IsVirtualMode == true)
+            if (source?.IsVirtualMode == true && source.IsSearchMode != true)
             {
                 ShowArchiveReadOnly(owner);
                 return;
@@ -202,7 +244,12 @@ namespace DotNetCommander
                 ExtractArchiveSelection(source, destination, onComplete, owner);
                 return;
             }
-            if (source?.IsVirtualMode == true || destination?.IsVirtualMode == true)
+            if (source?.IsCompoundMode == true)
+            {
+                ExtractCompoundSelection(source, destination, onComplete, owner);
+                return;
+            }
+            if ((source?.IsVirtualMode == true && source.IsSearchMode != true) || destination?.IsVirtualMode == true)
             {
                 ShowArchiveReadOnly(owner);
                 return;
@@ -229,7 +276,7 @@ namespace DotNetCommander
 
         public void MoveSelection(FileBrowser source, FileBrowser destination, Action<int> onComplete, IWin32Window owner)
         {
-            if (source?.IsVirtualMode == true || destination?.IsVirtualMode == true)
+            if ((source?.IsVirtualMode == true && source.IsSearchMode != true) || destination?.IsVirtualMode == true)
             {
                 ShowArchiveReadOnly(owner);
                 return;
@@ -373,7 +420,7 @@ namespace DotNetCommander
 
         public void DeleteSelection(FileBrowser source, Action onSuccess, IWin32Window owner)
         {
-            if (source?.IsVirtualMode == true)
+            if (source?.IsVirtualMode == true && source.IsSearchMode != true)
             {
                 ShowArchiveReadOnly(owner);
                 return;
@@ -565,6 +612,30 @@ namespace DotNetCommander
             }
         }
 
+        private async void ExtractCompoundSelection(FileBrowser source, FileBrowser destination, Action<int> onComplete, IWin32Window owner)
+        {
+            if (destination == null || destination.IsVirtualMode || string.IsNullOrWhiteSpace(destination.CurrentPath))
+            {
+                MessageBox.Show(owner, Language.getString("compoundCopyRequiresFilePanel"), Language.getString("Info"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            try
+            {
+                string[] streams = await source.MaterializeSelectedCompoundStreamsAsync();
+                if (streams.Length == 0)
+                    return;
+                FormCopy copyWindow = new FormCopy(streams, destination.CurrentPath, FormCopy.Type.Copy);
+                copyWindow.ActionComplete += result => onComplete?.Invoke(result);
+                copyWindow.ShowDialog(owner);
+            }
+            catch (Exception ex)
+            {
+                LogService.LogException("CommandService.ExtractCompoundSelection", ex);
+                MessageBox.Show(owner, ex.Message, Language.getString("error"), MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
         private static void ShowArchiveReadOnly(IWin32Window owner)
         {
             MessageBox.Show(owner, Language.getString("virtualPanelReadOnly"), Language.getString("Info"), MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -631,7 +702,7 @@ namespace DotNetCommander
 
         private static string ResolveCompareTargetPath(FileBrowser active, FileBrowser passive, string sourcePath)
         {
-            if (passive?.IsVirtualMode == true)
+            if (passive?.IsVirtualMode == true && passive.IsSearchMode != true)
             {
                 return null;
             }

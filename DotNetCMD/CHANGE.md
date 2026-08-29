@@ -7,6 +7,36 @@
 
 ## [Unreleased]
 
+## [1.8.2] - 2026-08-29
+
+### Додано (Added)
+- **[feat]** Пошук `Alt+F7` за каталогом, маскою імені, regex і текстом у файлах; підтримуються рекурсія, обмеження глибини, фонове виконання, прогрес і скасування.
+- **[feat]** Результати пошуку відкриваються як окрема `SearchBrowser`-панель і беруть участь у звичайних командах `F3/F4`, RAW, copy/move/delete та статусі панелі.
+- **[feat]** `Ctrl+PgDn` відкриває CFBF/OLE2 Structured Storage незалежно від розширення як read-only `CompoundBrowser`: storages, streams, history, Back/Up/Refresh, Quick View, `F3`, `Ctrl+F3` і copy-out потоків через `F5`.
+- **[feat]** `F3` і Quick View витягують main story старих Word Binary документів у plain text через `FIB` та `CLX/Piece Table`; preview доступний і для самого `.doc`, і для `WordDocument` усередині `CompoundBrowser`, із RAW fallback через `Ctrl+F3`.
+- **[perf]** Quick View завантажує image, text, RTF, Markdown, CSV і Word Binary у фонових задачах із cancellation, stale-result guard, debounce та централізованим логуванням; закриття control гарантовано скасовує активну роботу.
+- **[fix]** Quick View відображає RTF і Markdown як форматований rich text, використовує єдиний механізм перемикання preview surfaces та коректно звільняє попередні bitmap/GDI resources.
+- **[ux]** `Options -> Operations -> Quick View` містить окремий ліміт Text/RTF/Markdown у KB; plain text і RTF беруть спільні editor fonts, зміни застосовуються без перезапуску, а plain-text preview показує визначене кодування.
+- **[perf]** CSV preview одноразово обчислює й обмежує ширини колонок, після чого вимикає постійний `DisplayedCells` autosize; loading label з'являється лише після debounce.
+- **[docs]** Публічний/internal контракт `QuickViewControl` задокументовано, а виконаний аудит перенесено з `TODO/QuickViewControl.md` до історії змін.
+- **[feat]** Markdown-to-RTF preview підтримує fenced code, цитати, марковані й нумеровані списки, клікабельні URL, локальні зображення, strike та вкладене inline-форматування; недоступні image targets мають читабельний fallback.
+- **[i18n]** Усі видимі рядки `RtfEdit`, контекстне меню, status bar, файлові діалоги та `F1`-довідку локалізовано для `EN`, `UK` і `DE`.
+- **[ux]** `F1` у `RtfEdit` відкриває окреме масштабоване commander-style вікно довідки з F1-badge, таблицею shortcut/action, спільною типографікою службових діалогів і керуванням через `Esc`.
+- **[ux]** Головне вікно також використовує спільну структуровану `F1`-довідку замість довгого неформатованого `MessageBox`.
+- **[feat]** `ImageView` по `F3` використовує той самий інтерактивний image control, що Quick View: zoom колесом відносно курсора, `+`/`-`, pan перетягуванням і reset-to-fit через `Home`, `0` або подвійний клік.
+- **[ux]** Відсоток масштабу та розміри зображення перенесено з накладки поверх Quick View до нижнього status рядка; `ImageView` має такий самий status bar.
+- **[ux]** `F1` у `ImageView` переведено зі старого `MessageBox` на спільну локалізовану commander-style таблицю команд.
+- **[feat]** Якщо поруч із зображенням є `descript.ion` із відповідним записом, Quick View і `ImageView` додають опис до status рядка; підтримуються quoted filenames, UTF-8/BOM та legacy ANSI encoding.
+- **[docs]** `ROADMAP.md` синхронізовано зі станом `1.8.2`: пошук більше не описано як відсутню можливість, refinement відокремлено від готового baseline, а milestones переведено на повні SemVer-номери `1.9.0`–`1.13.0+`.
+- **[docs]** Виконаний аудит `RtfEdit` перенесено з `TODO/RtfEdit.md` до історії змін.
+- **[deps]** OpenMcdf вбудовано локальним source snapshot безпосередньо в `DotNetCommander.dll`, із зафіксованим upstream commit і MPL-2.0; окрема DLL, NuGet-пакет, вкладений `.git` та runtime package restore не використовуються.
+
+### Виправлено (Fixed)
+- **[fix]** Повністю замінено незавершену реалізацію пошуку: обхід каталогів більше не залежить від збігу імен проміжних папок, недоступні каталоги пропускаються, а reparse points не створюють циклів.
+- **[fix]** `RtfEdit` більше не змінює шлях і заголовок до успішного `Save/Save As`, не дублює запис, зберігає визначене кодування plain text/Markdown і послідовно логує помилки.
+- **[fix]** RTF escaping коректно формує signed UTF-16 escapes і не розриває surrogate pairs, тому emoji та символи поза BMP не губляться під час Markdown preview.
+- **[fix]** `RtfEdit` явно звільняє створені ним GDI fonts і context menu; дорогий inline Regex та мертвий helper прибрано.
+
 ## [1.8.1] - 2026-08-04
 
 ### Виправлено (Fixed)

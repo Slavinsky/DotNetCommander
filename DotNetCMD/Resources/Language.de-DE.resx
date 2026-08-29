@@ -317,7 +317,7 @@
     <value>Aktives Panel aktualisieren</value>
   </data>
   <data name="helpOpenArchiveBySignature" xml:space="preserve">
-    <value>Archiv anhand der Signatur, GEDCOM-Ansicht oder DataSet-XML unabhängig von der Erweiterung öffnen</value>
+    <value>Archiv, strukturierten CFBF-Speicher, GEDCOM-Ansicht oder DataSet-XML öffnen</value>
   </data>
   <data name="helpHistoryBack" xml:space="preserve">
     <value>Zum vorherigen Panel-Speicherort zurückkehren</value>
@@ -533,16 +533,22 @@
     <value>Dies ist der Anfang eines Einstellungsdialogs mit Tabs. Allgemeine Programmoptionen können hier liegen.</value>
   </data>
   <data name="settingsOperationsIntro" xml:space="preserve">
-    <value>Steuern Sie das Verhalten von Kopieren und Verschieben zusammen mit den Standardwerten der CSV-Schnellvorschau.</value>
+    <value>Steuern Sie das Verhalten von Kopieren und Verschieben zusammen mit den Standardwerten der Schnellansicht.</value>
   </data>
   <data name="settingsQuickViewTitle" xml:space="preserve">
-    <value>CSV-Schnellvorschau</value>
+    <value>Schnellansicht</value>
   </data>
   <data name="settingsQuickViewCsvEnable" xml:space="preserve">
     <value>Tabellenvorschau für CSV-ähnliche Dateien in der Schnellansicht aktivieren</value>
   </data>
   <data name="settingsQuickViewCsvMaxSize" xml:space="preserve">
-    <value>Maximale Dateigröße für Schnellansicht:</value>
+    <value>Limit für CSV-Vorschau:</value>
+  </data>
+  <data name="settingsQuickViewTextMaxSize" xml:space="preserve">
+    <value>Vorschaulimit für Text / RTF / Markdown:</value>
+  </data>
+  <data name="quickViewEncodingFormat" xml:space="preserve">
+    <value>Codierung: {0}</value>
   </data>
   <data name="settingsQuickViewCsvNote" xml:space="preserve">
     <value>Kleine Tabellen öffnen direkt in der Schnellansicht. Größere Dateien bleiben über F3 verfügbar, um UI-Blockaden zu vermeiden.</value>
@@ -850,4 +856,110 @@ Element erneut versuchen, ignorieren und fortfahren oder Vorgang abbrechen?</val
   <data name="dataSetChildColumns" xml:space="preserve"><value>Kindspalten</value></data>
   <data name="dataSetNested" xml:space="preserve"><value>Verschachtelt</value></data>
   <data name="dataSetRowFormat" xml:space="preserve"><value>Zeile {0}</value></data>
+  <data name="search" xml:space="preserve"><value>Suchen</value></data>
+  <data name="searchTitle" xml:space="preserve"><value>Dateien suchen</value></data>
+  <data name="searchScope" xml:space="preserve"><value>Suchen in</value></data>
+  <data name="searchBrowse" xml:space="preserve"><value>Durchsuchen...</value></data>
+  <data name="searchNamePattern" xml:space="preserve"><value>Dateinamensmaske</value></data>
+  <data name="searchContentText" xml:space="preserve"><value>Enthaltener Text</value></data>
+  <data name="searchRecursive" xml:space="preserve"><value>Unterordner durchsuchen</value></data>
+  <data name="searchIncludeDirectories" xml:space="preserve"><value>Passende Ordner einschließen</value></data>
+  <data name="searchUseRegex" xml:space="preserve"><value>Regulären Ausdruck verwenden</value></data>
+  <data name="searchMaxDepth" xml:space="preserve"><value>Maximale Tiefe</value></data>
+  <data name="searchUnlimitedDepth" xml:space="preserve"><value>0 = unbegrenzt</value></data>
+  <data name="searchStart" xml:space="preserve"><value>Suchen</value></data>
+  <data name="searchResults" xml:space="preserve"><value>Suchergebnisse</value></data>
+  <data name="searchColumnLocation" xml:space="preserve"><value>Speicherort</value></data>
+  <data name="searchDisplayLocationFormat" xml:space="preserve"><value>Suche: {0} in {1}</value></data>
+  <data name="searchStarting" xml:space="preserve"><value>Suche wird gestartet...</value></data>
+  <data name="searchProgressFormat" xml:space="preserve"><value>Geprüft: {0}   Gefunden: {1}   Übersprungen: {2}   {3}</value></data>
+  <data name="searchCompletedFormat" xml:space="preserve"><value>Gefunden: {0}</value></data>
+  <data name="searchCancelled" xml:space="preserve"><value>Suche abgebrochen.</value></data>
+  <data name="searchFailed" xml:space="preserve"><value>Suche fehlgeschlagen.</value></data>
+  <data name="searchInvalidScope" xml:space="preserve"><value>Der Suchordner ist nicht vorhanden.</value></data>
+  <data name="searchInvalidRegex" xml:space="preserve"><value>Ungültiger regulärer Ausdruck</value></data>
+  <data name="compoundReading" xml:space="preserve"><value>Verbunddateistruktur wird gelesen...</value></data>
+  <data name="compoundOpeningStream" xml:space="preserve"><value>Verbunddatei-Datenstrom wird geöffnet...</value></data>
+  <data name="compoundOpenFailed" xml:space="preserve"><value>Die Verbunddatei konnte nicht geöffnet werden.</value></data>
+  <data name="compoundStorage" xml:space="preserve"><value>Speicher</value></data>
+  <data name="compoundStream" xml:space="preserve"><value>Datenstrom</value></data>
+  <data name="compoundCopyRequiresFilePanel" xml:space="preserve"><value>Verbunddatei-Datenströme können nur in eine physische Dateiansicht kopiert werden.</value></data>
+  <data name="rtfEditorTitle" xml:space="preserve"><value>RTF-Editor</value></data>
+  <data name="rtfEditorTitleFormat" xml:space="preserve"><value>{0} - RTF-Editor</value></data>
+  <data name="rtfPreviewTitleFormat" xml:space="preserve"><value>{0} - Vorschau</value></data>
+  <data name="rtfPreviewMode" xml:space="preserve"><value>Vorschaumodus</value></data>
+  <data name="rtfLoadErrorFormat" xml:space="preserve"><value>Fehler beim Laden der Datei: {0}</value></data>
+  <data name="rtfSaveErrorFormat" xml:space="preserve"><value>Fehler beim Speichern der Datei: {0}</value></data>
+  <data name="rtfSaveFailed" xml:space="preserve"><value>Speichern fehlgeschlagen</value></data>
+  <data name="rtfSavedFormat" xml:space="preserve"><value>Gespeichert: {0}</value></data>
+  <data name="rtfSaveSuccess" xml:space="preserve"><value>Datei wurde erfolgreich gespeichert!</value></data>
+  <data name="rtfSuccessTitle" xml:space="preserve"><value>Erfolg</value></data>
+  <data name="rtfPreviewReadOnly" xml:space="preserve"><value>Die Vorschau ist schreibgeschützt. Mit Ctrl+Shift+S kann eine Kopie gespeichert werden.</value></data>
+  <data name="rtfFileDialogFilter" xml:space="preserve"><value>Rich Text Format (*.rtf)|*.rtf|Textdateien (*.txt)|*.txt|Alle Dateien (*.*)|*.*</value></data>
+  <data name="rtfStatusFormat" xml:space="preserve"><value>Zeilen: {0}   Zeichen: {1:N0}   Auswahl: {2:N0}   Z. {3}, Sp. {4}</value></data>
+  <data name="rtfUndo" xml:space="preserve"><value>Rückgängig</value></data>
+  <data name="rtfRedo" xml:space="preserve"><value>Wiederholen</value></data>
+  <data name="rtfCut" xml:space="preserve"><value>Ausschneiden</value></data>
+  <data name="rtfCopy" xml:space="preserve"><value>Kopieren</value></data>
+  <data name="rtfPaste" xml:space="preserve"><value>Einfügen</value></data>
+  <data name="rtfDelete" xml:space="preserve"><value>Löschen</value></data>
+  <data name="rtfSelectAll" xml:space="preserve"><value>Alles auswählen</value></data>
+  <data name="rtfStyle" xml:space="preserve"><value>Stil</value></data>
+  <data name="rtfBold" xml:space="preserve"><value>Fett</value></data>
+  <data name="rtfItalic" xml:space="preserve"><value>Kursiv</value></data>
+  <data name="rtfUnderline" xml:space="preserve"><value>Unterstrichen</value></data>
+  <data name="rtfFont" xml:space="preserve"><value>Schriftart...</value></data>
+  <data name="rtfStyleNormal" xml:space="preserve"><value>Normal</value></data>
+  <data name="rtfStyleCode" xml:space="preserve"><value>Code</value></data>
+  <data name="rtfMarkdownImage" xml:space="preserve"><value>Bild</value></data>
+  <data name="rtfKeyboardHelp" xml:space="preserve"><value>RTF-Editor
+
+F1 - Diese Hilfe anzeigen
+F4 - Datei öffnen
+Ctrl+S - Datei speichern
+Ctrl+Shift+S - Datei speichern unter
+Ctrl+T - Schriftart und Farbe
+Ctrl+B - Fett
+Ctrl+I - Kursiv
+Ctrl+U - Unterstrichen
+Ctrl++ / Ctrl+Mausrad nach oben - Schrift vergrößern
+Ctrl+- / Ctrl+Mausrad nach unten - Schrift verkleinern
+Kontextmenü - Stil - Normal / H1..H6 / Code
+Esc - Editor schließen</value></data>
+  <data name="keyboardHelpShortcut" xml:space="preserve"><value>Tastenkürzel</value></data>
+  <data name="keyboardHelpAction" xml:space="preserve"><value>Aktion</value></data>
+  <data name="keyboardHelpCloseHint" xml:space="preserve"><value>Esc schließt dieses Fenster</value></data>
+  <data name="rtfHelpSubtitle" xml:space="preserve"><value>Tastenkürzel für Bearbeitung, Formatierung und Navigation</value></data>
+  <data name="rtfHelpShowHelp" xml:space="preserve"><value>Diese Hilfe anzeigen</value></data>
+  <data name="rtfHelpOpenFile" xml:space="preserve"><value>Datei öffnen</value></data>
+  <data name="rtfHelpSave" xml:space="preserve"><value>Aktuelle Datei speichern</value></data>
+  <data name="rtfHelpSaveAs" xml:space="preserve"><value>Unter anderem Namen oder als Vorschaukopie speichern</value></data>
+  <data name="rtfHelpFontColor" xml:space="preserve"><value>Schriftart und Textfarbe auswählen</value></data>
+  <data name="rtfHelpBold" xml:space="preserve"><value>Fettdruck umschalten</value></data>
+  <data name="rtfHelpItalic" xml:space="preserve"><value>Kursivschrift umschalten</value></data>
+  <data name="rtfHelpUnderline" xml:space="preserve"><value>Unterstreichung umschalten</value></data>
+  <data name="rtfHelpIncreaseFont" xml:space="preserve"><value>Schrift vergrößern</value></data>
+  <data name="rtfHelpDecreaseFont" xml:space="preserve"><value>Schrift verkleinern</value></data>
+  <data name="rtfHelpStyleShortcut" xml:space="preserve"><value>Kontextmenü → Stil</value></data>
+  <data name="rtfHelpStyleAction" xml:space="preserve"><value>Stil Normal, H1–H6 oder Code anwenden</value></data>
+  <data name="rtfHelpClose" xml:space="preserve"><value>Editor schließen</value></data>
+  <data name="mainHelpSubtitle" xml:space="preserve"><value>Commander-Befehle, Fensternavigation und Dateioperationen</value></data>
+  <data name="imageViewerTitle" xml:space="preserve"><value>Bildbetrachter</value></data>
+  <data name="imageViewerPreview" xml:space="preserve"><value>Vorschau</value></data>
+  <data name="imageViewerExifData" xml:space="preserve"><value>EXIF-Daten</value></data>
+  <data name="imageZoomStatusFormat" xml:space="preserve"><value>Zoom: {0:P0}   {1} × {2} px</value></data>
+  <data name="imageHelpSubtitle" xml:space="preserve"><value>Bildnavigation, Zoom und EXIF-Befehle</value></data>
+  <data name="imageHelpOpen" xml:space="preserve"><value>Bilddatei öffnen</value></data>
+  <data name="imageHelpWheelShortcut" xml:space="preserve"><value>Mausrad</value></data>
+  <data name="imageHelpWheelAction" xml:space="preserve"><value>Um den Mauszeiger zoomen</value></data>
+  <data name="imageHelpZoomKeys" xml:space="preserve"><value>Um die Bildmitte vergrößern oder verkleinern</value></data>
+  <data name="imageHelpReset" xml:space="preserve"><value>An Fenster anpassen</value></data>
+  <data name="imageHelpDoubleClickShortcut" xml:space="preserve"><value>Doppelklick</value></data>
+  <data name="imageHelpDragShortcut" xml:space="preserve"><value>Mit linker Taste ziehen</value></data>
+  <data name="imageHelpPan" xml:space="preserve"><value>Vergrößertes Bild verschieben</value></data>
+  <data name="imageHelpFilterExif" xml:space="preserve"><value>EXIF nach Tag-ID filtern</value></data>
+  <data name="imageHelpShowAllExif" xml:space="preserve"><value>Alle EXIF-Tags anzeigen</value></data>
+  <data name="imageHelpForceExif" xml:space="preserve"><value>EXIF-Register zur Diagnose anzeigen</value></data>
+  <data name="imageHelpClose" xml:space="preserve"><value>Bildbetrachter schließen</value></data>
+  <data name="imageDescriptionStatusFormat" xml:space="preserve"><value>{0}   —   {1}</value></data>
 </root>

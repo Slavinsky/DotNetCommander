@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
-using System.Text;
 using System.Windows.Forms;
 using EXIF.Exif;
 using System.IO;
@@ -26,6 +25,12 @@ namespace View
         public ImageView()
         {
             InitializeComponent();
+            InitializeStatusBar();
+            imageViewControl.ZoomChanged += (_, __) => UpdateImageStatus();
+            Text = Language.getString("imageViewerTitle");
+            groupBox1.Text = Language.getString("imageViewerPreview");
+            tabPage1.Text = Language.getString("imageViewerPreview");
+            tabPage2.Text = Language.getString("imageViewerExifData");
             ShowExifLayout(false);
             
             // Инициализация экранов при первом создании формы
@@ -50,14 +55,39 @@ namespace View
 
         private ExifTagCollection _exif;
         private bool _showingExifLayout;
+        private StatusStrip imageStatusStrip;
+        private ToolStripStatusLabel imageStatusLabel;
+        private string imageDescription;
+
+        private void InitializeStatusBar()
+        {
+            imageStatusLabel = new ToolStripStatusLabel
+            {
+                Spring = true,
+                TextAlign = ContentAlignment.MiddleLeft
+            };
+            imageStatusStrip = new StatusStrip { SizingGrip = false, ShowItemToolTips = true };
+            imageStatusStrip.Items.Add(imageStatusLabel);
+            Controls.Add(imageStatusStrip);
+            imageStatusStrip.BringToFront();
+        }
 
         public void OpenFile(string ImageFile) {
             try
             {
-                pictureBox.Image = Image.FromFile(ImageFile);
+                Bitmap bitmap;
+                using (var stream = new FileStream(ImageFile, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete))
+                using (Image source = Image.FromStream(stream))
+                {
+                    bitmap = new Bitmap(source);
+                }
+                imageViewControl.SetImage(bitmap);
+                imageDescription = DescriptionFileService.TryGetDescription(ImageFile);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                LogService.LogException("ImageView.OpenFile", ex);
+                imageDescription = null;
                 listExif.Items.Clear();
                 ShowExifLayout(false);
                 return;
@@ -67,11 +97,13 @@ namespace View
 
             // Установка размера формы, если изображение больше экрана
             SetFormSizeToImageIfNecessary();
+            UpdateImageStatus();
+            ActiveControl = imageViewControl;
         }
 
         private void OpenImageFile()
         {
-            OpenFileDialog ofd = new OpenFileDialog();
+            using OpenFileDialog ofd = new OpenFileDialog();
             ofd.Filter = FileTypeClassifier.BuildImageDialogFilter();
 
             if (ofd.ShowDialog() == DialogResult.OK)
@@ -140,6 +172,24 @@ namespace View
                 return true;
             }
 
+            if (keyData == Keys.Add || keyData == Keys.Oemplus || keyData == (Keys.Shift | Keys.Oemplus))
+            {
+                imageViewControl.ZoomIn();
+                return true;
+            }
+
+            if (keyData == Keys.Subtract || keyData == Keys.OemMinus)
+            {
+                imageViewControl.ZoomOut();
+                return true;
+            }
+
+            if (keyData == Keys.Home || keyData == Keys.D0 || keyData == Keys.NumPad0)
+            {
+                imageViewControl.ResetView();
+                return true;
+            }
+
             if (keyData == (Keys.Control | Keys.O))
             {
                 OpenImageFile();
@@ -173,28 +223,61 @@ namespace View
 
         private void ShowKeyboardHelp()
         {
-            StringBuilder builder = new StringBuilder();
-            builder.AppendLine("Image Viewer");
-            builder.AppendLine();
-            builder.AppendLine("F1 - Show this help");
-            builder.AppendLine("Ctrl+O - Open image file");
-            builder.AppendLine("Esc - Close viewer");
+            var items = new List<KeyboardHelpItem>
+            {
+                new KeyboardHelpItem("F1", Language.getString("helpShowThis")),
+                new KeyboardHelpItem("Ctrl+O", Language.getString("imageHelpOpen")),
+                new KeyboardHelpItem(Language.getString("imageHelpWheelShortcut"), Language.getString("imageHelpWheelAction")),
+                new KeyboardHelpItem("+ / -", Language.getString("imageHelpZoomKeys")),
+                new KeyboardHelpItem("Home / 0", Language.getString("imageHelpReset")),
+                new KeyboardHelpItem(Language.getString("imageHelpDoubleClickShortcut"), Language.getString("imageHelpReset")),
+                new KeyboardHelpItem(Language.getString("imageHelpDragShortcut"), Language.getString("imageHelpPan"))
+            };
 
             if (_exif != null && listExif.Items.Count > 0)
             {
-                builder.AppendLine("Ctrl+L - Filter EXIF by tag ID");
-                builder.AppendLine("Ctrl+Shift+L - Show all EXIF tags");
+                items.Add(new KeyboardHelpItem("Ctrl+L", Language.getString("imageHelpFilterExif")));
+                items.Add(new KeyboardHelpItem("Ctrl+Shift+L", Language.getString("imageHelpShowAllExif")));
             }
 
-            builder.AppendLine("Ctrl+Shift+E - Force EXIF tabs for debugging");
+            items.Add(new KeyboardHelpItem("Ctrl+Shift+E", Language.getString("imageHelpForceExif")));
+            items.Add(new KeyboardHelpItem("Esc", Language.getString("imageHelpClose")));
+            using var helpForm = new FormKeyboardHelp(
+                Language.getString("imageViewerTitle"),
+                Language.getString("imageHelpSubtitle"),
+                items);
+            helpForm.ShowDialog(this);
+        }
 
-            MessageBox.Show(this, builder.ToString(), Text, MessageBoxButtons.OK, MessageBoxIcon.Information);
+        private void UpdateImageStatus()
+        {
+            Size imageSize = imageViewControl.ImageSize;
+            if (imageSize.IsEmpty)
+            {
+                imageStatusLabel.Text = string.Empty;
+                imageStatusLabel.ToolTipText = string.Empty;
+                return;
+            }
+
+            string status = string.Format(
+                    Language.getString("imageZoomStatusFormat"),
+                    imageViewControl.Zoom,
+                    imageSize.Width,
+                    imageSize.Height);
+            imageStatusLabel.Text = string.IsNullOrWhiteSpace(imageDescription)
+                ? status
+                : string.Format(
+                    Language.getString("imageDescriptionStatusFormat"),
+                    status,
+                    imageDescription);
+            imageStatusLabel.ToolTipText = imageDescription ?? string.Empty;
         }
         
         private void SetFormSizeToImageIfNecessary()
         {
             // Если изображение больше чем текущий экран - уменьшаем форму
-            if (pictureBox.Image != null)
+            Size imageSize = imageViewControl.ImageSize;
+            if (!imageSize.IsEmpty)
             {
                 int maxWidth = 0;
                 int maxHeight = 0;
@@ -207,23 +290,23 @@ namespace View
                 }
                 
                 // Если размер изображения больше максимальных размеров экрана
-                if (pictureBox.Image.Width > maxWidth || pictureBox.Image.Height > maxHeight)
+                if (imageSize.Width > maxWidth || imageSize.Height > maxHeight)
                 {
                     // Рассчитываем подходящий размер
-                    Size formSize = new Size(pictureBox.Image.Width, pictureBox.Image.Height);
+                    Size formSize = imageSize;
                     
                     // Если размер формы больше чем максимальный размер экрана, уменьшаем его
                     if (formSize.Width > maxWidth || formSize.Height > maxHeight)
                     {
                         // Рассчитываем масштабирование для вписывания в экран
-                        double scaleWidth = (double)maxWidth / pictureBox.Image.Width;
-                        double scaleHeight = (double)maxHeight / pictureBox.Image.Height;
+                        double scaleWidth = (double)maxWidth / imageSize.Width;
+                        double scaleHeight = (double)maxHeight / imageSize.Height;
                         
                         // Используем меньший масштаб
                         double scale = Math.Min(scaleWidth, scaleHeight);
                         
-                        formSize.Width = (int)(pictureBox.Image.Width * scale);
-                        formSize.Height = (int)(pictureBox.Image.Height * scale);
+                        formSize.Width = (int)(imageSize.Width * scale);
+                        formSize.Height = (int)(imageSize.Height * scale);
                     }
                     
                     // Добавляем немного места для рамок формы
@@ -340,6 +423,7 @@ namespace View
             }
 
             _showingExifLayout = hasExif;
+            imageStatusStrip?.BringToFront();
             tabControl1.ResumeLayout();
             ResumeLayout();
         }

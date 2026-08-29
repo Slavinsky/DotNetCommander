@@ -133,6 +133,18 @@ namespace DotNetCommander.Properties {
 
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("262144")]
+        public int QuickViewTextMaxBytes {
+            get {
+                return ((int)(this["QuickViewTextMaxBytes"]));
+            }
+            set {
+                this["QuickViewTextMaxBytes"] = value;
+            }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("Microsoft Sans Serif")]
         public string BrowserFontName {
             get {

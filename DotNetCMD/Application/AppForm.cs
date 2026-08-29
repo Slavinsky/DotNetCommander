@@ -193,6 +193,10 @@ namespace DotNetCommander
         private void CreateToolsMenu(ToolStripMenuItem parent)
         {
             parent.DropDownItems.Clear();
+            ToolStripMenuItem searchItem = CreateMenuItem("search", OpenSearch);
+            searchItem.ShortcutKeys = Keys.Alt | Keys.F7;
+            parent.DropDownItems.Add(searchItem);
+            parent.DropDownItems.Add(new ToolStripSeparator());
             parent.DropDownItems.Add(CreateMenuItem("options", OpenSettings));
         }
 
@@ -356,7 +360,7 @@ namespace DotNetCommander
             }
             if (keyData == (Keys.Control | Keys.PageDown))
             {
-                _ = (lastFileBrowser ?? fileBrowserLeft).OpenSelectedContainerAsync();
+                _ = (lastFileBrowser ?? fileBrowserLeft).OpenSelectedContainerAsync(includeCompound: true);
                 return true;
             }
             if (keyData == (Keys.Control | Keys.L))
@@ -443,6 +447,11 @@ namespace DotNetCommander
             else if (keyData == Keys.F7)
             {
                 Button_NewFolder(null, null);
+                return true;
+            }
+            else if (keyData == (Keys.Alt | Keys.F7))
+            {
+                OpenSearch(null, null);
                 return true;
             }
              else if (keyData == Keys.F8)
@@ -624,10 +633,31 @@ namespace DotNetCommander
 
         private void Button_NewFolder(object sender, EventArgs e)
         {
-            if (GetRelevantModifiers(Control.ModifierKeys) == Keys.None)
+            Keys modifiers = GetRelevantModifiers(Control.ModifierKeys);
+            if (modifiers == Keys.None)
             {
                 commandService.CreateFolder(lastFileBrowser, this);
             }
+            else if (modifiers == Keys.Alt)
+            {
+                OpenSearch(sender, e);
+            }
+        }
+
+        private async void OpenSearch(object sender, EventArgs e)
+        {
+            FileBrowser target = lastFileBrowser ?? fileBrowserLeft;
+            string initialDirectory = !string.IsNullOrWhiteSpace(target?.CurrentPath)
+                ? target.CurrentPath
+                : Environment.CurrentDirectory;
+            using var dialog = new FormSearch(initialDirectory);
+            if (dialog.ShowDialog(this) != DialogResult.OK || dialog.Query == null)
+            {
+                return;
+            }
+
+            target.ActivatePanel();
+            await target.EnterSearchAsync(dialog.Query);
         }
 
         private void Button_Delete(object sender, EventArgs e)
@@ -663,7 +693,11 @@ namespace DotNetCommander
             if (newFolderButton != null)
                 SetFunctionButtonText(
                     newFolderButton,
-                    relevantModifiers == Keys.None ? "F7 " + Language.getString("newFolder") : string.Empty);
+                    relevantModifiers == Keys.None
+                        ? "F7 " + Language.getString("newFolder")
+                        : relevantModifiers == Keys.Alt
+                            ? "F7 " + Language.getString("search")
+                            : string.Empty);
             if (deleteButton != null)
                 SetFunctionButtonText(
                     deleteButton,
@@ -873,14 +907,24 @@ namespace DotNetCommander
                 return;
             }
 
+            if (sourceBrowser?.IsCompoundMode == true &&
+                sourceBrowser.SelectedCompoundStreamPaths.Length == 1 &&
+                string.Equals(sourceBrowser.SelectedCompoundStreamPaths[0], "WordDocument", StringComparison.OrdinalIgnoreCase))
+            {
+                quickViewControl.DisplayWordBinaryDocument(sourceBrowser.OpenVirtualSourcePath);
+                return;
+            }
+
             string fileToPreview;
             try
             {
                 fileToPreview = sourceBrowser?.IsArchiveMode == true
                     ? await sourceBrowser.MaterializeSelectedArchiveFileAsync()
-                    : sourceBrowser?.selectedFiles != null && sourceBrowser.selectedFiles.Length > 0
-                        ? sourceBrowser.selectedFiles[0]
-                        : null;
+                    : sourceBrowser?.IsCompoundMode == true
+                        ? await sourceBrowser.MaterializeSelectedCompoundStreamAsync()
+                        : sourceBrowser?.selectedFiles != null && sourceBrowser.selectedFiles.Length > 0
+                            ? sourceBrowser.selectedFiles[0]
+                            : null;
             }
             catch (Exception ex)
             {
@@ -1464,6 +1508,7 @@ namespace DotNetCommander
 
             if (quickViewEnabled)
             {
+                quickViewControl?.ApplyUserSettings();
                 UpdateQuickView();
             }
         }
@@ -1548,36 +1593,40 @@ namespace DotNetCommander
 
         private void ShowKeyboardHelp()
         {
-            StringBuilder builder = new StringBuilder();
-            builder.AppendLine("DotNetCommander");
-            builder.AppendLine();
-            builder.AppendLine("F1 - " + Language.getString("helpShowThis"));
-            builder.AppendLine("F2 / Ctrl+Q - " + Language.getString("helpToggleQuickView"));
-            builder.AppendLine("F3 - " + Language.getString("view"));
-            builder.AppendLine("Ctrl+F3 - " + Language.getString("rawView"));
-            builder.AppendLine("Shift+F3 - " + Language.getString("compare"));
-            builder.AppendLine("F4 - " + Language.getString("edit"));
-            builder.AppendLine("Shift+F4 - " + Language.getString("newFile"));
-            builder.AppendLine("Ctrl+N - " + Language.getString("helpNewFileDialog"));
-            builder.AppendLine("F5 - " + Language.getString("copy"));
-            builder.AppendLine("Shift+F5 - " + Language.getString("helpCopyInPlace"));
-            builder.AppendLine("Alt+F5 - " + Language.getString("archiveCreate"));
-            builder.AppendLine("F6 - " + Language.getString("move"));
-            builder.AppendLine("Shift+F6 - " + Language.getString("rename"));
-            builder.AppendLine("F7 - " + Language.getString("newFolder"));
-            builder.AppendLine("F8 - " + Language.getString("delete"));
-            builder.AppendLine("Alt+F9 - " + Language.getString("archiveExtract"));
-            builder.AppendLine("Tab - " + Language.getString("helpSwitchPanel"));
-            builder.AppendLine("Ctrl+PgDn - " + Language.getString("helpOpenArchiveBySignature"));
-            builder.AppendLine("Backspace - " + Language.getString("helpHistoryBack"));
-            builder.AppendLine("Ctrl+PgUp - " + Language.getString("helpNavigateParent"));
-            builder.AppendLine("Ctrl+R - " + Language.getString("helpRefreshActivePanel"));
-            builder.AppendLine("Ctrl+L - " + Language.getString("helpFocusCommandLine"));
-            builder.AppendLine("Ctrl+Enter - " + Language.getString("helpCopyNameToCommandLine"));
-            builder.AppendLine("Shift+Enter - " + Language.getString("helpPersistentConsole"));
-            builder.AppendLine("Alt+F4 - " + Language.getString("helpCloseApplication"));
-
-            MessageBox.Show(this, builder.ToString(), Text, MessageBoxButtons.OK, MessageBoxIcon.Information);
+            var items = new[]
+            {
+                new KeyboardHelpItem("F1", Language.getString("helpShowThis")),
+                new KeyboardHelpItem("F2 / Ctrl+Q", Language.getString("helpToggleQuickView")),
+                new KeyboardHelpItem("F3", Language.getString("view")),
+                new KeyboardHelpItem("Ctrl+F3", Language.getString("rawView")),
+                new KeyboardHelpItem("Shift+F3", Language.getString("compare")),
+                new KeyboardHelpItem("F4", Language.getString("edit")),
+                new KeyboardHelpItem("Shift+F4", Language.getString("newFile")),
+                new KeyboardHelpItem("Ctrl+N", Language.getString("helpNewFileDialog")),
+                new KeyboardHelpItem("F5", Language.getString("copy")),
+                new KeyboardHelpItem("Shift+F5", Language.getString("helpCopyInPlace")),
+                new KeyboardHelpItem("Alt+F5", Language.getString("archiveCreate")),
+                new KeyboardHelpItem("F6", Language.getString("move")),
+                new KeyboardHelpItem("Shift+F6", Language.getString("rename")),
+                new KeyboardHelpItem("F7", Language.getString("newFolder")),
+                new KeyboardHelpItem("Alt+F7", Language.getString("search")),
+                new KeyboardHelpItem("F8", Language.getString("delete")),
+                new KeyboardHelpItem("Alt+F9", Language.getString("archiveExtract")),
+                new KeyboardHelpItem("Tab", Language.getString("helpSwitchPanel")),
+                new KeyboardHelpItem("Ctrl+PgDn", Language.getString("helpOpenArchiveBySignature")),
+                new KeyboardHelpItem("Backspace", Language.getString("helpHistoryBack")),
+                new KeyboardHelpItem("Ctrl+PgUp", Language.getString("helpNavigateParent")),
+                new KeyboardHelpItem("Ctrl+R", Language.getString("helpRefreshActivePanel")),
+                new KeyboardHelpItem("Ctrl+L", Language.getString("helpFocusCommandLine")),
+                new KeyboardHelpItem("Ctrl+Enter", Language.getString("helpCopyNameToCommandLine")),
+                new KeyboardHelpItem("Shift+Enter", Language.getString("helpPersistentConsole")),
+                new KeyboardHelpItem("Alt+F4", Language.getString("helpCloseApplication"))
+            };
+            using var helpForm = new FormKeyboardHelp(
+                "DotNetCommander",
+                Language.getString("mainHelpSubtitle"),
+                items);
+            helpForm.ShowDialog(this);
         }
 
         private FileBrowser GetPassiveBrowser(FileBrowser activeBrowser)

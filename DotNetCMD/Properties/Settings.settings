@@ -29,6 +29,9 @@
     <Setting Name="QuickViewCsvMaxBytes" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">5242880</Value>
     </Setting>
+    <Setting Name="QuickViewTextMaxBytes" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">262144</Value>
+    </Setting>
     <Setting Name="BrowserFontName" Type="System.String" Scope="User">
       <Value Profile="(Default)">Microsoft Sans Serif</Value>
     </Setting>
