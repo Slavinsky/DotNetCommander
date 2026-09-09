@@ -20,27 +20,45 @@ namespace DotNetCommander
 
         public static string ReadAllText(string path, out Encoding encoding)
         {
-            using var stream = new FileStream(
+            using StreamReader reader = OpenReader(path, out encoding);
+            return reader.ReadToEnd();
+        }
+
+        public static StreamReader OpenReader(string path, out Encoding encoding, int bufferSize = 4096)
+        {
+            if (string.IsNullOrWhiteSpace(path))
+                throw new ArgumentException("A file path is required.", nameof(path));
+            if (bufferSize < 128)
+                throw new ArgumentOutOfRangeException(nameof(bufferSize), "The buffer size must be at least 128 bytes.");
+
+            var stream = new FileStream(
                 path,
                 FileMode.Open,
                 FileAccess.Read,
                 FileShare.ReadWrite | FileShare.Delete,
-                4096,
+                bufferSize,
                 FileOptions.SequentialScan);
 
-            int prefixLength = (int)Math.Min(stream.Length, DetectionPrefixLength);
-            byte[] prefix = new byte[prefixLength];
-            int length = ReadPrefix(stream, prefix);
-            encoding = DetectEncoding(prefix, length);
-            stream.Position = 0;
+            try
+            {
+                int prefixLength = (int)Math.Min(stream.Length, DetectionPrefixLength);
+                byte[] prefix = new byte[prefixLength];
+                int length = ReadPrefix(stream, prefix);
+                encoding = DetectEncoding(prefix, length);
+                stream.Position = 0;
 
-            using var reader = new StreamReader(
-                stream,
-                encoding,
-                detectEncodingFromByteOrderMarks: true,
-                bufferSize: 4096,
-                leaveOpen: false);
-            return reader.ReadToEnd();
+                return new StreamReader(
+                    stream,
+                    encoding,
+                    detectEncodingFromByteOrderMarks: true,
+                    bufferSize,
+                    leaveOpen: false);
+            }
+            catch
+            {
+                stream.Dispose();
+                throw;
+            }
         }
 
         public static void WriteAllText(string path, string content, Encoding encoding)

@@ -34,6 +34,7 @@ namespace View
         private string currentFilePath;
         private CancellationTokenSource loadCancellationTokenSource;
         private bool isLoading;
+        private bool isClosing;
         private DateTime lastUiProgressUpdateUtc = DateTime.MinValue;
         private string lastUiProgressPhase;
 
@@ -47,6 +48,7 @@ namespace View
             StartPosition = FormStartPosition.Manual;
             MinimumSize = new Size(720, 420);
             KeyPreview = true;
+            Icon = DotNetCommander.Properties.Resources.icon;
 
             toolStrip = new ToolStrip
             {
@@ -64,7 +66,7 @@ namespace View
                 Width = 760
             };
 
-            reloadButton = new ToolStripButton(Language.getString("view"));
+            reloadButton = new ToolStripButton(Language.getString("csvViewerReload"));
             reloadButton.Click += async (_, __) => await ReloadAsync();
 
             cancelButton = new ToolStripButton(Language.getString("cancel"))
@@ -150,17 +152,60 @@ namespace View
             }
             else
             {
-                StartPosition = FormStartPosition.CenterScreen;
+                StartPosition = FormStartPosition.CenterParent;
             }
         }
 
         private void CsvView_FormClosing(object sender, FormClosingEventArgs e)
         {
-            savedLocation = Location;
-            savedSize = Size;
+            isClosing = true;
+            if (WindowState == FormWindowState.Normal)
+            {
+                savedLocation = Location;
+                savedSize = Size;
+            }
+
             loadCancellationTokenSource?.Cancel();
-            loadCancellationTokenSource?.Dispose();
-            loadCancellationTokenSource = null;
+        }
+
+        protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
+        {
+            if (keyData == Keys.Escape)
+            {
+                Close();
+                return true;
+            }
+
+            if (keyData == Keys.F1)
+            {
+                ShowKeyboardHelp();
+                return true;
+            }
+
+            if (keyData == Keys.F5 || keyData == (Keys.Control | Keys.R))
+            {
+                _ = ReloadAsync();
+                return true;
+            }
+
+            return base.ProcessCmdKey(ref msg, keyData);
+        }
+
+        private void ShowKeyboardHelp()
+        {
+            var items = new[]
+            {
+                new KeyboardHelpItem("F1", Language.getString("helpShowThis")),
+                new KeyboardHelpItem("F5 / Ctrl+R", Language.getString("csvHelpReload")),
+                new KeyboardHelpItem("Ctrl+C", Language.getString("csvHelpCopy")),
+                new KeyboardHelpItem("Esc", Language.getString("csvHelpClose"))
+            };
+
+            using var helpForm = new FormKeyboardHelp(
+                Language.getString("csvViewerTitle"),
+                Language.getString("csvHelpSubtitle"),
+                items);
+            helpForm.ShowDialog(this);
         }
 
         private async Task ReloadAsync()
@@ -175,16 +220,17 @@ namespace View
 
         private async Task LoadFileAsync(string filePath)
         {
-            if (isLoading || string.IsNullOrEmpty(filePath))
+            if (isLoading || isClosing || string.IsNullOrEmpty(filePath))
             {
                 return;
             }
 
+            CancellationTokenSource operationCancellation = null;
             try
             {
                 isLoading = true;
-                loadCancellationTokenSource?.Dispose();
-                loadCancellationTokenSource = new CancellationTokenSource();
+                operationCancellation = new CancellationTokenSource();
+                loadCancellationTokenSource = operationCancellation;
 
                 bool showProgress = ShouldUseBackgroundLoad(filePath);
                 TimeSpan? knownDuration = GetKnownLoadDuration(filePath);
@@ -195,7 +241,7 @@ namespace View
                 {
                     SetLoadingState(true, knownDuration);
                     var progress = new Progress<CsvLoadProgress>(UpdateLoadProgress);
-                    dataTable = await loadService.LoadAsync(filePath, progress, loadCancellationTokenSource.Token);
+                    dataTable = await loadService.LoadAsync(filePath, progress, operationCancellation.Token);
                 }
                 else
                 {
@@ -205,6 +251,12 @@ namespace View
 
                 stopwatch.Stop();
                 knownDurations[filePath] = stopwatch.Elapsed;
+
+                if (!CanUpdateUi())
+                {
+                    dataTable.Dispose();
+                    return;
+                }
 
                 dataGridView.DataSource = dataTable;
                 AlignNumericColumns(dataTable);
@@ -220,22 +272,43 @@ namespace View
             }
             catch (OperationCanceledException)
             {
-                infoStatusLabel.Text = Language.getString("csvViewerCancelled");
-                countStatusLabel.Text = string.Empty;
-                progressBar.Value = 0;
+                if (CanUpdateUi())
+                {
+                    infoStatusLabel.Text = Language.getString("csvViewerCancelled");
+                    countStatusLabel.Text = string.Empty;
+                    progressBar.Value = 0;
+                }
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message, Language.getString("error"), MessageBoxButtons.OK, MessageBoxIcon.Error);
-                infoStatusLabel.Text = Language.getString("csvViewerLoadFailed");
-                countStatusLabel.Text = string.Empty;
-                progressBar.Value = 0;
+                LogService.LogException(nameof(LoadFileAsync), ex);
+                if (CanUpdateUi())
+                {
+                    MessageBox.Show(this, ex.Message, Language.getString("error"), MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    infoStatusLabel.Text = Language.getString("csvViewerLoadFailed");
+                    countStatusLabel.Text = string.Empty;
+                    progressBar.Value = 0;
+                }
             }
             finally
             {
                 isLoading = false;
-                SetLoadingState(false, null);
+                if (ReferenceEquals(loadCancellationTokenSource, operationCancellation))
+                {
+                    loadCancellationTokenSource = null;
+                }
+
+                operationCancellation?.Dispose();
+                if (CanUpdateUi())
+                {
+                    SetLoadingState(false, null);
+                }
             }
+        }
+
+        private bool CanUpdateUi()
+        {
+            return !isClosing && !IsDisposed && !Disposing;
         }
 
         private bool ShouldUseBackgroundLoad(string filePath)
@@ -280,7 +353,7 @@ namespace View
 
         private void UpdateLoadProgress(CsvLoadProgress progress)
         {
-            if (progress == null)
+            if (progress == null || !CanUpdateUi())
             {
                 return;
             }

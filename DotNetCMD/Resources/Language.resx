@@ -663,6 +663,21 @@
   <data name="csvViewerTitle" xml:space="preserve">
     <value>CSV Viewer</value>
   </data>
+  <data name="csvViewerReload" xml:space="preserve">
+    <value>Reload</value>
+  </data>
+  <data name="csvHelpSubtitle" xml:space="preserve">
+    <value>Keyboard commands available in the CSV viewer</value>
+  </data>
+  <data name="csvHelpReload" xml:space="preserve">
+    <value>Reload the current file</value>
+  </data>
+  <data name="csvHelpCopy" xml:space="preserve">
+    <value>Copy the selected row with column headers</value>
+  </data>
+  <data name="csvHelpClose" xml:space="preserve">
+    <value>Close the CSV viewer</value>
+  </data>
   <data name="csvViewerLoading" xml:space="preserve">
     <value>Loading table...</value>
   </data>

@@ -496,6 +496,21 @@
   <data name="csvViewerTitle" xml:space="preserve">
     <value>CSV-переглядач</value>
   </data>
+  <data name="csvViewerReload" xml:space="preserve">
+    <value>Перезавантажити</value>
+  </data>
+  <data name="csvHelpSubtitle" xml:space="preserve">
+    <value>Клавіатурні команди CSV-переглядача</value>
+  </data>
+  <data name="csvHelpReload" xml:space="preserve">
+    <value>Повторно завантажити поточний файл</value>
+  </data>
+  <data name="csvHelpCopy" xml:space="preserve">
+    <value>Копіювати вибраний рядок із заголовками стовпців</value>
+  </data>
+  <data name="csvHelpClose" xml:space="preserve">
+    <value>Закрити CSV-переглядач</value>
+  </data>
   <data name="csvViewerLoading" xml:space="preserve">
     <value>Завантаження таблиці...</value>
   </data>

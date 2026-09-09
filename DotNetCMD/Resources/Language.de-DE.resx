@@ -496,6 +496,21 @@
   <data name="csvViewerTitle" xml:space="preserve">
     <value>CSV-Betrachter</value>
   </data>
+  <data name="csvViewerReload" xml:space="preserve">
+    <value>Neu laden</value>
+  </data>
+  <data name="csvHelpSubtitle" xml:space="preserve">
+    <value>Tastaturbefehle im CSV-Betrachter</value>
+  </data>
+  <data name="csvHelpReload" xml:space="preserve">
+    <value>Aktuelle Datei neu laden</value>
+  </data>
+  <data name="csvHelpCopy" xml:space="preserve">
+    <value>Ausgewählte Zeile mit Spaltenüberschriften kopieren</value>
+  </data>
+  <data name="csvHelpClose" xml:space="preserve">
+    <value>CSV-Betrachter schließen</value>
+  </data>
   <data name="csvViewerLoading" xml:space="preserve">
     <value>Tabelle wird geladen...</value>
   </data>

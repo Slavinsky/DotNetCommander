@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -86,7 +85,7 @@ namespace DotNetCommander
             string levelOneTag = string.Empty;
             bool useCurrentNameRecord = false;
 
-            using var reader = new StreamReader(filePath, new UTF8Encoding(false, false), true);
+            using StreamReader reader = TextFileEncodingService.OpenReader(filePath, out _);
             string line;
             while ((line = reader.ReadLine()) != null)
             {

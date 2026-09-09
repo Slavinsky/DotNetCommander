@@ -26,7 +26,7 @@ namespace DotNetCommander
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            using var reader = new CsvByteLineReader(filePath);
+            using var reader = new CsvTextLineReader(filePath);
             long totalBytes = reader.Length;
             progress?.Report(new CsvLoadProgress("Opening", 0, totalBytes, 0));
 
@@ -244,90 +244,26 @@ namespace DotNetCommander
         public int Percent => TotalBytes <= 0 ? 0 : Math.Max(0, Math.Min(100, (int)Math.Round((double)BytesRead / TotalBytes * 100)));
     }
 
-    internal sealed class CsvByteLineReader : IDisposable
+    internal sealed class CsvTextLineReader : IDisposable
     {
-        private readonly FileStream stream;
-        private readonly Encoding encoding;
+        private readonly StreamReader reader;
 
-        public CsvByteLineReader(string filePath)
+        public CsvTextLineReader(string filePath)
         {
-            stream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
-            encoding = DetectEncoding(stream);
+            reader = TextFileEncodingService.OpenReader(filePath, out _);
         }
 
-        public long Position => stream.Position;
-        public long Length => stream.Length;
+        public long Position => reader.BaseStream.Position;
+        public long Length => reader.BaseStream.Length;
 
         public string ReadLine()
         {
-            if (stream.Position >= stream.Length)
-            {
-                return null;
-            }
-
-            var bytes = new List<byte>(256);
-            while (true)
-            {
-                int value = stream.ReadByte();
-                if (value == -1)
-                {
-                    break;
-                }
-
-                if (value == '\n')
-                {
-                    break;
-                }
-
-                if (value == '\r')
-                {
-                    long nextPosition = stream.Position;
-                    int nextValue = stream.ReadByte();
-                    if (nextValue != '\n' && nextValue != -1)
-                    {
-                        stream.Position = nextPosition;
-                    }
-                    break;
-                }
-
-                bytes.Add((byte)value);
-            }
-
-            return encoding.GetString(bytes.ToArray());
+            return reader.ReadLine();
         }
 
         public void Dispose()
         {
-            stream.Dispose();
-        }
-
-        private static Encoding DetectEncoding(FileStream stream)
-        {
-            Span<byte> bom = stackalloc byte[4];
-            int bytesRead = stream.Read(bom);
-
-            if (bytesRead >= 3 && bom[0] == 0xEF && bom[1] == 0xBB && bom[2] == 0xBF)
-            {
-                return new UTF8Encoding(false, true);
-            }
-
-            if (bytesRead >= 4 && bom[0] == 0xFF && bom[1] == 0xFE && bom[2] == 0x00 && bom[3] == 0x00)
-            {
-                return Encoding.UTF32;
-            }
-
-            if (bytesRead >= 2 && bom[0] == 0xFF && bom[1] == 0xFE)
-            {
-                return Encoding.Unicode;
-            }
-
-            if (bytesRead >= 2 && bom[0] == 0xFE && bom[1] == 0xFF)
-            {
-                return Encoding.BigEndianUnicode;
-            }
-
-            stream.Position = 0;
-            return new UTF8Encoding(false, true);
+            reader.Dispose();
         }
     }
 }

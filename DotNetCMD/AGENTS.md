@@ -75,7 +75,7 @@ Namespace: `DotNetCommander`
 - текстовий viewer, Quick View і text compare враховують BOM та `encoding="..."` з XML declaration (зокрема `windows-1251` у `.fb2`), а `TextEdit` зберігає виявлене кодування;
 - великі RTF, text та image файли не блокуються загальним preview-size limit; ліміт `9 MiB` застосовується лише до Markdown-to-RTF render, після нього `F3` переходить у RAW;
 - окремі вікна для `ImageView`, `TextEdit`, `RtfEdit`, `CsvView`;
-- `TextEdit`, `RtfEdit` та `ImageView` мають `F1`-help; `RtfEdit` і `ImageView` використовують структуроване commander-style вікно довідки замість `MessageBox`;
+- `TextEdit`, `RtfEdit`, `ImageView` та `CsvView` мають `F1`-help; `RtfEdit`, `ImageView` і `CsvView` використовують структуроване commander-style вікно довідки замість `MessageBox`;
 - `RtfEdit` локалізовано для `EN/UK/DE`; plain text і Markdown зберігають визначене кодування, а Markdown preview підтримує fenced code, списки, цитати, links, локальні images, emoji та вкладені styles;
 - drag-and-drop з `Explorer`, інших файлових менеджерів і між панелями;
 - конфлікт-орієнтовані `copy/move` з `overwrite`, `skip`, `rename` і масовими рішеннями (`apply to all`);
@@ -109,6 +109,16 @@ Namespace: `DotNetCommander`
 - `OS.cs` лишається фасадом між Windows- і Unix-специфічною логікою, хоча практичний фокус проєкту зараз — Windows.
 - `Dialogs/Common/` і `Dialogs/Operations/` — актуальні службові діалоги; `Dialogs/Legacy/` — сумісний legacy-шар, візуально вирівняний через `DialogStyleService`.
 - `FileBrowser`, `ArchiveBrowser`, `GedcomBrowser`, `DataSetBrowser`, `SearchBrowser` і `CompoundBrowser` наслідують `BrowserPanelBase`; `FileBrowser` лишається сумісним host-контролом для `AppForm` і перемикає фізичний/віртуальні режими без заміни панелі у layout.
+
+## Спільний контракт viewer-форм
+- Viewer-форми мають `KeyPreview = true` і обробляють глобальні клавіші через `ProcessCmdKey`, щоб shortcut працював незалежно від дочірнього control у фокусі.
+- `Esc` завжди закриває viewer. Якщо триває фонова операція, закриття спочатку сигналізує її cancellation; завершення async-коду не повинно оновлювати вже закриті або disposed controls.
+- `F1` відкриває спільний локалізований `FormKeyboardHelp` із фактичним переліком команд саме цієї форми; довгий неструктурований `MessageBox` для нових або оновлених viewer-форм не використовуємо.
+- Повторне читання поточного файла, якщо воно підтримується viewer-ом, доступне через `F5`; `Ctrl+R` може бути рівнозначним shortcut для узгодженості з файловими панелями. Toolbar-команда і shortcut мають викликати один метод.
+- Viewer показує поточний файл/режим і корисний підсумок у title, toolbar або status bar; тривалі операції показують progress і дають явне скасування.
+- Геометрія окремого viewer-вікна відновлюється між відкриттями; координати та розмір запам'ятовуються лише у `FormWindowState.Normal`, щоб не зберігати maximized/minimized bounds як звичайний розмір.
+- Видимі підписи, help-тексти, status/error повідомлення додаються до `Resources/Language.resx`, `Language.uk.resx` і `Language.de-DE.resx`; винятки проходять через `LogService` перед показом локалізованої помилки.
+- Специфічні можливості залишаються локальними для viewer-а: zoom/pan для images, block navigation для RAW, table selection/copy для CSV тощо. Спільний контракт не повинен стирати корисну спеціалізацію.
 
 ## Структура проєкту
 ```text

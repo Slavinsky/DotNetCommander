@@ -128,27 +128,7 @@ namespace DotNetCommander
 
             try
             {
-                using var stream = new FileStream(
-                    path,
-                    FileMode.Open,
-                    FileAccess.Read,
-                    FileShare.ReadWrite | FileShare.Delete,
-                    4096,
-                    FileOptions.SequentialScan);
-                int prefixLength = (int)Math.Min(stream.Length, 1024);
-                byte[] prefix = new byte[prefixLength];
-                int prefixRead = 0;
-                while (prefixRead < prefix.Length)
-                {
-                    int read = stream.Read(prefix, prefixRead, prefix.Length - prefixRead);
-                    if (read == 0)
-                        break;
-                    prefixRead += read;
-                }
-
-                Encoding encoding = TextFileEncodingService.DetectEncoding(prefix, prefixRead);
-                stream.Position = 0;
-                using var reader = new StreamReader(stream, encoding, true, 8192, leaveOpen: false);
+                using StreamReader reader = TextFileEncodingService.OpenReader(path, out _, 8192);
                 char[] buffer = new char[8192];
                 string tail = string.Empty;
                 while (true)
