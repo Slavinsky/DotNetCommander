@@ -793,6 +793,7 @@
   <data name="archiveFolderType" xml:space="preserve"><value>Ordner</value></data>
   <data name="archivePanelReadOnly" xml:space="preserve"><value>Die Archivansicht ist schreibgeschützt. Kopieren Sie Einträge vor Änderungen in die andere Dateiansicht.</value></data>
   <data name="archiveCopyRequiresFilePanel" xml:space="preserve"><value>Wählen Sie eine normale Dateisystemansicht als Kopierziel.</value></data>
+  <data name="gedcomCopyRequiresFilePanel" xml:space="preserve"><value>Wählen Sie eine normale Dateisystemansicht als Exportziel.</value></data>
   <data name="gedcomReadingCatalog" xml:space="preserve"><value>GEDCOM-Katalog wird gelesen...</value></data>
   <data name="gedcomPersons" xml:space="preserve"><value>Personen</value></data>
   <data name="gedcomFamilies" xml:space="preserve"><value>Familien</value></data>

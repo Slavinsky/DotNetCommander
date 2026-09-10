@@ -18,7 +18,7 @@ DotNetCommander розвивається як Windows-first commander, а не �
 Основний порядок робіт:
 
 1. Спочатку зробити наявні файлові та shell-сценарії передбачуваними.
-2. Розвивати вже реалізований `SearchBrowser` і пакетні інструменти на спільному panel/operation контракті.
+2. Довести вже реалізовані `SearchBrowser` і `CompoundBrowser` до цілісного panel-based workflow.
 3. На цій основі додати робочі простори та прискорену навігацію.
 4. Лише після стабілізації контрактів переходити до запису у віртуальні та віддалені провайдери.
 
@@ -28,6 +28,8 @@ DotNetCommander розвивається як Windows-first commander, а не �
 - Нові джерела даних реалізуються через `BrowserPanelBase` і `BrowserPanelCapabilities`, а не через спеціальні перевірки в `AppForm`.
 - Довгі операції не блокують UI, підтримують скасування та завершуються структурованим підсумком.
 - Класифікація типів файлів лишається централізованою у `FileTypeClassifier`.
+- Container-бібліотека на кшталт OpenMcdf відповідає лише за безпечний доступ до структури; DOC/XLS/PPT, embedded OLE і property sets потребують окремих форматних parser-ів.
+- Read-only provider не отримує rename/delete/write до появи транзакційного commit/rollback контракту.
 - Нові гарячі клавіші мають бути видимими в меню, F-панелі або локальній `F1`-довідці.
 - Explorer-like поведінка потрібна для shell-сумісності, але не повинна витісняти commander-style UX.
 
@@ -52,7 +54,7 @@ DotNetCommander розвивається як Windows-first commander, а не �
 
 ### Перевірюваність
 
-- Додати перший test project для `FileOperationService`, path helpers, `FileTypeClassifier`, CSV/DataSet/GEDCOM parsing та archive path safety.
+- Додати перший test project для `FileOperationService`, path helpers, `FileTypeClassifier`, CSV/DataSet/GEDCOM/CFBF parsing та archive/container path safety.
 - Винести чисту логіку з `AppForm` і `FileBrowser` там, де це безпосередньо відкриває можливість тестування.
 - Додати CI з `dotnet build` і запуском тестів на Windows.
 
@@ -64,9 +66,11 @@ DotNetCommander розвивається як Windows-first commander, а не �
 
 Етап завершено, коли базові локальні, мережеві й long-path сценарії мають відтворювану діагностику, а критична не-UI логіка покрита автоматичними перевірками.
 
-## Етап 2 — Search Refinement (`v1.10.0`)
+## Етап 2 — Virtual Provider Refinement (`v1.10.0`)
 
-Ціль: розвинути вже наявний panel-based пошук без створення паралельного набору файлових команд.
+Ціль: розвинути вже наявні read-only provider-и без створення паралельного набору файлових команд.
+
+### Search
 
 Вихідна точка `1.8.2`: `Alt+F7`, каталог, маска/regex, пошук тексту, рекурсія та глибина, фонове виконання з прогресом/скасуванням, `SearchBrowser` і стандартні `F3/F4`, Quick View, compare, copy/move/delete вже реалізовано й тут повторно не планується.
 
@@ -75,7 +79,24 @@ DotNetCommander розвивається як Windows-first commander, а не �
 - Додати «Feed to panel» для повторної роботи із зафіксованим набором результатів.
 - Зберігати останні пошукові запити без перетворення history на приховане довготривале сховище.
 
-Етап завершено, коли збережений або повторно відкритий результат пошуку лишається повноцінним джерелом елементів, дозволяє перейти до фізичного розташування та не потребує окремого набору файлових команд.
+### Compound File / CFBF
+
+Вихідна точка `1.8.2`: OpenMcdf уже інтегровано як source snapshot; `CompoundBrowser` показує storages/streams, класифікує тип контейнера, підтримує history, Quick View, `F3`, RAW/Hex і copy-out через `F5`. Для Word Binary уже витягується main story через `FIB` і `CLX/Piece Table`. Ці можливості не плануються повторно як «нове дерево», «hex viewer» або базовий export.
+
+Порядок реалізації:
+
+1. Зафіксувати security boundary: embedded streams вважати недовіреними, не запускати їх через системну асоціацію за звичайним Enter/подвійним кліком; зовнішнє відкриття зробити окремою явною дією з попередженням. Матеріалізовані temp-файли гарантовано прибирати після session/crash recovery.
+2. Виправити semantics export: зберігати логічні імена потоків без технічного hash-prefix, безпечно відображати заборонені/reserved Windows names, виявляти колізії, підтримати рекурсивне копіювання вибраного storage зі структурою підкаталогів і пропускати конфлікти через спільний operation pipeline.
+3. Додати content-aware preview потоків за signature/encoding: text, image, RTF/CSV та RAW fallback; спеціальні Office-потоки не маскувати випадковим розширенням.
+4. Показувати root/entry CLSID, `SummaryInformation` і `DocumentSummaryInformation` у структурованому metadata view; окремо позначати encrypted/protected документи й наявність macro/embedded executable content, не виконуючи його.
+5. Розпізнавати найпоширеніші embedded payload wrappers (`Ole10Native`, `Package`) та дозволяти окремо експортувати raw stream або точно виділений payload без удаваної «конвертації у сучасний формат».
+6. Додати обмежений пошук усередині текстоподібних streams, повторно використовуючи search pipeline, cancellation і ліміти розміру.
+7. Перетворити strict validation OpenMcdf на зрозумілий read-only integrity report: пошкоджені структури, недоступні streams і частково прочитані дані. Цифрові підписи документа не змішувати зі структурною цілісністю CFBF.
+8. Розглянути окремий salvage/export mode для пошкоджених контейнерів; він ніколи не змінює оригінал і не називається автоматичним «ремонтом».
+
+Для всіх CFBF-операцій потрібні захисні межі на кількість entries, nesting depth, сумарний materialized size, окремий stream size, час роботи та кількість помилок. Вкладені контейнери мають обмежувати рекурсію.
+
+Етап завершено, коли Search і Compound лишаються повноцінними read-only джерелами елементів, а preview/export/metadata/search використовують спільні команди, ліміти та error UX. Розширений рендер старих XLS/PPT і запис у CFBF до цього етапу не входять.
 
 ## Етап 3 — Bulk File Tools (`v1.11.0`)
 
@@ -122,6 +143,7 @@ DotNetCommander розвивається як Windows-first commander, а не �
 - Додати read-only INI provider через `Ctrl+PgDn`: sections як каталоги, keys як записи, Quick View значень.
 - Визначити спільні контракти materialization, editing і commit для virtual providers.
 - Додати транзакційний запис в архіви: rename/delete/add із перебудовою у тимчасовий файл та атомарною заміною.
+- Лише після перевірки цього контракту розглянути транзакційні rename/delete/add для CFBF; оригінал не змінюється до повної валідації нового контейнера.
 - Розглянути редагування INI/DataSet лише після появи зрозумілого preview/commit/rollback контракту.
 - FTP/SFTP реалізовувати як окремий provider після стабілізації capabilities, progress, credentials і reconnect semantics.
 
@@ -134,6 +156,11 @@ DotNetCommander розвивається як Windows-first commander, а не �
 - Розширення команд або plugin model після стабілізації публічних контрактів.
 - Попередній перегляд системних папок і мережевих ресурсів без блокування UI.
 - Додаткові structured-data providers, якщо вони природно вкладаються в panel abstraction.
+- Read-only ISO provider після оцінки DiscUtils, ліцензії, меж ресурсів і поведінки для пошкоджених images.
+- Read-only SQLite provider: tables/views як каталоги, schema та bounded paging рядків; файл відкривається без write-lock, довільний SQL і редагування спочатку не підтримуються.
+- Глибший preview старих Excel/PowerPoint/Visio/MSG лише як окремі format parsers; OpenMcdf сам по собі не декодує ці формати.
+- Експорт картинок або embedded documents у «сучасні формати» лише там, де payload уже є валідним відомим форматом або існує перевірений converter без втрати даних.
+- CLI для inspect/list/extract може з'явитися після відокремлення UI-незалежних сервісів; перетворення WinForms-застосунку на публічну бібліотеку не є самостійною продуктовою ціллю.
 
 Ці пункти не повинні випереджати reliability, search і bulk operations лише через те, що їх простіше додати локальним patch.
 

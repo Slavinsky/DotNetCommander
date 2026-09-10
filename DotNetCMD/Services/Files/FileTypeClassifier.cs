@@ -22,6 +22,8 @@ namespace DotNetCommander
 
     internal static class FileTypeClassifier
     {
+        private const int TextProbeLength = 1024;
+
         private static readonly HashSet<string> ImageExtensions = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {
             ".jpg", ".jpeg", ".jif",".jfif",".png", ".bmp", ".gif", ".webp", ".tif", ".tiff"
@@ -174,7 +176,7 @@ namespace DotNetCommander
             string extension = Path.GetExtension(path) ?? string.Empty;
             FileContentKind extensionKind = ClassifyExtension(extension);
             if ((extensionKind == FileContentKind.Binary || extensionKind == FileContentKind.Unknown) &&
-                HasXmlDeclaration(path))
+                (HasXmlDeclaration(path) || HasTextLikePrefix(path)))
             {
                 return FileContentKind.Text;
             }
@@ -337,6 +339,124 @@ namespace DotNetCommander
             {
                 return false;
             }
+        }
+
+        private static bool HasTextLikePrefix(string path)
+        {
+            try
+            {
+                using var stream = new FileStream(
+                    path,
+                    FileMode.Open,
+                    FileAccess.Read,
+                    FileShare.ReadWrite | FileShare.Delete,
+                    TextProbeLength,
+                    FileOptions.SequentialScan);
+                byte[] prefix = new byte[TextProbeLength];
+                int length = ReadPrefix(stream, prefix);
+
+                if (length >= 4 &&
+                    prefix[0] == 0xFF && prefix[1] == 0xFE && prefix[2] == 0x00 && prefix[3] == 0x00)
+                {
+                    return HasNoBinaryUtf32Characters(prefix, 4, length, littleEndian: true);
+                }
+
+                if (length >= 4 &&
+                    prefix[0] == 0x00 && prefix[1] == 0x00 && prefix[2] == 0xFE && prefix[3] == 0xFF)
+                {
+                    return HasNoBinaryUtf32Characters(prefix, 4, length, littleEndian: false);
+                }
+
+                if (length >= 3 &&
+                    prefix[0] == 0xEF && prefix[1] == 0xBB && prefix[2] == 0xBF)
+                {
+                    return HasNoBinarySingleByteCharacters(prefix, 3, length);
+                }
+
+                if (length >= 2 && prefix[0] == 0xFF && prefix[1] == 0xFE)
+                {
+                    return HasNoBinaryUtf16Characters(prefix, 2, length, littleEndian: true);
+                }
+
+                if (length >= 2 && prefix[0] == 0xFE && prefix[1] == 0xFF)
+                {
+                    return HasNoBinaryUtf16Characters(prefix, 2, length, littleEndian: false);
+                }
+
+                return HasNoBinarySingleByteCharacters(prefix, 0, length);
+            }
+            catch (Exception ex) when (ex is IOException || ex is UnauthorizedAccessException)
+            {
+                return false;
+            }
+        }
+
+        private static bool HasNoBinarySingleByteCharacters(byte[] bytes, int offset, int length)
+        {
+            for (int index = offset; index < length; index++)
+            {
+                if (IsBinaryControlCharacter(bytes[index]))
+                    return false;
+            }
+
+            return true;
+        }
+
+        private static bool HasNoBinaryUtf16Characters(
+            byte[] bytes,
+            int offset,
+            int length,
+            bool littleEndian)
+        {
+            int completeLength = length - ((length - offset) % 2);
+            for (int index = offset; index < completeLength; index += 2)
+            {
+                uint value = littleEndian
+                    ? (uint)(bytes[index] | (bytes[index + 1] << 8))
+                    : (uint)((bytes[index] << 8) | bytes[index + 1]);
+                if (IsBinaryControlCharacter(value))
+                    return false;
+            }
+
+            return true;
+        }
+
+        private static bool HasNoBinaryUtf32Characters(
+            byte[] bytes,
+            int offset,
+            int length,
+            bool littleEndian)
+        {
+            int completeLength = length - ((length - offset) % 4);
+            for (int index = offset; index < completeLength; index += 4)
+            {
+                uint value = littleEndian
+                    ? (uint)(bytes[index] |
+                        (bytes[index + 1] << 8) |
+                        (bytes[index + 2] << 16) |
+                        (bytes[index + 3] << 24))
+                    : (uint)((bytes[index] << 24) |
+                        (bytes[index + 1] << 16) |
+                        (bytes[index + 2] << 8) |
+                        bytes[index + 3]);
+                if (value > 0x10FFFF || IsBinaryControlCharacter(value))
+                    return false;
+            }
+
+            return true;
+        }
+
+        private static bool IsBinaryControlCharacter(uint value)
+        {
+            if (value >= 0x20)
+                return false;
+
+            return value != '\b' &&
+                value != '\t' &&
+                value != '\n' &&
+                value != '\v' &&
+                value != '\f' &&
+                value != '\r';
         }
 
         private static bool MatchesAsciiXmlDeclaration(byte[] bytes, int offset, int length)

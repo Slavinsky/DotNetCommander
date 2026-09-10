@@ -960,6 +960,7 @@
   <data name="archiveFolderType" xml:space="preserve"><value>Folder</value></data>
   <data name="archivePanelReadOnly" xml:space="preserve"><value>The archive panel is read-only. Copy items to the other file panel before changing them.</value></data>
   <data name="archiveCopyRequiresFilePanel" xml:space="preserve"><value>Select a regular file-system panel as the copy destination.</value></data>
+  <data name="gedcomCopyRequiresFilePanel" xml:space="preserve"><value>Select a regular file-system panel as the export destination.</value></data>
   <data name="gedcomReadingCatalog" xml:space="preserve"><value>Reading GEDCOM catalog...</value></data>
   <data name="gedcomPersons" xml:space="preserve"><value>Persons</value></data>
   <data name="gedcomFamilies" xml:space="preserve"><value>Families</value></data>

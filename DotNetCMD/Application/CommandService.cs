@@ -3,6 +3,7 @@ using System.Collections.Specialized;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Windows.Forms;
 
 namespace DotNetCommander
@@ -62,6 +63,14 @@ namespace DotNetCommander
         {
             try
             {
+                if (source?.TryGetSelectedGedcomRecordText(out string gedcomText, out string gedcomTitle, out _) == true)
+                {
+                    View.TextEdit preview = new View.TextEdit();
+                    preview.LoadTextPreview(gedcomText, gedcomTitle);
+                    ShowOwned(preview, owner);
+                    return;
+                }
+
                 if (source?.IsCompoundMode == true && IsSelectedWordDocumentStream(source))
                 {
                     string wordText = await WordBinaryTextExtractor.TryExtractMainTextAsync(source.OpenVirtualSourcePath);
@@ -239,6 +248,11 @@ namespace DotNetCommander
 
         public void CopySelection(FileBrowser source, FileBrowser destination, Action<int> onComplete, IWin32Window owner)
         {
+            if (source?.IsGedcomMode == true)
+            {
+                CopyGedcomSelection(source, destination, onComplete, owner);
+                return;
+            }
             if (source?.IsArchiveMode == true)
             {
                 ExtractArchiveSelection(source, destination, onComplete, owner);
@@ -582,6 +596,86 @@ namespace DotNetCommander
             {
                 LogService.LogException("CommandService.ShowCopyDialog", ex);
                 MessageBox.Show(owner, ex.Message, Language.getString("error"), MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void CopyGedcomSelection(FileBrowser source, FileBrowser destination, Action<int> onComplete, IWin32Window owner)
+        {
+            if (destination == null || destination.IsVirtualMode || string.IsNullOrWhiteSpace(destination.CurrentPath))
+            {
+                MessageBox.Show(owner, Language.getString("gedcomCopyRequiresFilePanel"), Language.getString("Info"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            IReadOnlyList<GedcomRecordText> records = source.GetSelectedGedcomRecordTexts();
+            if (records.Count == 0)
+            {
+                return;
+            }
+
+            string temporaryDirectory = Path.Combine(Path.GetTempPath(), "DotNetCommander", Guid.NewGuid().ToString("N"));
+            try
+            {
+                Directory.CreateDirectory(temporaryDirectory);
+                var temporaryFiles = new List<string>(records.Count);
+                foreach (GedcomRecordText record in records)
+                {
+                    string temporaryFile = GetAvailableFilePath(
+                        temporaryDirectory,
+                        BuildGedcomExportFileName(record.Title, record.Tag));
+                    File.WriteAllText(temporaryFile, record.Text, new UTF8Encoding(false));
+                    temporaryFiles.Add(temporaryFile);
+                }
+
+                using var copyWindow = new FormCopy(temporaryFiles.ToArray(), destination.CurrentPath, FormCopy.Type.Copy);
+                copyWindow.ActionComplete += result => onComplete?.Invoke(result);
+                copyWindow.ShowDialog(owner);
+            }
+            catch (Exception ex)
+            {
+                LogService.LogException("CommandService.CopyGedcomSelection", ex);
+                MessageBox.Show(owner, ex.Message, Language.getString("error"), MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            finally
+            {
+                try
+                {
+                    if (Directory.Exists(temporaryDirectory))
+                        Directory.Delete(temporaryDirectory, true);
+                }
+                catch (Exception ex)
+                {
+                    LogService.LogException("CommandService.CopyGedcomSelection.Cleanup", ex);
+                }
+            }
+        }
+
+        private static string BuildGedcomExportFileName(string title, string tag)
+        {
+            string name = string.IsNullOrWhiteSpace(title) ? "record" : title;
+            foreach (char invalidCharacter in Path.GetInvalidFileNameChars())
+                name = name.Replace(invalidCharacter, '_');
+
+            string extension = string.IsNullOrWhiteSpace(tag) ? "ged" : tag.Trim().ToLowerInvariant();
+            foreach (char invalidCharacter in Path.GetInvalidFileNameChars())
+                extension = extension.Replace(invalidCharacter, '_');
+
+            return name + "." + extension;
+        }
+
+        private static string GetAvailableFilePath(string directory, string fileName)
+        {
+            string path = Path.Combine(directory, fileName);
+            if (!File.Exists(path))
+                return path;
+
+            string name = Path.GetFileNameWithoutExtension(fileName);
+            string extension = Path.GetExtension(fileName);
+            for (int index = 2; ; index++)
+            {
+                path = Path.Combine(directory, name + "_" + index.ToString() + extension);
+                if (!File.Exists(path))
+                    return path;
             }
         }
 

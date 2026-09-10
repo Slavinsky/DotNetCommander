@@ -206,6 +206,22 @@ namespace DotNetCommander
     public bool IsCompoundMode => compoundMode;
     public bool IsVirtualMode => archiveMode || gedcomMode || dataSetMode || searchMode || compoundMode;
     internal GedcomPersonEntry SelectedGedcomPerson => gedcomMode ? gedcomBrowser.SelectedPerson : null;
+    internal bool TryGetSelectedGedcomRecordText(out string text, out string title, out string tag)
+    {
+      if (gedcomMode)
+      {
+        return gedcomBrowser.TryGetSelectedRecordText(out text, out title, out tag);
+      }
+
+      text = null;
+      title = null;
+      tag = null;
+      return false;
+    }
+    internal IReadOnlyList<GedcomRecordText> GetSelectedGedcomRecordTexts()
+    {
+      return gedcomMode ? gedcomBrowser.GetSelectedRecordTexts() : Array.Empty<GedcomRecordText>();
+    }
     internal bool SelectGedcomPerson(string personId)
     {
       return gedcomMode && gedcomBrowser.SelectPerson(personId);

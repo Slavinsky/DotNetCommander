@@ -39,8 +39,8 @@ Namespace: `DotNetCommander`
 ## Ключові компоненти
 - `Browsers/FileSystem/FileBrowser.cs` — основна файлова панель на `ListView`
 - `Browsers/BrowserPanelBase.cs` — базовий контракт для фізичних і майбутніх віртуальних панелей: location, items, selection, capabilities, navigation, refresh
-- `Browsers/Archives/` — read-only archive panel, читання entries і матеріалізація окремих файлів для Quick View / `F3`
-- `Browsers/Gedcom/` — ієрархічна GEDCOM-панель для всіх level-0 tags (`INDI`, `FAM`, `NOTE` та інші), типізовані каталоги персон/сімей, generic records, Quick View родинного графа та векторні піктограми статі
+- `Browsers/Archives/` — read-only archive panel, читання entries, сортування за колонками та матеріалізація окремих файлів для Quick View / `F3`
+- `Browsers/Gedcom/` — ієрархічна GEDCOM-панель для всіх level-0 tags (`INDI`, `FAM`, `NOTE` та інші), типізовані каталоги персон/сімей, generic records, `F3` повного запису, груповий export через `F5`, Quick View родинного графа та векторні піктограми статі
 - `Browsers/DataSets/` — read-only DataSet-панель для `.dsx`: таблиці, рядки, schema relations і безпечне XML-читання зі strict-first fallback для невалідних XML 1.0 символів
 - `Browsers/Search/` — панель результатів асинхронного пошуку за маскою/regex та вмістом із прогресом і скасуванням
 - `Browsers/Compound/` — read-only CFBF/OLE2 provider: storages, streams, класифікація документа та безпечна матеріалізація окремих потоків
@@ -67,10 +67,10 @@ Namespace: `DotNetCommander`
 - Quick View асинхронно показує text, formatted RTF/Markdown, image, CSV, GEDCOM graph і Word Binary plain text; text/RTF fonts та size limits беруться з `Options`, для plain text видно визначене кодування;
 - Quick View і `ImageView` по `F3` спільно використовують `InteractiveImageViewControl`: zoom-at-cursor колесом, `+`/`-`, pan, reset-to-fit; масштаб і розміри показуються в status рядку без накладки поверх зображення;
 - для image Quick View і `ImageView` status рядок доповнюється описом із `descript.ion` у каталозі зображення; parser підтримує quoted filenames, UTF-8/BOM та системне ANSI-кодування;
-- `Quick View` у GEDCOM-панелі показує інтерактивний родинний граф вибраної особи з pan/zoom;
+- `Quick View` у GEDCOM-панелі показує інтерактивний родинний граф вибраної особи з pan/zoom; `F3` відкриває повний текст поточного GEDCOM-запису;
 - GEDCOM-панель відкривається кореневим каталогом типів: `Persons (INDI)`, `Families (FAM)`, `Notes (NOTE)` і динамічними розділами для решти тегів нульового рівня;
 - вбудоване порівняння файлів (`Shift+F3`): text diff, CSV diff, image compare, binary fallback;
-- `F3` відкриває binary/unknown/archive файли у потоковому RAW/Hex viewer, але XML declaration `<?xml` у binary/unknown файла переводить їх у текстовий preview; `Ctrl+F3` примусово показує RAW для будь-якого вибраного файла незалежно від розширення;
+- `F3` відкриває binary/archive файли у потоковому RAW/Hex viewer; binary/unknown файли без бінарних керівних символів у першому 1 KiB класифікуються як текстові (з урахуванням BOM і XML declaration), а `Ctrl+F3` примусово показує RAW для будь-якого вибраного файла незалежно від розширення;
 - `F3` для Word Binary `.doc`/CFBF витягує main story як plain text через `FIB`, `0Table`/`1Table` і `CLX/Piece Table`; те саме працює для потоку `WordDocument` усередині `CompoundBrowser` та в Quick View, а `Ctrl+F3` лишається RAW;
 - текстовий viewer, Quick View і text compare враховують BOM та `encoding="..."` з XML declaration (зокрема `windows-1251` у `.fb2`), а `TextEdit` зберігає виявлене кодування;
 - великі RTF, text та image файли не блокуються загальним preview-size limit; ліміт `9 MiB` застосовується лише до Markdown-to-RTF render, після нього `F3` переходить у RAW;
@@ -86,8 +86,8 @@ Namespace: `DotNetCommander`
 - `Ctrl+PgDn` відкриває `.ged` як GEDCOM-панель, `.dsx` як DataSet-панель, перевіряє archive signature, а потім тихо пробує прочитати інші файли як DataSet XML незалежно від розширення;
 - `Ctrl+PgDn` також розпізнає CFBF/OLE2 signature незалежно від розширення та відкриває `CompoundBrowser`; звичайний `Enter` для Office-документів лишається системним відкриттям;
 - DataSet-панель показує каталоги `Tables` і `Relations`, довільні колонки/рядки таблиць та parent/child columns зв’язків; режим read-only, читання виконується у фоні, а після секундної затримки показується неблокувальний `Wait`;
-- Quick View і `F3` матеріалізують лише вибраний файл архіву в тимчасовий session-каталог; `F5` копіює вибрані записи до пасивної файлової панелі;
-- сортування за колонками у `FileBrowser`: `..` завжди перший, а опційне `Options -> View` групування окремо сортує каталоги перед файлами;
+- Quick View і `F3` матеріалізують лише вибраний файл архіву в тимчасовий session-каталог; `F5` копіює вибрані записи до пасивної файлової панелі; в GEDCOM-панелі `F5` експортує всі виділені записи як окремі файли з розширенням тегу;
+- сортування за колонками у `FileBrowser` і `ArchiveBrowser`: `..` завжди перший, а опційне `Options -> View` групування окремо сортує каталоги перед файлами у файловій панелі;
 - перемикання режимів перегляду: `Details`, `List`, `Small Icons`, `Large Icons`, `Tiles`;
 - shell-дії для файлів: `Open`, `Open with...`, `Properties` (через `WinContextMenu`);
 - `Shift+Enter` для запуску `.bat/.cmd/.exe/.com/.ps1` у консолі, що не закривається;

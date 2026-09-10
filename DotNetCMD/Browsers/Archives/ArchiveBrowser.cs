@@ -22,6 +22,8 @@ namespace DotNetCommander
         private ImageList smallImages;
         private ImageList largeImages;
         private int iconGeneration;
+        private int sortColumn = 1;
+        private bool sortAscending = true;
 
         public ArchiveBrowser()
         {
@@ -59,6 +61,7 @@ namespace DotNetCommander
             archiveView.Columns.Add(Language.getString("columnSize"), 100, HorizontalAlignment.Right);
             archiveView.Columns.Add(Language.getString("columnDate"), 140);
             archiveView.ItemActivate += ArchiveView_ItemActivate;
+            archiveView.ColumnClick += ArchiveView_ColumnClick;
             archiveView.SelectedIndexChanged += (_, __) => RaiseSelectionChanged();
             archiveView.KeyDown += ArchiveView_KeyDown;
 
@@ -314,6 +317,28 @@ namespace DotNetCommander
             }
         }
 
+        private void ArchiveView_ColumnClick(object sender, ColumnClickEventArgs e)
+        {
+            int column = e.Column == 0 ? 1 : e.Column;
+            if (column == sortColumn)
+            {
+                sortAscending = !sortAscending;
+            }
+            else
+            {
+                sortColumn = column;
+                sortAscending = true;
+            }
+
+            ApplySorting();
+        }
+
+        private void ApplySorting()
+        {
+            archiveView.ListViewItemSorter = new ArchiveListViewItemComparer(sortColumn, sortAscending);
+            archiveView.Sort();
+        }
+
         private void RenderCurrentPath(string preferredEntry = null)
         {
             iconGeneration++;
@@ -325,13 +350,13 @@ namespace DotNetCommander
                 var parentItem = new ArchiveViewItem { Name = "..", IsDirectory = true, IsParent = true };
                 archiveView.Items.Add(CreateListViewItem(parentItem));
 
-                foreach (ArchiveViewItem item in BuildChildren(internalPath)
-                    .OrderByDescending(item => item.IsDirectory)
-                    .ThenBy(item => item.Name, StringComparer.CurrentCultureIgnoreCase))
+                foreach (ArchiveViewItem item in BuildChildren(internalPath))
                 {
                     archiveView.Items.Add(CreateListViewItem(item));
                     visibleItems.Add(ToBrowserItemInfo(item));
                 }
+
+                ApplySorting();
             }
             finally
             {
@@ -576,6 +601,60 @@ namespace DotNetCommander
         {
             public ArchiveViewItem Item { get; set; }
             public ListViewItem[] Items { get; set; }
+        }
+
+        private sealed class ArchiveListViewItemComparer : System.Collections.IComparer
+        {
+            private readonly int column;
+            private readonly bool ascending;
+
+            public ArchiveListViewItemComparer(int column, bool ascending)
+            {
+                this.column = column;
+                this.ascending = ascending;
+            }
+
+            public int Compare(object x, object y)
+            {
+                ArchiveViewItem itemX = (x as ListViewItem)?.Tag as ArchiveViewItem;
+                ArchiveViewItem itemY = (y as ListViewItem)?.Tag as ArchiveViewItem;
+                if (itemX == null || itemY == null)
+                {
+                    return 0;
+                }
+
+                if (itemX.IsParent != itemY.IsParent)
+                {
+                    return itemX.IsParent ? -1 : 1;
+                }
+
+                if (itemX.IsParent)
+                {
+                    return 0;
+                }
+
+                if (itemX.IsDirectory != itemY.IsDirectory)
+                {
+                    return itemX.IsDirectory ? -1 : 1;
+                }
+
+                int result = column switch
+                {
+                    3 => itemX.Length.CompareTo(itemY.Length),
+                    4 => Nullable.Compare(itemX.Modified, itemY.Modified),
+                    2 => StringComparer.CurrentCultureIgnoreCase.Compare(
+                        itemX.IsDirectory ? Language.getString("archiveFolderType") : Path.GetExtension(itemX.Name),
+                        itemY.IsDirectory ? Language.getString("archiveFolderType") : Path.GetExtension(itemY.Name)),
+                    _ => StringComparer.CurrentCultureIgnoreCase.Compare(itemX.Name, itemY.Name)
+                };
+
+                if (result == 0)
+                {
+                    result = StringComparer.CurrentCultureIgnoreCase.Compare(itemX.Name, itemY.Name);
+                }
+
+                return ascending ? result : -result;
+            }
         }
     }
 }

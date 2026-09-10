@@ -10,6 +10,13 @@ using System.Windows.Forms;
 
 namespace DotNetCommander
 {
+    internal sealed class GedcomRecordText
+    {
+        public string Text { get; set; }
+        public string Title { get; set; }
+        public string Tag { get; set; }
+    }
+
     internal sealed class GedcomBrowser : BrowserPanelBase
     {
         private const string TagPathPrefix = "tag/";
@@ -96,6 +103,31 @@ namespace DotNetCommander
         public GedcomPersonEntry SelectedPerson => browserView.SelectedItems.Count == 1
             ? (browserView.SelectedItems[0].Tag as ViewEntry)?.Model as GedcomPersonEntry
             : null;
+
+        public bool TryGetSelectedRecordText(out string text, out string title, out string tag)
+        {
+            text = null;
+            title = null;
+            tag = null;
+
+            GedcomRecordText record = GetSelectedRecordTexts().FirstOrDefault();
+            if (record == null)
+                return false;
+
+            text = record.Text;
+            title = record.Title;
+            tag = record.Tag;
+            return true;
+        }
+
+        public IReadOnlyList<GedcomRecordText> GetSelectedRecordTexts()
+        {
+            return browserView.SelectedItems.Cast<ListViewItem>()
+                .Select(item => item.Tag as ViewEntry)
+                .Select(CreateRecordText)
+                .Where(record => record != null)
+                .ToArray();
+        }
 
         internal void FocusItems()
         {
@@ -513,6 +545,51 @@ namespace DotNetCommander
                 ? browserView.FocusedItem
                 : browserView.SelectedItems.Cast<ListViewItem>().FirstOrDefault();
             return current?.Tag as ViewEntry;
+        }
+
+        private GedcomRecordEntry FindRecord(object model)
+        {
+            if (model is GedcomRecordEntry record)
+                return record;
+
+            string id = model switch
+            {
+                GedcomPersonEntry person => person.Id,
+                GedcomFamilyEntry family => family.Id,
+                _ => null
+            };
+            if (string.IsNullOrWhiteSpace(id))
+                return null;
+
+            return catalog?.Records?.FirstOrDefault(record =>
+                string.Equals(record.Id, id, StringComparison.OrdinalIgnoreCase));
+        }
+
+        private GedcomRecordText CreateRecordText(ViewEntry entry)
+        {
+            GedcomRecordEntry record = FindRecord(entry?.Model);
+            if (record == null)
+                return null;
+
+            return new GedcomRecordText
+            {
+                Title = string.IsNullOrWhiteSpace(record.Id) ? entry.Info.Name : record.Id,
+                Tag = record.Tag,
+                Text = string.Join(Environment.NewLine, new[] { FormatGedcomLine(0, record.Id, record.Tag, record.Value) }
+                    .Concat(record.Fields.Select(field => FormatGedcomLine(field.Level, field.Xref, field.Tag, field.Value))))
+            };
+        }
+
+        private static string FormatGedcomLine(int level, string xref, string tag, string value)
+        {
+            var parts = new List<string> { level.ToString(CultureInfo.InvariantCulture) };
+            if (!string.IsNullOrWhiteSpace(xref))
+                parts.Add(xref.Trim());
+            if (!string.IsNullOrWhiteSpace(tag))
+                parts.Add(tag.Trim());
+            if (!string.IsNullOrWhiteSpace(value))
+                parts.Add(value.Trim());
+            return string.Join(" ", parts);
         }
 
         private bool HasTag(string tag)

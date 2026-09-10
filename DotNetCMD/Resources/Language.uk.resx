@@ -793,6 +793,7 @@
   <data name="archiveFolderType" xml:space="preserve"><value>Папка</value></data>
   <data name="archivePanelReadOnly" xml:space="preserve"><value>Архівна панель доступна лише для читання. Перед змінами скопіюйте елементи до іншої файлової панелі.</value></data>
   <data name="archiveCopyRequiresFilePanel" xml:space="preserve"><value>Виберіть звичайну файлову панель як призначення копіювання.</value></data>
+  <data name="gedcomCopyRequiresFilePanel" xml:space="preserve"><value>Виберіть звичайну файлову панель як призначення експорту.</value></data>
   <data name="gedcomReadingCatalog" xml:space="preserve"><value>Читання каталогу GEDCOM...</value></data>
   <data name="gedcomPersons" xml:space="preserve"><value>Особи</value></data>
   <data name="gedcomFamilies" xml:space="preserve"><value>Сім’ї</value></data>
