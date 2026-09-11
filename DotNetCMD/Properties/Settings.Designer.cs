@@ -553,6 +553,78 @@ namespace DotNetCommander.Properties {
 
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("http://localhost:11434")]
+        public string AiOrganizerEndpoint {
+            get {
+                return ((string)(this["AiOrganizerEndpoint"]));
+            }
+            set {
+                this["AiOrganizerEndpoint"] = value;
+            }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("qwen3.5:latest")]
+        public string AiOrganizerModel {
+            get {
+                return ((string)(this["AiOrganizerModel"]));
+            }
+            set {
+                this["AiOrganizerModel"] = value;
+            }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("250")]
+        public int AiOrganizerMaxFileCount {
+            get {
+                return ((int)(this["AiOrganizerMaxFileCount"]));
+            }
+            set {
+                this["AiOrganizerMaxFileCount"] = value;
+            }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("auto")]
+        public string AiOrganizerContextMode {
+            get {
+                return ((string)(this["AiOrganizerContextMode"]));
+            }
+            set {
+                this["AiOrganizerContextMode"] = value;
+            }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("4096")]
+        public int AiOrganizerMaxTextCharactersPerFile {
+            get {
+                return ((int)(this["AiOrganizerMaxTextCharactersPerFile"]));
+            }
+            set {
+                this["AiOrganizerMaxTextCharactersPerFile"] = value;
+            }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("65536")]
+        public int AiOrganizerMaxTotalTextCharacters {
+            get {
+                return ((int)(this["AiOrganizerMaxTotalTextCharacters"]));
+            }
+            set {
+                this["AiOrganizerMaxTotalTextCharacters"] = value;
+            }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("auto")]
         public string UiLanguage {
             get {

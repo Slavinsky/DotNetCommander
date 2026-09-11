@@ -9,7 +9,7 @@ Namespace: `DotNetCommander`
 
 Поточна активна збірка:
 - `Commander.NET.csproj` — `net8.0-windows10.0.22621.0`
-- Версія: `1.8.2`
+- Версія: `1.9.0`
 
 Історична збірка:
 - `DotNetCommander.csproj` — оригінальний .NET Framework-проєкт
@@ -48,6 +48,7 @@ Namespace: `DotNetCommander`
 - `Controls/Preview/` — загальний Quick View та інтерактивний перегляд зображень
 - `Controls/Navigation/` — breadcrumb-навігація та її сегментні кнопки
 - `Services/Operations/FileOperationService.cs` — планування та виконання `copy/move/delete`
+- `Services/AI/AiOrganizationService.cs` — локальний Ollama-клієнт для безпечного JSON-планування впорядкування файлів за метаданими й обмеженими фрагментами текстового вмісту; модель не виконує файлові операції напряму
 - `Services/Archives/ArchiveService.cs` — виконання створення й безпечного розпакування архівів на стандартних API .NET 8; визначення типу делеговано `FileTypeClassifier`
 - `Application/CommandService.cs` — виконання основних commander-команд і відкриття внутрішніх viewer/editor форм
 - `Services/Files/` — доступ до файлової системи, класифікація типів, XML-aware визначення кодування тексту та process-wide кеш shell-іконок
@@ -60,6 +61,7 @@ Namespace: `DotNetCommander`
 
 ## Поточні можливості
 - двопанельна навігація по файловій системі з адресним рядком і панеллю дисків;
+- `Tools -> AI folder organizer...` формує через локальну Ollama перевірюваний план переміщення/перейменування файлів верхнього рівня активної фізичної папки; режими `Auto`, metadata-only і metadata+content керують контекстом, причому `Auto` спершу надсилає лише метадані й читає обмежені encoding-aware фрагменти text/Markdown/CSV тільки після запиту моделі; кожна дія мусить містити дослівну підставу з метаданих або вмісту саме того файла, а відповідь доступна для копіювання; ліміт файлів (`0` — без обмеження) і текстові бюджети задаються в `Options -> AI organizer`; дії виконуються лише після явного підтвердження, через `FileOperationService`, без видалення, перезапису та виходу за межі папки;
 - `Alt+F7` запускає фоновий пошук у каталозі за маскою/regex та текстом; результати відображаються як `SearchBrowser` і підтримують preview, copy/move/delete;
 - Файлова, GEDCOM та DataSet-панелі використовують `AddressBar` із компактними breadcrumb-сегментами та mouse-friendly кнопками `Back`, `Up` і `Refresh`, що викликають ті самі команди, що `Backspace`, `Ctrl+PgUp` і `Ctrl+R`;
 - commander-style командний рядок під панелями: запуск програм і команд із параметрами в каталозі активної панелі, історія через `Up/Down`, фокус через `Ctrl+L`, `Ctrl+Enter` вставляє назву поточного елемента, `Shift+Enter` залишає консоль відкритою;

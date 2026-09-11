@@ -16,6 +16,7 @@ namespace DotNetCommander
         private readonly Panel editorPage;
         private readonly Panel richTextPage;
         private readonly Panel operationsPage;
+        private readonly Panel aiPage;
         private readonly Panel performancePage;
         private readonly ComboBox browserFontComboBox;
         private readonly ComboBox textEditorFontComboBox;
@@ -55,6 +56,12 @@ namespace DotNetCommander
         private readonly CheckBox loadIconsCheckBox;
         private readonly CheckBox loadLargeIconsCheckBox;
         private readonly CheckBox watchDirectoryChangesCheckBox;
+        private readonly TextBox aiEndpointTextBox;
+        private readonly TextBox aiModelTextBox;
+        private readonly NumericUpDown aiMaxFileCountNumeric;
+        private readonly ComboBox aiContextModeComboBox;
+        private readonly NumericUpDown aiMaxTextCharactersPerFileNumeric;
+        private readonly NumericUpDown aiMaxTotalTextCharactersNumeric;
         private readonly TextBox settingsPathTextBox;
         private readonly Panel dialogPreviewPanel;
         private readonly Label dialogPreviewTitleLabel;
@@ -83,6 +90,7 @@ namespace DotNetCommander
             categoryListBox.Items.Add(Language.getString("settingsTabEditor"));
             categoryListBox.Items.Add(Language.getString("settingsTabRichText"));
             categoryListBox.Items.Add(Language.getString("settingsTabOperations"));
+            categoryListBox.Items.Add(Language.getString("settingsTabAi"));
             categoryListBox.Items.Add(Language.getString("settingsTabPerformance"));
             categoryListBox.SelectedIndexChanged += (_, __) => ShowSelectedPage();
 
@@ -96,6 +104,7 @@ namespace DotNetCommander
             editorPage = new Panel { Dock = DockStyle.Fill, Padding = new Padding(8) };
             richTextPage = new Panel { Dock = DockStyle.Fill, Padding = new Padding(8) };
             operationsPage = new Panel { Dock = DockStyle.Fill, Padding = new Padding(8) };
+            aiPage = new Panel { Dock = DockStyle.Fill, Padding = new Padding(8) };
             performancePage = new Panel { Dock = DockStyle.Fill, Padding = new Padding(8) };
 
             browserFontComboBox = new ComboBox
@@ -177,6 +186,12 @@ namespace DotNetCommander
             quickViewCsvMaxMbNumeric = CreateNumeric(1, 64, 100);
             quickViewTextMaxKbNumeric = CreateNumeric(64, 65536, 100);
             quickViewTextMaxKbNumeric.Increment = 64;
+            aiMaxFileCountNumeric = CreateNumeric(0, 100000, 120);
+            aiMaxFileCountNumeric.Increment = 50;
+            aiMaxTextCharactersPerFileNumeric = CreateNumeric(256, 1024 * 1024, 140);
+            aiMaxTextCharactersPerFileNumeric.Increment = 1024;
+            aiMaxTotalTextCharactersNumeric = CreateNumeric(1024, 16 * 1024 * 1024, 140);
+            aiMaxTotalTextCharactersNumeric.Increment = 16384;
             dialogFontSizeNumeric = CreateNumeric(8, 24, 120);
             dialogCaptionFontSizeNumeric = CreateNumeric(8, 24, 120);
             dialogEmphasisFontSizeNumeric = CreateNumeric(8, 24, 120);
@@ -303,6 +318,18 @@ namespace DotNetCommander
                 Text = Language.getString("settingsWatchDirectoryChanges")
             };
 
+            aiEndpointTextBox = new TextBox { Width = 320 };
+            aiModelTextBox = new TextBox { Width = 320 };
+            aiContextModeComboBox = new ComboBox
+            {
+                DropDownStyle = ComboBoxStyle.DropDownList,
+                Width = 320
+            };
+            aiContextModeComboBox.Items.Add(Language.getString("aiOrganizerContextAuto"));
+            aiContextModeComboBox.Items.Add(Language.getString("aiOrganizerContextMetadata"));
+            aiContextModeComboBox.Items.Add(Language.getString("aiOrganizerContextContent"));
+            aiContextModeComboBox.SelectedIndexChanged += (_, __) => UpdateAiContentControls();
+
             settingsPathTextBox = new TextBox
             {
                 ReadOnly = true,
@@ -313,12 +340,14 @@ namespace DotNetCommander
             BuildEditorPage();
             BuildRichTextPage();
             BuildOperationsPage();
+            BuildAiPage();
             BuildPerformancePage();
 
             pageHostPanel.Controls.Add(viewPage);
             pageHostPanel.Controls.Add(editorPage);
             pageHostPanel.Controls.Add(richTextPage);
             pageHostPanel.Controls.Add(operationsPage);
+            pageHostPanel.Controls.Add(aiPage);
             pageHostPanel.Controls.Add(performancePage);
 
             var buttonPanel = new Panel
@@ -550,6 +579,27 @@ namespace DotNetCommander
             performancePage.Controls.Add(CreatePageHeader(Language.getString("settingsPerformanceTitle"), Language.getString("settingsPerformanceIntro")));
         }
 
+        private void BuildAiPage()
+        {
+            var layout = CreateSettingsLayout();
+            AddRow(layout, Language.getString("settingsAiEndpoint"), aiEndpointTextBox);
+            AddRow(layout, Language.getString("settingsAiModel"), aiModelTextBox);
+            AddRow(layout, Language.getString("settingsAiMaxFiles"), aiMaxFileCountNumeric);
+            AddRow(layout, Language.getString("aiOrganizerContext"), aiContextModeComboBox);
+            AddRow(layout, Language.getString("settingsAiCharactersPerFile"), aiMaxTextCharactersPerFileNumeric);
+            AddRow(layout, Language.getString("settingsAiTotalCharacters"), aiMaxTotalTextCharactersNumeric);
+            AddRow(layout, string.Empty, new Label
+            {
+                AutoSize = true,
+                MaximumSize = new Size(520, 0),
+                ForeColor = SystemColors.GrayText,
+                Text = Language.getString("settingsAiLimitsNote")
+            });
+
+            aiPage.Controls.Add(layout);
+            aiPage.Controls.Add(CreatePageHeader(Language.getString("settingsAiTitle"), Language.getString("settingsAiIntro")));
+        }
+
         private void LoadSettings()
         {
             SelectLanguageOption(Properties.Settings.Default.UiLanguage);
@@ -594,6 +644,22 @@ namespace DotNetCommander
             loadIconsCheckBox.Checked = Properties.Settings.Default.FileBrowserLoadIcons;
             loadLargeIconsCheckBox.Checked = Properties.Settings.Default.FileBrowserLoadLargeIcons;
             watchDirectoryChangesCheckBox.Checked = Properties.Settings.Default.FileBrowserWatchDirectoryChanges;
+            aiEndpointTextBox.Text = Properties.Settings.Default.AiOrganizerEndpoint;
+            aiModelTextBox.Text = Properties.Settings.Default.AiOrganizerModel;
+            aiMaxFileCountNumeric.Value = Math.Max(
+                aiMaxFileCountNumeric.Minimum,
+                Math.Min(aiMaxFileCountNumeric.Maximum, Properties.Settings.Default.AiOrganizerMaxFileCount));
+            AiOrganizerContextMode contextMode = AiOrganizerContextModeStorage.Parse(Properties.Settings.Default.AiOrganizerContextMode);
+            aiContextModeComboBox.SelectedIndex = contextMode == AiOrganizerContextMode.MetadataOnly ? 1
+                : contextMode == AiOrganizerContextMode.MetadataAndContent ? 2
+                : 0;
+            aiMaxTextCharactersPerFileNumeric.Value = Math.Max(
+                aiMaxTextCharactersPerFileNumeric.Minimum,
+                Math.Min(aiMaxTextCharactersPerFileNumeric.Maximum, Properties.Settings.Default.AiOrganizerMaxTextCharactersPerFile));
+            aiMaxTotalTextCharactersNumeric.Value = Math.Max(
+                aiMaxTotalTextCharactersNumeric.Minimum,
+                Math.Min(aiMaxTotalTextCharactersNumeric.Maximum, Properties.Settings.Default.AiOrganizerMaxTotalTextCharacters));
+            UpdateAiContentControls();
             settingsPathTextBox.Text = SettingsStorage.GetUserConfigPath();
         }
 
@@ -639,6 +705,19 @@ namespace DotNetCommander
             Properties.Settings.Default.FileBrowserLoadIcons = loadIconsCheckBox.Checked;
             Properties.Settings.Default.FileBrowserLoadLargeIcons = loadLargeIconsCheckBox.Checked;
             Properties.Settings.Default.FileBrowserWatchDirectoryChanges = watchDirectoryChangesCheckBox.Checked;
+            Properties.Settings.Default.AiOrganizerEndpoint = string.IsNullOrWhiteSpace(aiEndpointTextBox.Text)
+                ? "http://localhost:11434"
+                : aiEndpointTextBox.Text.Trim();
+            Properties.Settings.Default.AiOrganizerModel = string.IsNullOrWhiteSpace(aiModelTextBox.Text)
+                ? "qwen3.5:latest"
+                : aiModelTextBox.Text.Trim();
+            Properties.Settings.Default.AiOrganizerMaxFileCount = (int)aiMaxFileCountNumeric.Value;
+            Properties.Settings.Default.AiOrganizerContextMode = AiOrganizerContextModeStorage.ToValue(
+                aiContextModeComboBox.SelectedIndex == 1 ? AiOrganizerContextMode.MetadataOnly
+                : aiContextModeComboBox.SelectedIndex == 2 ? AiOrganizerContextMode.MetadataAndContent
+                : AiOrganizerContextMode.Auto);
+            Properties.Settings.Default.AiOrganizerMaxTextCharactersPerFile = (int)aiMaxTextCharactersPerFileNumeric.Value;
+            Properties.Settings.Default.AiOrganizerMaxTotalTextCharacters = (int)aiMaxTotalTextCharactersNumeric.Value;
             Properties.Settings.Default.Save();
         }
 
@@ -658,7 +737,15 @@ namespace DotNetCommander
             editorPage.Visible = categoryListBox.SelectedIndex == 1;
             richTextPage.Visible = categoryListBox.SelectedIndex == 2;
             operationsPage.Visible = categoryListBox.SelectedIndex == 3;
-            performancePage.Visible = categoryListBox.SelectedIndex == 4;
+            aiPage.Visible = categoryListBox.SelectedIndex == 4;
+            performancePage.Visible = categoryListBox.SelectedIndex == 5;
+        }
+
+        private void UpdateAiContentControls()
+        {
+            bool enabled = aiContextModeComboBox.SelectedIndex != 1;
+            aiMaxTextCharactersPerFileNumeric.Enabled = enabled;
+            aiMaxTotalTextCharactersNumeric.Enabled = enabled;
         }
 
         private static void SelectFontComboValue(ComboBox comboBox, string value, string fallbackValue)

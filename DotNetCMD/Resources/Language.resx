@@ -1145,4 +1145,53 @@ Esc - Close editor</value></data>
   <data name="imageHelpForceExif" xml:space="preserve"><value>Show EXIF tabs for diagnostics</value></data>
   <data name="imageHelpClose" xml:space="preserve"><value>Close the viewer</value></data>
   <data name="imageDescriptionStatusFormat" xml:space="preserve"><value>{0}   —   {1}</value></data>
+  <data name="aiOrganizerMenu" xml:space="preserve"><value>AI folder organizer...</value></data>
+  <data name="aiOrganizerTitle" xml:space="preserve"><value>AI folder organizer</value></data>
+  <data name="aiOrganizerHeading" xml:space="preserve"><value>Review an AI-generated organization plan before any files are moved</value></data>
+  <data name="aiOrganizerDefaultInstruction" xml:space="preserve"><value>Organize these files into clear, logical subfolders. Keep names unless a rename clearly improves them.</value></data>
+  <data name="aiOrganizerEndpoint" xml:space="preserve"><value>Ollama</value></data>
+  <data name="aiOrganizerModel" xml:space="preserve"><value>Model</value></data>
+  <data name="aiOrganizerAnalyze" xml:space="preserve"><value>Analyze</value></data>
+  <data name="aiOrganizerExecute" xml:space="preserve"><value>Execute selected</value></data>
+  <data name="aiOrganizerSource" xml:space="preserve"><value>Source</value></data>
+  <data name="aiOrganizerDestination" xml:space="preserve"><value>Destination</value></data>
+  <data name="aiOrganizerReason" xml:space="preserve"><value>Reason</value></data>
+  <data name="aiOrganizerAnalyzing" xml:space="preserve"><value>Ollama is preparing a plan...</value></data>
+  <data name="aiOrganizerExecuting" xml:space="preserve"><value>Executing the approved plan...</value></data>
+  <data name="aiOrganizerExecutingFormat" xml:space="preserve"><value>Action {0} of {1}: {2}</value></data>
+  <data name="aiOrganizerReadyFormat" xml:space="preserve"><value>{0} safe actions are ready for review.</value></data>
+  <data name="aiOrganizerRejectedFormat" xml:space="preserve"><value>Rejected unsafe or invalid suggestions: {0}.</value></data>
+  <data name="aiOrganizerNoActions" xml:space="preserve"><value>The model proposed no safe changes.</value></data>
+  <data name="aiOrganizerNoFiles" xml:space="preserve"><value>The folder contains no top-level files to organize.</value></data>
+  <data name="aiOrganizerSelectActions" xml:space="preserve"><value>Select at least one action to execute.</value></data>
+  <data name="aiOrganizerConfirmFormat" xml:space="preserve"><value>Move or rename {0} selected files? Existing files will not be overwritten.</value></data>
+  <data name="aiOrganizerCompletedFormat" xml:space="preserve"><value>Completed: {0}. Failed or skipped: {1}.</value></data>
+  <data name="aiOrganizerCancelled" xml:space="preserve"><value>AI organization was cancelled.</value></data>
+  <data name="aiOrganizerCancelling" xml:space="preserve"><value>Cancelling...</value></data>
+  <data name="aiOrganizerFailed" xml:space="preserve"><value>AI organization failed.</value></data>
+  <data name="aiOrganizerInvalidFolder" xml:space="preserve"><value>The active folder does not exist.</value></data>
+  <data name="aiOrganizerPhysicalFolderRequired" xml:space="preserve"><value>AI organization is available only for a physical file-system folder.</value></data>
+  <data name="aiOrganizerTooManyFilesFormat" xml:space="preserve"><value>The folder contains {0} files. The current safety limit is {1}; use a smaller folder for this MVP.</value></data>
+  <data name="aiOrganizerInvalidEndpoint" xml:space="preserve"><value>Enter a local HTTP Ollama endpoint, for example http://localhost:11434.</value></data>
+  <data name="aiOrganizerOllamaErrorFormat" xml:space="preserve"><value>Ollama returned HTTP {0}: {1}</value></data>
+  <data name="aiOrganizerEmptyResponse" xml:space="preserve"><value>Ollama returned an empty response.</value></data>
+  <data name="aiOrganizerInvalidResponse" xml:space="preserve"><value>Ollama did not return a valid organization plan.</value></data>
+  <data name="aiOrganizerContentIncludedFormat" xml:space="preserve"><value>Content excerpts: {0} files, {1:N0} characters.</value></data>
+  <data name="settingsTabAi" xml:space="preserve"><value>AI organizer</value></data>
+  <data name="settingsAiTitle" xml:space="preserve"><value>Local AI folder organizer</value></data>
+  <data name="settingsAiIntro" xml:space="preserve"><value>Configure the local Ollama connection and bound the metadata and text sent to the model.</value></data>
+  <data name="settingsAiEndpoint" xml:space="preserve"><value>Ollama endpoint</value></data>
+  <data name="settingsAiModel" xml:space="preserve"><value>Model</value></data>
+  <data name="settingsAiMaxFiles" xml:space="preserve"><value>Maximum files (0 = unlimited)</value></data>
+  <data name="aiOrganizerContext" xml:space="preserve"><value>Context</value></data>
+  <data name="aiOrganizerContextAuto" xml:space="preserve"><value>Auto — metadata first, content only when needed</value></data>
+  <data name="aiOrganizerContextMetadata" xml:space="preserve"><value>Metadata only</value></data>
+  <data name="aiOrganizerContextContent" xml:space="preserve"><value>Metadata and text content</value></data>
+  <data name="settingsAiCharactersPerFile" xml:space="preserve"><value>Maximum characters per file</value></data>
+  <data name="settingsAiTotalCharacters" xml:space="preserve"><value>Maximum characters in one request</value></data>
+  <data name="settingsAiLimitsNote" xml:space="preserve"><value>Auto sends metadata first and reads content only when the model requests it. Content starts at the beginning of each supported text file and is always treated as untrusted data.</value></data>
+  <data name="aiOrganizerEvidenceFormat" xml:space="preserve"><value>Evidence: “{0}”</value></data>
+  <data name="aiOrganizerEvidenceRejectedFormat" xml:space="preserve"><value>Rejected because the proposal was not supported by that file's data: {0}.</value></data>
+  <data name="aiOrganizerValidationSummaryFormat" xml:space="preserve"><value>Locally validated actions: {0} of {1} model proposals.</value></data>
+  <data name="aiOrganizerModelNoteFormat" xml:space="preserve"><value>Model note (not an execution report): {0}</value></data>
 </root>

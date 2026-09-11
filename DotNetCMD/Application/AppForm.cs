@@ -196,6 +196,7 @@ namespace DotNetCommander
             ToolStripMenuItem searchItem = CreateMenuItem("search", OpenSearch);
             searchItem.ShortcutKeys = Keys.Alt | Keys.F7;
             parent.DropDownItems.Add(searchItem);
+            parent.DropDownItems.Add(CreateMenuItem("aiOrganizerMenu", OpenAiOrganizer));
             parent.DropDownItems.Add(new ToolStripSeparator());
             parent.DropDownItems.Add(CreateMenuItem("options", OpenSettings));
         }
@@ -658,6 +659,24 @@ namespace DotNetCommander
 
             target.ActivatePanel();
             await target.EnterSearchAsync(dialog.Query);
+        }
+
+        private void OpenAiOrganizer(object sender, EventArgs e)
+        {
+            FileBrowser target = lastFileBrowser ?? fileBrowserLeft;
+            if (target == null || target.IsVirtualMode || string.IsNullOrWhiteSpace(target.CurrentPath) || !Directory.Exists(target.CurrentPath))
+            {
+                MessageBox.Show(this, Language.getString("aiOrganizerPhysicalFolderRequired"), Language.getString("Info"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            using var dialog = new FormAiOrganizer(target.CurrentPath);
+            dialog.ShowDialog(this);
+            if (dialog.AppliedChanges)
+            {
+                fileBrowserLeft?.RefreshCurrentDirectory();
+                fileBrowserRight?.RefreshCurrentDirectory();
+            }
         }
 
         private void Button_Delete(object sender, EventArgs e)

@@ -134,6 +134,24 @@
     <Setting Name="FileBrowserWatchDirectoryChanges" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
     </Setting>
+    <Setting Name="AiOrganizerEndpoint" Type="System.String" Scope="User">
+      <Value Profile="(Default)">http://localhost:11434</Value>
+    </Setting>
+    <Setting Name="AiOrganizerModel" Type="System.String" Scope="User">
+      <Value Profile="(Default)">qwen3.5:latest</Value>
+    </Setting>
+    <Setting Name="AiOrganizerMaxFileCount" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">250</Value>
+    </Setting>
+    <Setting Name="AiOrganizerContextMode" Type="System.String" Scope="User">
+      <Value Profile="(Default)">auto</Value>
+    </Setting>
+    <Setting Name="AiOrganizerMaxTextCharactersPerFile" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">4096</Value>
+    </Setting>
+    <Setting Name="AiOrganizerMaxTotalTextCharacters" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">65536</Value>
+    </Setting>
     <Setting Name="UiLanguage" Type="System.String" Scope="User">
       <Value Profile="(Default)">auto</Value>
     </Setting>

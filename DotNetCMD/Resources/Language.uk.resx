@@ -978,4 +978,53 @@ Esc - Закрити редактор</value></data>
   <data name="imageHelpForceExif" xml:space="preserve"><value>Показати вкладки EXIF для діагностики</value></data>
   <data name="imageHelpClose" xml:space="preserve"><value>Закрити переглядач</value></data>
   <data name="imageDescriptionStatusFormat" xml:space="preserve"><value>{0}   —   {1}</value></data>
+  <data name="aiOrganizerMenu" xml:space="preserve"><value>AI-організатор папки...</value></data>
+  <data name="aiOrganizerTitle" xml:space="preserve"><value>AI-організатор папки</value></data>
+  <data name="aiOrganizerHeading" xml:space="preserve"><value>Перевірте створений AI план до переміщення будь-яких файлів</value></data>
+  <data name="aiOrganizerDefaultInstruction" xml:space="preserve"><value>Розклади ці файли по зрозумілих логічних підпапках. Не змінюй назви без очевидної користі.</value></data>
+  <data name="aiOrganizerEndpoint" xml:space="preserve"><value>Ollama</value></data>
+  <data name="aiOrganizerModel" xml:space="preserve"><value>Модель</value></data>
+  <data name="aiOrganizerAnalyze" xml:space="preserve"><value>Проаналізувати</value></data>
+  <data name="aiOrganizerExecute" xml:space="preserve"><value>Виконати вибране</value></data>
+  <data name="aiOrganizerSource" xml:space="preserve"><value>Звідки</value></data>
+  <data name="aiOrganizerDestination" xml:space="preserve"><value>Куди</value></data>
+  <data name="aiOrganizerReason" xml:space="preserve"><value>Причина</value></data>
+  <data name="aiOrganizerAnalyzing" xml:space="preserve"><value>Ollama готує план...</value></data>
+  <data name="aiOrganizerExecuting" xml:space="preserve"><value>Виконання підтвердженого плану...</value></data>
+  <data name="aiOrganizerExecutingFormat" xml:space="preserve"><value>Дія {0} з {1}: {2}</value></data>
+  <data name="aiOrganizerReadyFormat" xml:space="preserve"><value>Безпечних дій для перевірки: {0}.</value></data>
+  <data name="aiOrganizerRejectedFormat" xml:space="preserve"><value>Відхилено небезпечних або некоректних пропозицій: {0}.</value></data>
+  <data name="aiOrganizerNoActions" xml:space="preserve"><value>Модель не запропонувала безпечних змін.</value></data>
+  <data name="aiOrganizerNoFiles" xml:space="preserve"><value>У папці немає файлів верхнього рівня для впорядкування.</value></data>
+  <data name="aiOrganizerSelectActions" xml:space="preserve"><value>Виберіть принаймні одну дію.</value></data>
+  <data name="aiOrganizerConfirmFormat" xml:space="preserve"><value>Перемістити або перейменувати вибрані файли: {0}? Наявні файли не будуть перезаписані.</value></data>
+  <data name="aiOrganizerCompletedFormat" xml:space="preserve"><value>Виконано: {0}. Помилок або пропусків: {1}.</value></data>
+  <data name="aiOrganizerCancelled" xml:space="preserve"><value>AI-впорядкування скасовано.</value></data>
+  <data name="aiOrganizerCancelling" xml:space="preserve"><value>Скасування...</value></data>
+  <data name="aiOrganizerFailed" xml:space="preserve"><value>Не вдалося виконати AI-впорядкування.</value></data>
+  <data name="aiOrganizerInvalidFolder" xml:space="preserve"><value>Активної папки не існує.</value></data>
+  <data name="aiOrganizerPhysicalFolderRequired" xml:space="preserve"><value>AI-впорядкування доступне лише для фізичної папки файлової системи.</value></data>
+  <data name="aiOrganizerTooManyFilesFormat" xml:space="preserve"><value>У папці {0} файлів. Поточне безпечне обмеження — {1}; для цього MVP виберіть меншу папку.</value></data>
+  <data name="aiOrganizerInvalidEndpoint" xml:space="preserve"><value>Укажіть локальну HTTP-адресу Ollama, наприклад http://localhost:11434.</value></data>
+  <data name="aiOrganizerOllamaErrorFormat" xml:space="preserve"><value>Ollama повернула HTTP {0}: {1}</value></data>
+  <data name="aiOrganizerEmptyResponse" xml:space="preserve"><value>Ollama повернула порожню відповідь.</value></data>
+  <data name="aiOrganizerInvalidResponse" xml:space="preserve"><value>Ollama не повернула коректного плану впорядкування.</value></data>
+  <data name="aiOrganizerContentIncludedFormat" xml:space="preserve"><value>Фрагменти вмісту: {0} файлів, {1:N0} символів.</value></data>
+  <data name="settingsTabAi" xml:space="preserve"><value>AI-організатор</value></data>
+  <data name="settingsAiTitle" xml:space="preserve"><value>Локальний AI-організатор папок</value></data>
+  <data name="settingsAiIntro" xml:space="preserve"><value>Налаштуйте локальне підключення до Ollama та обсяг метаданих і тексту для моделі.</value></data>
+  <data name="settingsAiEndpoint" xml:space="preserve"><value>Адреса Ollama</value></data>
+  <data name="settingsAiModel" xml:space="preserve"><value>Модель</value></data>
+  <data name="settingsAiMaxFiles" xml:space="preserve"><value>Максимум файлів (0 = без обмеження)</value></data>
+  <data name="aiOrganizerContext" xml:space="preserve"><value>Контекст</value></data>
+  <data name="aiOrganizerContextAuto" xml:space="preserve"><value>Авто — спочатку метадані, вміст лише за потреби</value></data>
+  <data name="aiOrganizerContextMetadata" xml:space="preserve"><value>Лише метадані</value></data>
+  <data name="aiOrganizerContextContent" xml:space="preserve"><value>Метадані та текстовий вміст</value></data>
+  <data name="settingsAiCharactersPerFile" xml:space="preserve"><value>Максимум символів з одного файла</value></data>
+  <data name="settingsAiTotalCharacters" xml:space="preserve"><value>Максимум символів в одному запиті</value></data>
+  <data name="settingsAiLimitsNote" xml:space="preserve"><value>Авто спочатку надсилає метадані й читає вміст лише на запит моделі. Вміст береться від початку підтримуваних текстових файлів і завжди вважається недовіреними даними.</value></data>
+  <data name="aiOrganizerEvidenceFormat" xml:space="preserve"><value>Підстава: «{0}»</value></data>
+  <data name="aiOrganizerEvidenceRejectedFormat" xml:space="preserve"><value>Відхилено, бо пропозиція не підтверджена даними саме цього файла: {0}.</value></data>
+  <data name="aiOrganizerValidationSummaryFormat" xml:space="preserve"><value>Локально перевірено дій: {0} із {1} пропозицій моделі.</value></data>
+  <data name="aiOrganizerModelNoteFormat" xml:space="preserve"><value>Коментар моделі (не звіт про виконання): {0}</value></data>
 </root>
