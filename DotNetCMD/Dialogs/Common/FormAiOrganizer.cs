@@ -17,6 +17,8 @@ namespace DotNetCommander
         private readonly TextBox textEndpoint;
         private readonly ComboBox comboModel;
         private readonly ComboBox comboContext;
+        private readonly ComboBox comboTaskMode;
+        private readonly Label labelModelInfo;
         private readonly DataGridView gridPlan;
         private readonly TextBox textSummary;
         private readonly Label labelStatus;
@@ -24,7 +26,13 @@ namespace DotNetCommander
         private readonly Button buttonAnalyze;
         private readonly Button buttonExecute;
         private readonly Button buttonCancel;
+        private readonly System.Windows.Forms.Timer progressTimer;
+        private IReadOnlyList<OllamaModelDescriptor> availableModels = Array.Empty<OllamaModelDescriptor>();
         private CancellationTokenSource cancellation;
+        private CancellationTokenSource modelLoadingCancellation;
+        private DateTime analysisStarted;
+        private DateTime progressReceived;
+        private AiOrganizationProgress latestProgress;
         private bool busy;
 
         public FormAiOrganizer(string rootPath)
@@ -83,7 +91,7 @@ namespace DotNetCommander
                 Dock = DockStyle.Top,
                 AutoSize = true,
                 ColumnCount = 4,
-                RowCount = 2,
+                RowCount = 3,
                 Margin = new Padding(0, 10, 0, 10)
             };
             settingsPanel.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
@@ -106,7 +114,10 @@ namespace DotNetCommander
                 Text = Properties.Settings.Default.AiOrganizerModel,
                 Margin = new Padding(8, 3, 0, 3)
             };
-            comboModel.Items.AddRange(new object[] { "qwen3.5:latest", "qwen3.6:latest", "qwen2.5:7b", "llama3.2:latest" });
+            if (!string.IsNullOrWhiteSpace(comboModel.Text))
+                comboModel.Items.Add(comboModel.Text);
+            comboModel.SelectedIndexChanged += (_, __) => UpdateModelInfo();
+            comboModel.TextChanged += (_, __) => UpdateModelInfo();
             settingsPanel.Controls.Add(comboModel, 3, 0);
             settingsPanel.Controls.Add(new Label { AutoSize = true, Anchor = AnchorStyles.Left, Text = Language.getString("aiOrganizerContext") }, 0, 1);
             comboContext = CreateContextModeComboBox();
@@ -114,7 +125,27 @@ namespace DotNetCommander
             comboContext.Margin = new Padding(8, 3, 18, 3);
             comboContext.SelectedIndex = ContextModeToIndex(AiOrganizerContextModeStorage.Parse(Properties.Settings.Default.AiOrganizerContextMode));
             settingsPanel.Controls.Add(comboContext, 1, 1);
-            settingsPanel.SetColumnSpan(comboContext, 3);
+            settingsPanel.Controls.Add(new Label { AutoSize = true, Anchor = AnchorStyles.Left, Text = Language.getString("aiOrganizerTaskMode") }, 2, 1);
+            comboTaskMode = new ComboBox
+            {
+                Dock = DockStyle.Fill,
+                DropDownStyle = ComboBoxStyle.DropDownList,
+                Margin = new Padding(8, 3, 0, 3)
+            };
+            comboTaskMode.Items.Add(Language.getString("aiOrganizerTaskFilePlan"));
+            comboTaskMode.Items.Add(Language.getString("aiOrganizerTaskSummary"));
+            comboTaskMode.SelectedIndex = 0;
+            settingsPanel.Controls.Add(comboTaskMode, 3, 1);
+            labelModelInfo = new Label
+            {
+                AutoEllipsis = true,
+                Dock = DockStyle.Fill,
+                ForeColor = SystemColors.GrayText,
+                Height = 24,
+                Margin = new Padding(0, 3, 0, 0)
+            };
+            settingsPanel.Controls.Add(labelModelInfo, 0, 2);
+            settingsPanel.SetColumnSpan(labelModelInfo, 4);
 
             gridPlan = CreatePlanGrid();
             textSummary = new TextBox
@@ -127,13 +158,13 @@ namespace DotNetCommander
                 Margin = new Padding(0, 8, 0, 2)
             };
 
-            var progressPanel = new TableLayoutPanel { Dock = DockStyle.Top, AutoSize = true, ColumnCount = 2 };
-            progressPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
-            progressPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 180));
-            labelStatus = new Label { AutoEllipsis = true, Dock = DockStyle.Fill, TextAlign = ContentAlignment.MiddleLeft };
-            progressBar = new ProgressBar { Dock = DockStyle.Fill, Style = ProgressBarStyle.Marquee, Visible = false };
+            var progressPanel = new TableLayoutPanel { Dock = DockStyle.Top, AutoSize = true, ColumnCount = 1, RowCount = 2 };
+            progressPanel.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+            progressPanel.RowStyles.Add(new RowStyle(SizeType.Absolute, 20));
+            labelStatus = new Label { AutoSize = true, Dock = DockStyle.Fill, TextAlign = ContentAlignment.MiddleLeft, Margin = new Padding(0, 2, 0, 4) };
+            progressBar = new ProgressBar { Dock = DockStyle.Fill, Style = ProgressBarStyle.Marquee, Visible = false, Margin = new Padding(0) };
             progressPanel.Controls.Add(labelStatus, 0, 0);
-            progressPanel.Controls.Add(progressBar, 1, 0);
+            progressPanel.Controls.Add(progressBar, 0, 1);
 
             var buttons = new FlowLayoutPanel
             {
@@ -164,9 +195,14 @@ namespace DotNetCommander
             root.Controls.Add(buttons, 0, 7);
             Controls.Add(root);
 
+            progressTimer = new System.Windows.Forms.Timer { Interval = 1000 };
+            progressTimer.Tick += (_, __) => UpdateProgressStatus();
+
             DialogStyleService.ApplyDialogFont(this);
             AcceptButton = buttonAnalyze;
             FormClosing += FormAiOrganizer_FormClosing;
+            Shown += async (_, __) => await RefreshModelsAsync();
+            textEndpoint.Leave += async (_, __) => await RefreshModelsAsync();
         }
 
         public bool AppliedChanges { get; private set; }
@@ -187,6 +223,9 @@ namespace DotNetCommander
             if (disposing)
             {
                 cancellation?.Dispose();
+                modelLoadingCancellation?.Cancel();
+                modelLoadingCancellation?.Dispose();
+                progressTimer?.Dispose();
                 organizationService.Dispose();
             }
             base.Dispose(disposing);
@@ -266,6 +305,10 @@ namespace DotNetCommander
                 ? AiOrganizerContextMode.MetadataAndContent
                 : AiOrganizerContextMode.Auto;
 
+        private AiOrganizerTaskMode SelectedTaskMode => comboTaskMode.SelectedIndex == 1
+            ? AiOrganizerTaskMode.FolderSummary
+            : AiOrganizerTaskMode.FilePlan;
+
         private static Button CreateButton(string text)
         {
             return new Button
@@ -283,18 +326,35 @@ namespace DotNetCommander
             if (busy)
                 return;
 
+            OllamaModelDescriptor selectedDescriptor = FindSelectedModel();
+            if (selectedDescriptor != null
+                && selectedDescriptor.Capabilities.Count > 0
+                && !selectedDescriptor.HasCapability("completion"))
+            {
+                MessageBox.Show(this, Language.getString("aiOrganizerModelNotCompletion"), Language.getString("Info"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            modelLoadingCancellation?.Cancel();
             gridPlan.Rows.Clear();
             textSummary.Text = string.Empty;
-            SetBusy(true, Language.getString("aiOrganizerAnalyzing"));
+            analysisStarted = DateTime.Now;
+            progressReceived = analysisStarted;
+            latestProgress = null;
+            SetBusy(true, Language.getString("aiOrganizerAnalyzing"), true);
+            progressTimer.Start();
             cancellation = new CancellationTokenSource();
             try
             {
+                var progress = new Progress<AiOrganizationProgress>(OnAnalysisProgress);
                 AiOrganizationPlan plan = await organizationService.AnalyzeAsync(
                     rootPath,
                     textInstruction.Text,
                     textEndpoint.Text,
                     comboModel.Text,
                     SelectedContextMode,
+                    SelectedTaskMode,
+                    progress,
                     cancellation.Token);
 
                 foreach (AiOrganizationAction action in plan.Actions)
@@ -308,33 +368,57 @@ namespace DotNetCommander
                     gridPlan.Rows[index].Tag = action;
                 }
 
-                int proposalCount = plan.Actions.Count + plan.RejectedSuggestions;
-                textSummary.Text = proposalCount > 0
-                    ? string.Format(Language.getString("aiOrganizerValidationSummaryFormat"), plan.Actions.Count, proposalCount)
-                    : plan.Summary;
-                if (proposalCount > 0 && !string.IsNullOrWhiteSpace(plan.Summary))
+                foreach (AiSkippedOrganizationAction skipped in plan.SkippedActions)
                 {
-                    textSummary.Text += "  " + string.Format(Language.getString("aiOrganizerModelNoteFormat"), plan.Summary);
+                    int index = gridPlan.Rows.Add(
+                        false,
+                        skipped.SourceDisplay,
+                        string.Empty,
+                        string.Format(Language.getString("aiOrganizerSkippedFormat"), skipped.Reason));
+                    DataGridViewRow row = gridPlan.Rows[index];
+                    row.Cells[0].ReadOnly = true;
+                    row.DefaultCellStyle.ForeColor = SystemColors.GrayText;
+                    row.DefaultCellStyle.BackColor = Color.LemonChiffon;
+                }
+
+                foreach (AiRejectedOrganizationAction rejected in plan.RejectedActions)
+                {
+                    int index = gridPlan.Rows.Add(false, rejected.SourceDisplay, rejected.DestinationDisplay, rejected.RejectionReason);
+                    DataGridViewRow row = gridPlan.Rows[index];
+                    row.Cells[0].ReadOnly = true;
+                    row.DefaultCellStyle.ForeColor = SystemColors.GrayText;
+                    row.DefaultCellStyle.BackColor = Color.MistyRose;
+                }
+
+                if (plan.TaskMode == AiOrganizerTaskMode.FolderSummary)
+                {
+                    textSummary.Text = plan.Summary;
+                    labelStatus.Text = Language.getString("aiOrganizerSummaryReady");
+                }
+                else
+                {
+                    textSummary.Text = string.Format(
+                        Language.getString("aiOrganizerDecisionSummaryFormat"),
+                        plan.Actions.Count,
+                        plan.SkippedFiles,
+                        plan.RejectedSuggestions,
+                        plan.ProcessedBatches);
+                    if (!string.IsNullOrWhiteSpace(plan.Summary))
+                        textSummary.Text += Environment.NewLine + string.Format(Language.getString("aiOrganizerModelNoteFormat"), plan.Summary);
+                    labelStatus.Text = plan.Actions.Count == 0
+                        ? Language.getString("aiOrganizerNoActions")
+                        : string.Format(Language.getString("aiOrganizerReadyFormat"), plan.Actions.Count);
                 }
                 if (plan.ContentFilesIncluded > 0)
                 {
-                    textSummary.Text += "  " + string.Format(
+                    textSummary.Text += Environment.NewLine + string.Format(
                         Language.getString("aiOrganizerContentIncludedFormat"),
                         plan.ContentFilesIncluded,
                         plan.ContentCharactersIncluded);
                 }
-                if (plan.RejectedSuggestions > 0)
-                {
-                    textSummary.Text += "  " + string.Format(Language.getString("aiOrganizerRejectedFormat"), plan.RejectedSuggestions);
-                }
                 if (plan.EvidenceRejectedSuggestions > 0)
-                {
-                    textSummary.Text += "  " + string.Format(Language.getString("aiOrganizerEvidenceRejectedFormat"), plan.EvidenceRejectedSuggestions);
-                }
-                labelStatus.Text = plan.Actions.Count == 0
-                    ? Language.getString("aiOrganizerNoActions")
-                    : string.Format(Language.getString("aiOrganizerReadyFormat"), plan.Actions.Count);
-                buttonExecute.Enabled = plan.Actions.Count > 0;
+                    textSummary.Text += Environment.NewLine + string.Format(Language.getString("aiOrganizerEvidenceRejectedFormat"), plan.EvidenceRejectedSuggestions);
+                buttonExecute.Enabled = plan.TaskMode == AiOrganizerTaskMode.FilePlan && plan.Actions.Count > 0;
             }
             catch (OperationCanceledException)
             {
@@ -348,10 +432,191 @@ namespace DotNetCommander
             }
             finally
             {
+                progressTimer.Stop();
                 cancellation.Dispose();
                 cancellation = null;
                 SetBusy(false, labelStatus.Text);
             }
+        }
+
+        private async Task RefreshModelsAsync()
+        {
+            if (busy || IsDisposed)
+                return;
+
+            modelLoadingCancellation?.Cancel();
+            modelLoadingCancellation?.Dispose();
+            var loadingCancellation = new CancellationTokenSource();
+            modelLoadingCancellation = loadingCancellation;
+            string selectedModel = comboModel.Text.Trim();
+            labelStatus.Text = Language.getString("aiOrganizerLoadingModels");
+
+            try
+            {
+                IReadOnlyList<OllamaModelDescriptor> models = await organizationService.GetModelsAsync(
+                    textEndpoint.Text,
+                    loadingCancellation.Token);
+                if (loadingCancellation.IsCancellationRequested || IsDisposed)
+                    return;
+
+                availableModels = models;
+                List<OllamaModelDescriptor> suitableModels = models
+                    .Where(item => item.Capabilities.Count == 0 || item.HasCapability("completion"))
+                    .ToList();
+
+                comboModel.BeginUpdate();
+                try
+                {
+                    comboModel.Items.Clear();
+                    foreach (OllamaModelDescriptor modelInfo in suitableModels)
+                        comboModel.Items.Add(modelInfo);
+                    if (!string.IsNullOrWhiteSpace(selectedModel)
+                        && !suitableModels.Any(item => string.Equals(item.Name, selectedModel, StringComparison.OrdinalIgnoreCase)))
+                    {
+                        comboModel.Items.Insert(0, selectedModel);
+                    }
+                    comboModel.Text = selectedModel.Length > 0
+                        ? selectedModel
+                        : suitableModels.FirstOrDefault()?.Name ?? string.Empty;
+                    int widestItem = comboModel.Items.Cast<object>()
+                        .Select(item => TextRenderer.MeasureText(item?.ToString() ?? string.Empty, comboModel.Font).Width)
+                        .DefaultIfEmpty(comboModel.Width)
+                        .Max();
+                    comboModel.DropDownWidth = Math.Max(
+                        comboModel.Width,
+                        Math.Min(widestItem + SystemInformation.VerticalScrollBarWidth + 18, Screen.FromControl(this).WorkingArea.Width - 40));
+                }
+                finally
+                {
+                    comboModel.EndUpdate();
+                }
+
+                UpdateModelInfo();
+                labelStatus.Text = string.Format(Language.getString("aiOrganizerModelsLoadedFormat"), suitableModels.Count);
+            }
+            catch (OperationCanceledException)
+            {
+            }
+            catch (Exception ex)
+            {
+                LogService.LogException("FormAiOrganizer.RefreshModels", ex);
+                if (!IsDisposed)
+                    labelStatus.Text = Language.getString("aiOrganizerModelsUnavailable");
+            }
+            finally
+            {
+                if (ReferenceEquals(modelLoadingCancellation, loadingCancellation))
+                    modelLoadingCancellation = null;
+                loadingCancellation.Dispose();
+            }
+        }
+
+        private OllamaModelDescriptor FindSelectedModel()
+        {
+            string selectedName = comboModel.Text.Trim();
+            return availableModels.FirstOrDefault(item => string.Equals(item.Name, selectedName, StringComparison.OrdinalIgnoreCase));
+        }
+
+        private void UpdateModelInfo()
+        {
+            if (labelModelInfo == null)
+                return;
+
+            OllamaModelDescriptor model = FindSelectedModel();
+            if (model == null)
+            {
+                labelModelInfo.Text = Language.getString("aiOrganizerModelInfoUnknown");
+                return;
+            }
+
+            string context = model.Details.ContextLength > 0
+                ? FormatCompactNumber(model.Details.ContextLength)
+                : "—";
+            string capabilities = model.Capabilities.Count > 0
+                ? string.Join(" • ", model.Capabilities.Select(ToDisplayCapability))
+                : Language.getString("aiOrganizerCapabilitiesUnknown");
+            labelModelInfo.Text = string.Join("  •  ", new[]
+            {
+                string.IsNullOrWhiteSpace(model.Details.ParameterSize) ? "—" : model.Details.ParameterSize,
+                string.IsNullOrWhiteSpace(model.Details.QuantizationLevel) ? "—" : model.Details.QuantizationLevel,
+                string.Format(Language.getString("aiOrganizerContextLengthFormat"), context),
+                capabilities
+            });
+        }
+
+        private void OnAnalysisProgress(AiOrganizationProgress progress)
+        {
+            latestProgress = progress;
+            progressReceived = DateTime.Now;
+            progressBar.Maximum = Math.Max(1, progress.TotalFiles);
+            progressBar.Value = Math.Min(progressBar.Maximum, Math.Max(0, progress.CompletedFiles));
+            UpdateProgressStatus();
+        }
+
+        private void UpdateProgressStatus()
+        {
+            if (!busy || latestProgress == null)
+                return;
+
+            TimeSpan elapsed = DateTime.Now - analysisStarted;
+            if (latestProgress.IsFinalizing)
+            {
+                labelStatus.Text = string.Format(Language.getString("aiOrganizerFinalizingSummaryFormat"), FormatDuration(elapsed));
+                return;
+            }
+
+            int currentBatch = latestProgress.CompletedBatches >= latestProgress.TotalBatches
+                ? latestProgress.TotalBatches
+                : latestProgress.CompletedBatches + 1;
+            string remaining;
+            string completion;
+            if (latestProgress.EstimatedRemaining.HasValue && latestProgress.CompletedBatches > 0)
+            {
+                TimeSpan sinceProgress = DateTime.Now - progressReceived;
+                TimeSpan adjustedRemaining = latestProgress.EstimatedRemaining.Value - sinceProgress;
+                if (adjustedRemaining < TimeSpan.Zero)
+                    adjustedRemaining = TimeSpan.Zero;
+                remaining = FormatDuration(adjustedRemaining);
+                completion = DateTime.Now.Add(adjustedRemaining).ToString("HH:mm");
+            }
+            else
+            {
+                remaining = Language.getString("aiOrganizerCalculating");
+                completion = "—";
+            }
+
+            labelStatus.Text = string.Format(
+                Language.getString("aiOrganizerProgressFormat"),
+                currentBatch,
+                latestProgress.TotalBatches,
+                latestProgress.CompletedFiles,
+                latestProgress.TotalFiles,
+                FormatDuration(elapsed),
+                remaining,
+                completion);
+        }
+
+        private static string FormatDuration(TimeSpan value)
+        {
+            if (value.TotalHours >= 1)
+                return string.Format("{0}:{1:00}:{2:00}", (int)value.TotalHours, value.Minutes, value.Seconds);
+            return string.Format("{0:00}:{1:00}", (int)value.TotalMinutes, value.Seconds);
+        }
+
+        private static string FormatCompactNumber(long value)
+        {
+            if (value >= 1024 * 1024)
+                return (value / (1024d * 1024d)).ToString("0.#") + "M";
+            if (value >= 1024)
+                return (value / 1024d).ToString("0.#") + "K";
+            return value.ToString();
+        }
+
+        private static string ToDisplayCapability(string capability)
+        {
+            return string.IsNullOrWhiteSpace(capability)
+                ? string.Empty
+                : char.ToUpperInvariant(capability[0]) + capability.Substring(1);
         }
 
         private async Task ExecuteSelectedAsync()
@@ -381,7 +646,7 @@ namespace DotNetCommander
             if (confirmation != DialogResult.OK)
                 return;
 
-            SetBusy(true, Language.getString("aiOrganizerExecuting"));
+            SetBusy(true, Language.getString("aiOrganizerExecuting"), false);
             cancellation = new CancellationTokenSource();
             int completed = 0;
             int failed = 0;
@@ -451,18 +716,29 @@ namespace DotNetCommander
             }
         }
 
-        private void SetBusy(bool value, string status)
+        private void SetBusy(bool value, string status, bool determinateProgress = false)
         {
             busy = value;
             textInstruction.Enabled = !value;
             textEndpoint.Enabled = !value;
             comboModel.Enabled = !value;
             comboContext.Enabled = !value;
+            comboTaskMode.Enabled = !value;
             gridPlan.Enabled = !value;
             buttonAnalyze.Enabled = !value;
-            buttonExecute.Enabled = !value && gridPlan.Rows.Count > 0;
+            buttonExecute.Enabled = !value && gridPlan.Rows.Cast<DataGridViewRow>().Any(row => row.Tag is AiOrganizationAction);
             buttonCancel.Text = value ? Language.getString("cancel") : Language.getString("close");
             progressBar.Visible = value;
+            if (value)
+            {
+                progressBar.Style = determinateProgress ? ProgressBarStyle.Continuous : ProgressBarStyle.Marquee;
+                if (determinateProgress)
+                {
+                    progressBar.Minimum = 0;
+                    progressBar.Maximum = 1;
+                    progressBar.Value = 0;
+                }
+            }
             labelStatus.Text = status ?? string.Empty;
         }
 
@@ -484,6 +760,7 @@ namespace DotNetCommander
                 return;
 
             cancellation?.Cancel();
+            modelLoadingCancellation?.Cancel();
             labelStatus.Text = Language.getString("aiOrganizerCancelling");
             e.Cancel = true;
         }

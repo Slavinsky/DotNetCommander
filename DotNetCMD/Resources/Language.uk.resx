@@ -984,6 +984,9 @@ Esc - Закрити редактор</value></data>
   <data name="aiOrganizerDefaultInstruction" xml:space="preserve"><value>Розклади ці файли по зрозумілих логічних підпапках. Не змінюй назви без очевидної користі.</value></data>
   <data name="aiOrganizerEndpoint" xml:space="preserve"><value>Ollama</value></data>
   <data name="aiOrganizerModel" xml:space="preserve"><value>Модель</value></data>
+  <data name="aiOrganizerLoadingModels" xml:space="preserve"><value>Завантаження моделей з Ollama...</value></data>
+  <data name="aiOrganizerModelsLoadedFormat" xml:space="preserve"><value>Доступних моделей на цьому сервері: {0}.</value></data>
+  <data name="aiOrganizerModelsUnavailable" xml:space="preserve"><value>Не вдалося завантажити список моделей; назву можна ввести вручну.</value></data>
   <data name="aiOrganizerAnalyze" xml:space="preserve"><value>Проаналізувати</value></data>
   <data name="aiOrganizerExecute" xml:space="preserve"><value>Виконати вибране</value></data>
   <data name="aiOrganizerSource" xml:space="preserve"><value>Звідки</value></data>
@@ -1004,8 +1007,8 @@ Esc - Закрити редактор</value></data>
   <data name="aiOrganizerFailed" xml:space="preserve"><value>Не вдалося виконати AI-впорядкування.</value></data>
   <data name="aiOrganizerInvalidFolder" xml:space="preserve"><value>Активної папки не існує.</value></data>
   <data name="aiOrganizerPhysicalFolderRequired" xml:space="preserve"><value>AI-впорядкування доступне лише для фізичної папки файлової системи.</value></data>
-  <data name="aiOrganizerTooManyFilesFormat" xml:space="preserve"><value>У папці {0} файлів. Поточне безпечне обмеження — {1}; для цього MVP виберіть меншу папку.</value></data>
-  <data name="aiOrganizerInvalidEndpoint" xml:space="preserve"><value>Укажіть локальну HTTP-адресу Ollama, наприклад http://localhost:11434.</value></data>
+  <data name="aiOrganizerTooManyFilesFormat" xml:space="preserve"><value>У папці {0} файлів — це більше за налаштований ліміт {1}. Змініть його в Options → AI organizer або встановіть 0 без обмеження.</value></data>
+  <data name="aiOrganizerInvalidEndpoint" xml:space="preserve"><value>Укажіть HTTP-адресу Ollama на цьому комп’ютері або в приватній мережі, наприклад http://localhost:11434 чи http://192.168.1.10:11434.</value></data>
   <data name="aiOrganizerOllamaErrorFormat" xml:space="preserve"><value>Ollama повернула HTTP {0}: {1}</value></data>
   <data name="aiOrganizerEmptyResponse" xml:space="preserve"><value>Ollama повернула порожню відповідь.</value></data>
   <data name="aiOrganizerInvalidResponse" xml:space="preserve"><value>Ollama не повернула коректного плану впорядкування.</value></data>
@@ -1027,4 +1030,53 @@ Esc - Закрити редактор</value></data>
   <data name="aiOrganizerEvidenceRejectedFormat" xml:space="preserve"><value>Відхилено, бо пропозиція не підтверджена даними саме цього файла: {0}.</value></data>
   <data name="aiOrganizerValidationSummaryFormat" xml:space="preserve"><value>Локально перевірено дій: {0} із {1} пропозицій моделі.</value></data>
   <data name="aiOrganizerModelNoteFormat" xml:space="preserve"><value>Коментар моделі (не звіт про виконання): {0}</value></data>
+  <data name="settingsAiBatchSize" xml:space="preserve"><value>Файлів у пакеті (0 = автоматично)</value></data>
+  <data name="settingsAiModelsButton" xml:space="preserve"><value>Моделі...</value></data>
+  <data name="aiOrganizerTaskMode" xml:space="preserve"><value>Завдання</value></data>
+  <data name="aiOrganizerTaskFilePlan" xml:space="preserve"><value>План файлових операцій</value></data>
+  <data name="aiOrganizerTaskSummary" xml:space="preserve"><value>Лише описати папку</value></data>
+  <data name="aiOrganizerModelInfoUnknown" xml:space="preserve"><value>Відомості про модель недоступні; назву все одно можна ввести вручну.</value></data>
+  <data name="aiOrganizerCapabilitiesUnknown" xml:space="preserve"><value>Можливості невідомі</value></data>
+  <data name="aiOrganizerContextLengthFormat" xml:space="preserve"><value>Контекст {0}</value></data>
+  <data name="aiOrganizerModelNotCompletion" xml:space="preserve"><value>Модель не заявляє можливість completion і не може створити план упорядкування або опис папки.</value></data>
+  <data name="aiOrganizerDecisionSummaryFormat" xml:space="preserve"><value>Перевірених дій: {0}. Пропущено моделлю: {1}. Відхилено локально: {2}. Пакетів: {3}.</value></data>
+  <data name="aiOrganizerSummaryReady" xml:space="preserve"><value>Опис папки готовий.</value></data>
+  <data name="aiOrganizerProgressFormat" xml:space="preserve"><value>Пакет {0}/{1} • файли {2}/{3} • минуло {4} • залишилось ≈ {5} • завершення ≈ {6}</value></data>
+  <data name="aiOrganizerCalculating" xml:space="preserve"><value>обчислення...</value></data>
+  <data name="aiOrganizerFinalizingSummaryFormat" xml:space="preserve"><value>Об’єднання опису папки... Минуло: {0}</value></data>
+  <data name="aiOrganizerRejectUnknownSource" xml:space="preserve"><value>Відхилено: джерела немає в поточному каталозі папки.</value></data>
+  <data name="aiOrganizerRejectDuplicateSource" xml:space="preserve"><value>Відхилено: модель повернула кілька рішень для одного джерела.</value></data>
+  <data name="aiOrganizerRejectDecision" xml:space="preserve"><value>Відхилено: непідтримуване рішення.</value></data>
+  <data name="aiOrganizerRejectDestination" xml:space="preserve"><value>Відхилено: некоректне призначення або вихід за межі активної папки.</value></data>
+  <data name="aiOrganizerRejectUnchanged" xml:space="preserve"><value>Відхилено: джерело та призначення збігаються.</value></data>
+  <data name="aiOrganizerRejectExtension" xml:space="preserve"><value>Відхилено: змінено розширення файла.</value></data>
+  <data name="aiOrganizerRejectDuplicateDestination" xml:space="preserve"><value>Відхилено: інша пропозиція використовує те саме призначення.</value></data>
+  <data name="aiOrganizerRejectDestinationExists" xml:space="preserve"><value>Відхилено: призначення вже існує.</value></data>
+  <data name="aiOrganizerRejectEvidence" xml:space="preserve"><value>Відхилено: зазначеної підстави немає в даних цього файла.</value></data>
+  <data name="aiOrganizerRejectMissingDecision" xml:space="preserve"><value>Не оброблено: модель пропустила файл і після повторного запиту.</value></data>
+  <data name="aiOrganizerRejectContentUnavailable" xml:space="preserve"><value>Не оброблено: модель і після етапу читання запитує вміст файла.</value></data>
+  <data name="aiOrganizerSkippedFormat" xml:space="preserve"><value>Пропущено моделлю: {0}</value></data>
+  <data name="aiModelsTitle" xml:space="preserve"><value>Моделі Ollama</value></data>
+  <data name="aiModelsHeading" xml:space="preserve"><value>Моделі, доступні на вибраному сервері Ollama</value></data>
+  <data name="aiModelsFilter" xml:space="preserve"><value>Показати</value></data>
+  <data name="aiModelsFilterSuitable" xml:space="preserve"><value>Придатні для організатора</value></data>
+  <data name="aiModelsFilterVision" xml:space="preserve"><value>Зір</value></data>
+  <data name="aiModelsFilterTools" xml:space="preserve"><value>Інструменти</value></data>
+  <data name="aiModelsFilterThinking" xml:space="preserve"><value>Міркування</value></data>
+  <data name="aiModelsFilterEmbedding" xml:space="preserve"><value>Ембеддинги</value></data>
+  <data name="aiModelsFilterAll" xml:space="preserve"><value>Усі моделі</value></data>
+  <data name="aiModelsUse" xml:space="preserve"><value>Використати вибрану</value></data>
+  <data name="aiModelsRefresh" xml:space="preserve"><value>Оновити</value></data>
+  <data name="aiModelsName" xml:space="preserve"><value>Назва</value></data>
+  <data name="aiModelsFamily" xml:space="preserve"><value>Сімейство</value></data>
+  <data name="aiModelsParent" xml:space="preserve"><value>Батьківська модель</value></data>
+  <data name="aiModelsFormat" xml:space="preserve"><value>Формат</value></data>
+  <data name="aiModelsParameters" xml:space="preserve"><value>Параметри</value></data>
+  <data name="aiModelsQuantization" xml:space="preserve"><value>Квантизація</value></data>
+  <data name="aiModelsContext" xml:space="preserve"><value>Контекст</value></data>
+  <data name="aiModelsEmbedding" xml:space="preserve"><value>Довжина ембеддингу</value></data>
+  <data name="aiModelsCapabilities" xml:space="preserve"><value>Можливості</value></data>
+  <data name="aiModelsDiskSize" xml:space="preserve"><value>Розмір на диску</value></data>
+  <data name="aiModelsModified" xml:space="preserve"><value>Змінено</value></data>
+  <data name="aiModelsDigest" xml:space="preserve"><value>Дайджест</value></data>
 </root>

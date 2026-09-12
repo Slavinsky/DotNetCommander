@@ -984,6 +984,9 @@ Esc - Editor schließen</value></data>
   <data name="aiOrganizerDefaultInstruction" xml:space="preserve"><value>Ordne diese Dateien in klare, logische Unterordner. Behalte Namen bei, außer eine Umbenennung ist eindeutig sinnvoll.</value></data>
   <data name="aiOrganizerEndpoint" xml:space="preserve"><value>Ollama</value></data>
   <data name="aiOrganizerModel" xml:space="preserve"><value>Modell</value></data>
+  <data name="aiOrganizerLoadingModels" xml:space="preserve"><value>Modelle von Ollama laden...</value></data>
+  <data name="aiOrganizerModelsLoadedFormat" xml:space="preserve"><value>Auf diesem Server verfügbare Modelle: {0}.</value></data>
+  <data name="aiOrganizerModelsUnavailable" xml:space="preserve"><value>Die Modellliste konnte nicht geladen werden; der Modellname kann manuell eingegeben werden.</value></data>
   <data name="aiOrganizerAnalyze" xml:space="preserve"><value>Analysieren</value></data>
   <data name="aiOrganizerExecute" xml:space="preserve"><value>Auswahl ausführen</value></data>
   <data name="aiOrganizerSource" xml:space="preserve"><value>Quelle</value></data>
@@ -1004,8 +1007,8 @@ Esc - Editor schließen</value></data>
   <data name="aiOrganizerFailed" xml:space="preserve"><value>AI-Organisation ist fehlgeschlagen.</value></data>
   <data name="aiOrganizerInvalidFolder" xml:space="preserve"><value>Der aktive Ordner ist nicht vorhanden.</value></data>
   <data name="aiOrganizerPhysicalFolderRequired" xml:space="preserve"><value>AI-Organisation ist nur für einen physischen Dateisystemordner verfügbar.</value></data>
-  <data name="aiOrganizerTooManyFilesFormat" xml:space="preserve"><value>Der Ordner enthält {0} Dateien. Das aktuelle Sicherheitslimit ist {1}; verwenden Sie für dieses MVP einen kleineren Ordner.</value></data>
-  <data name="aiOrganizerInvalidEndpoint" xml:space="preserve"><value>Geben Sie einen lokalen HTTP-Ollama-Endpunkt ein, zum Beispiel http://localhost:11434.</value></data>
+  <data name="aiOrganizerTooManyFilesFormat" xml:space="preserve"><value>Der Ordner enthält {0} Dateien und überschreitet das konfigurierte Limit von {1}. Ändern Sie es unter Options → AI organizer oder verwenden Sie 0 ohne Begrenzung.</value></data>
+  <data name="aiOrganizerInvalidEndpoint" xml:space="preserve"><value>Geben Sie einen HTTP-Ollama-Endpunkt auf diesem Computer oder im privaten Netzwerk ein, zum Beispiel http://localhost:11434 oder http://192.168.1.10:11434.</value></data>
   <data name="aiOrganizerOllamaErrorFormat" xml:space="preserve"><value>Ollama hat HTTP {0} zurückgegeben: {1}</value></data>
   <data name="aiOrganizerEmptyResponse" xml:space="preserve"><value>Ollama hat eine leere Antwort zurückgegeben.</value></data>
   <data name="aiOrganizerInvalidResponse" xml:space="preserve"><value>Ollama hat keinen gültigen Organisationsplan zurückgegeben.</value></data>
@@ -1027,4 +1030,53 @@ Esc - Editor schließen</value></data>
   <data name="aiOrganizerEvidenceRejectedFormat" xml:space="preserve"><value>Verworfen, da der Vorschlag nicht durch die Daten dieser Datei belegt ist: {0}.</value></data>
   <data name="aiOrganizerValidationSummaryFormat" xml:space="preserve"><value>Lokal geprüfte Aktionen: {0} von {1} Modellvorschlägen.</value></data>
   <data name="aiOrganizerModelNoteFormat" xml:space="preserve"><value>Modellhinweis (kein Ausführungsbericht): {0}</value></data>
+  <data name="settingsAiBatchSize" xml:space="preserve"><value>Dateien pro Stapel (0 = automatisch)</value></data>
+  <data name="settingsAiModelsButton" xml:space="preserve"><value>Modelle...</value></data>
+  <data name="aiOrganizerTaskMode" xml:space="preserve"><value>Aufgabe</value></data>
+  <data name="aiOrganizerTaskFilePlan" xml:space="preserve"><value>Dateioperationen planen</value></data>
+  <data name="aiOrganizerTaskSummary" xml:space="preserve"><value>Ordner nur beschreiben</value></data>
+  <data name="aiOrganizerModelInfoUnknown" xml:space="preserve"><value>Modelldetails sind nicht verfügbar; ein Modellname kann weiterhin manuell eingegeben werden.</value></data>
+  <data name="aiOrganizerCapabilitiesUnknown" xml:space="preserve"><value>Fähigkeiten unbekannt</value></data>
+  <data name="aiOrganizerContextLengthFormat" xml:space="preserve"><value>Kontext {0}</value></data>
+  <data name="aiOrganizerModelNotCompletion" xml:space="preserve"><value>Dieses Modell meldet keine Completion-Fähigkeit und kann keinen Organisationsplan oder Ordnerbericht erstellen.</value></data>
+  <data name="aiOrganizerDecisionSummaryFormat" xml:space="preserve"><value>Geprüfte Aktionen: {0}. Vom Modell übersprungen: {1}. Lokal verworfen: {2}. Stapel: {3}.</value></data>
+  <data name="aiOrganizerSummaryReady" xml:space="preserve"><value>Die Ordnerbeschreibung ist fertig.</value></data>
+  <data name="aiOrganizerProgressFormat" xml:space="preserve"><value>Stapel {0}/{1} • Dateien {2}/{3} • vergangen {4} • verbleibend ≈ {5} • Ende ≈ {6}</value></data>
+  <data name="aiOrganizerCalculating" xml:space="preserve"><value>Berechnung...</value></data>
+  <data name="aiOrganizerFinalizingSummaryFormat" xml:space="preserve"><value>Ordnerbeschreibung zusammenführen... Vergangen: {0}</value></data>
+  <data name="aiOrganizerRejectUnknownSource" xml:space="preserve"><value>Verworfen: Die Quelle fehlt im aktuellen Ordnerkatalog.</value></data>
+  <data name="aiOrganizerRejectDuplicateSource" xml:space="preserve"><value>Verworfen: Das Modell lieferte mehrere Entscheidungen für dieselbe Quelle.</value></data>
+  <data name="aiOrganizerRejectDecision" xml:space="preserve"><value>Verworfen: nicht unterstützte Entscheidung.</value></data>
+  <data name="aiOrganizerRejectDestination" xml:space="preserve"><value>Verworfen: ungültiges Ziel oder Ziel außerhalb des aktiven Ordners.</value></data>
+  <data name="aiOrganizerRejectUnchanged" xml:space="preserve"><value>Verworfen: Quelle und Ziel sind identisch.</value></data>
+  <data name="aiOrganizerRejectExtension" xml:space="preserve"><value>Verworfen: Die Dateierweiterung wurde geändert.</value></data>
+  <data name="aiOrganizerRejectDuplicateDestination" xml:space="preserve"><value>Verworfen: Ein anderer Vorschlag verwendet dasselbe Ziel.</value></data>
+  <data name="aiOrganizerRejectDestinationExists" xml:space="preserve"><value>Verworfen: Das Ziel existiert bereits.</value></data>
+  <data name="aiOrganizerRejectEvidence" xml:space="preserve"><value>Verworfen: Der angegebene Beleg ist in den Daten dieser Datei nicht vorhanden.</value></data>
+  <data name="aiOrganizerRejectMissingDecision" xml:space="preserve"><value>Nicht verarbeitet: Das Modell ließ diese Datei auch nach dem Wiederholungsversuch aus.</value></data>
+  <data name="aiOrganizerRejectContentUnavailable" xml:space="preserve"><value>Nicht verarbeitet: Das Modell fordert auch nach der Inhaltsphase weiterhin Dateiinhalte an.</value></data>
+  <data name="aiOrganizerSkippedFormat" xml:space="preserve"><value>Vom Modell übersprungen: {0}</value></data>
+  <data name="aiModelsTitle" xml:space="preserve"><value>Ollama-Modelle</value></data>
+  <data name="aiModelsHeading" xml:space="preserve"><value>Auf dem ausgewählten Ollama-Server verfügbare Modelle</value></data>
+  <data name="aiModelsFilter" xml:space="preserve"><value>Anzeigen</value></data>
+  <data name="aiModelsFilterSuitable" xml:space="preserve"><value>Für den Organizer geeignet</value></data>
+  <data name="aiModelsFilterVision" xml:space="preserve"><value>Vision</value></data>
+  <data name="aiModelsFilterTools" xml:space="preserve"><value>Tools</value></data>
+  <data name="aiModelsFilterThinking" xml:space="preserve"><value>Thinking</value></data>
+  <data name="aiModelsFilterEmbedding" xml:space="preserve"><value>Embeddings</value></data>
+  <data name="aiModelsFilterAll" xml:space="preserve"><value>Alle Modelle</value></data>
+  <data name="aiModelsUse" xml:space="preserve"><value>Auswahl verwenden</value></data>
+  <data name="aiModelsRefresh" xml:space="preserve"><value>Aktualisieren</value></data>
+  <data name="aiModelsName" xml:space="preserve"><value>Name</value></data>
+  <data name="aiModelsFamily" xml:space="preserve"><value>Familie</value></data>
+  <data name="aiModelsParent" xml:space="preserve"><value>Elternmodell</value></data>
+  <data name="aiModelsFormat" xml:space="preserve"><value>Format</value></data>
+  <data name="aiModelsParameters" xml:space="preserve"><value>Parameter</value></data>
+  <data name="aiModelsQuantization" xml:space="preserve"><value>Quantisierung</value></data>
+  <data name="aiModelsContext" xml:space="preserve"><value>Kontext</value></data>
+  <data name="aiModelsEmbedding" xml:space="preserve"><value>Embedding-Länge</value></data>
+  <data name="aiModelsCapabilities" xml:space="preserve"><value>Fähigkeiten</value></data>
+  <data name="aiModelsDiskSize" xml:space="preserve"><value>Speichergröße</value></data>
+  <data name="aiModelsModified" xml:space="preserve"><value>Geändert</value></data>
+  <data name="aiModelsDigest" xml:space="preserve"><value>Digest</value></data>
 </root>

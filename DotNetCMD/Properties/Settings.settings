@@ -143,6 +143,9 @@
     <Setting Name="AiOrganizerMaxFileCount" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">250</Value>
     </Setting>
+    <Setting Name="AiOrganizerBatchSize" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">15</Value>
+    </Setting>
     <Setting Name="AiOrganizerContextMode" Type="System.String" Scope="User">
       <Value Profile="(Default)">auto</Value>
     </Setting>

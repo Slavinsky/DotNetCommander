@@ -59,6 +59,7 @@ namespace DotNetCommander
         private readonly TextBox aiEndpointTextBox;
         private readonly TextBox aiModelTextBox;
         private readonly NumericUpDown aiMaxFileCountNumeric;
+        private readonly NumericUpDown aiBatchSizeNumeric;
         private readonly ComboBox aiContextModeComboBox;
         private readonly NumericUpDown aiMaxTextCharactersPerFileNumeric;
         private readonly NumericUpDown aiMaxTotalTextCharactersNumeric;
@@ -188,6 +189,7 @@ namespace DotNetCommander
             quickViewTextMaxKbNumeric.Increment = 64;
             aiMaxFileCountNumeric = CreateNumeric(0, 100000, 120);
             aiMaxFileCountNumeric.Increment = 50;
+            aiBatchSizeNumeric = CreateNumeric(0, 100, 120);
             aiMaxTextCharactersPerFileNumeric = CreateNumeric(256, 1024 * 1024, 140);
             aiMaxTextCharactersPerFileNumeric.Increment = 1024;
             aiMaxTotalTextCharactersNumeric = CreateNumeric(1024, 16 * 1024 * 1024, 140);
@@ -585,6 +587,7 @@ namespace DotNetCommander
             AddRow(layout, Language.getString("settingsAiEndpoint"), aiEndpointTextBox);
             AddRow(layout, Language.getString("settingsAiModel"), aiModelTextBox);
             AddRow(layout, Language.getString("settingsAiMaxFiles"), aiMaxFileCountNumeric);
+            AddRow(layout, Language.getString("settingsAiBatchSize"), aiBatchSizeNumeric);
             AddRow(layout, Language.getString("aiOrganizerContext"), aiContextModeComboBox);
             AddRow(layout, Language.getString("settingsAiCharactersPerFile"), aiMaxTextCharactersPerFileNumeric);
             AddRow(layout, Language.getString("settingsAiTotalCharacters"), aiMaxTotalTextCharactersNumeric);
@@ -595,6 +598,14 @@ namespace DotNetCommander
                 ForeColor = SystemColors.GrayText,
                 Text = Language.getString("settingsAiLimitsNote")
             });
+            var modelsButton = new Button
+            {
+                AutoSize = true,
+                MinimumSize = new Size(150, 34),
+                Text = Language.getString("settingsAiModelsButton")
+            };
+            modelsButton.Click += (_, __) => ShowAiModels();
+            AddRow(layout, string.Empty, modelsButton);
 
             aiPage.Controls.Add(layout);
             aiPage.Controls.Add(CreatePageHeader(Language.getString("settingsAiTitle"), Language.getString("settingsAiIntro")));
@@ -649,6 +660,9 @@ namespace DotNetCommander
             aiMaxFileCountNumeric.Value = Math.Max(
                 aiMaxFileCountNumeric.Minimum,
                 Math.Min(aiMaxFileCountNumeric.Maximum, Properties.Settings.Default.AiOrganizerMaxFileCount));
+            aiBatchSizeNumeric.Value = Math.Max(
+                aiBatchSizeNumeric.Minimum,
+                Math.Min(aiBatchSizeNumeric.Maximum, Properties.Settings.Default.AiOrganizerBatchSize));
             AiOrganizerContextMode contextMode = AiOrganizerContextModeStorage.Parse(Properties.Settings.Default.AiOrganizerContextMode);
             aiContextModeComboBox.SelectedIndex = contextMode == AiOrganizerContextMode.MetadataOnly ? 1
                 : contextMode == AiOrganizerContextMode.MetadataAndContent ? 2
@@ -712,6 +726,7 @@ namespace DotNetCommander
                 ? "qwen3.5:latest"
                 : aiModelTextBox.Text.Trim();
             Properties.Settings.Default.AiOrganizerMaxFileCount = (int)aiMaxFileCountNumeric.Value;
+            Properties.Settings.Default.AiOrganizerBatchSize = (int)aiBatchSizeNumeric.Value;
             Properties.Settings.Default.AiOrganizerContextMode = AiOrganizerContextModeStorage.ToValue(
                 aiContextModeComboBox.SelectedIndex == 1 ? AiOrganizerContextMode.MetadataOnly
                 : aiContextModeComboBox.SelectedIndex == 2 ? AiOrganizerContextMode.MetadataAndContent
@@ -719,6 +734,16 @@ namespace DotNetCommander
             Properties.Settings.Default.AiOrganizerMaxTextCharactersPerFile = (int)aiMaxTextCharactersPerFileNumeric.Value;
             Properties.Settings.Default.AiOrganizerMaxTotalTextCharacters = (int)aiMaxTotalTextCharactersNumeric.Value;
             Properties.Settings.Default.Save();
+        }
+
+        private void ShowAiModels()
+        {
+            string endpoint = string.IsNullOrWhiteSpace(aiEndpointTextBox.Text)
+                ? "http://localhost:11434"
+                : aiEndpointTextBox.Text.Trim();
+            using var dialog = new FormAiModels(endpoint, aiModelTextBox.Text.Trim());
+            if (dialog.ShowDialog(this) == DialogResult.OK && !string.IsNullOrWhiteSpace(dialog.SelectedModelName))
+                aiModelTextBox.Text = dialog.SelectedModelName;
         }
 
         private void SelectLanguageOption(string value)

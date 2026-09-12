@@ -23,7 +23,8 @@ Namespace: `DotNetCommander`
 - `Dialogs/Operations/FormDelete.cs` — асинхронний діалог видалення з прогресом і скасуванням
 - `Dialogs/Operations/FormFileConflict.cs` — діалог конфлікту файлів для `copy/move`
 - `Dialogs/Operations/FormArchiveOperation.cs` — асинхронний діалог створення й розпакування архівів з прогресом і скасуванням
-- `Dialogs/Common/FormSettings.cs` — commander-style `Options` з категоріями `View`, `Editor`, `Rich Text`, `Operations`, `Performance`
+- `Dialogs/Common/FormSettings.cs` — commander-style `Options` з категоріями `View`, `Editor`, `Rich Text`, `Operations`, `AI organizer`, `Performance`
+- `Dialogs/Common/FormAiModels.cs` — каталог моделей вибраного Ollama endpoint із фільтрами capabilities, розширеними параметрами та вибором моделі за замовчуванням
 - `Dialogs/Common/FormAbout.cs` — `About` з версією, описом і шляхом до `user.config`
 - `Dialogs/Common/FormKeyboardHelp.cs` — спільне commander-style вікно клавіатурної довідки з локалізованою таблицею shortcut/action
 - `Dialogs/Common/FormNewFile.cs` — commander-style створення нового файла з вибором редактора
@@ -61,7 +62,7 @@ Namespace: `DotNetCommander`
 
 ## Поточні можливості
 - двопанельна навігація по файловій системі з адресним рядком і панеллю дисків;
-- `Tools -> AI folder organizer...` формує через локальну Ollama перевірюваний план переміщення/перейменування файлів верхнього рівня активної фізичної папки; режими `Auto`, metadata-only і metadata+content керують контекстом, причому `Auto` спершу надсилає лише метадані й читає обмежені encoding-aware фрагменти text/Markdown/CSV тільки після запиту моделі; кожна дія мусить містити дослівну підставу з метаданих або вмісту саме того файла, а відповідь доступна для копіювання; ліміт файлів (`0` — без обмеження) і текстові бюджети задаються в `Options -> AI organizer`; дії виконуються лише після явного підтвердження, через `FileOperationService`, без видалення, перезапису та виходу за межі папки;
+- `Tools -> AI folder organizer...` формує через Ollama перевірюваний план переміщення/перейменування файлів верхнього рівня активної фізичної папки пакетами настроюваного розміру; контракт вимагає `move/skip/need_content` для кожного файла, один раз повторює запит для пропущених елементів і показує progress/elapsed/ETA. Режими `Auto`, metadata-only і metadata+content керують контекстом; окремий summary-only режим описує папку без файлових дій. `/api/tags` постачає список, параметри й capabilities моделей, у planner-комбо потрапляють completion-моделі, а розширена таблиця доступна з `Options -> AI organizer -> Models`. Кожна дія має дослівну підставу з даних свого файла; виконання лише після підтвердження через `FileOperationService`, без видалення, перезапису та виходу за межі папки;
 - `Alt+F7` запускає фоновий пошук у каталозі за маскою/regex та текстом; результати відображаються як `SearchBrowser` і підтримують preview, copy/move/delete;
 - Файлова, GEDCOM та DataSet-панелі використовують `AddressBar` із компактними breadcrumb-сегментами та mouse-friendly кнопками `Back`, `Up` і `Refresh`, що викликають ті самі команди, що `Backspace`, `Ctrl+PgUp` і `Ctrl+R`;
 - commander-style командний рядок під панелями: запуск програм і команд із параметрами в каталозі активної панелі, історія через `Up/Down`, фокус через `Ctrl+L`, `Ctrl+Enter` вставляє назву поточного елемента, `Shift+Enter` залишає консоль відкритою;
