@@ -45,7 +45,7 @@
       components = new System.ComponentModel.Container();
       fileImages = new System.Windows.Forms.ImageList(components);
       fileImagesLarge = new System.Windows.Forms.ImageList(components);
-      browserView = new System.Windows.Forms.ListView();
+      browserView = new BufferedListView();
       contextMenu = new System.Windows.Forms.ContextMenuStrip(components);
       toolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
       helpProvider1 = new System.Windows.Forms.HelpProvider();
@@ -131,7 +131,7 @@
 
     private System.Windows.Forms.ImageList fileImages;
         private System.Windows.Forms.ImageList fileImagesLarge;
-        private System.Windows.Forms.ListView browserView;
+        private BufferedListView browserView;
         private System.Windows.Forms.ContextMenuStrip contextMenu;
         private System.Windows.Forms.HelpProvider helpProvider1;
         private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem1;

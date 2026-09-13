@@ -13,7 +13,7 @@ namespace DotNetCommander
     internal sealed class ArchiveBrowser : BrowserPanelBase
     {
         private readonly TextBox locationBox;
-        private readonly ListView archiveView;
+        private readonly BufferedListView archiveView;
         private readonly Label loadingLabel;
         private readonly List<ArchiveCatalogEntry> catalog = new List<ArchiveCatalogEntry>();
         private readonly List<BrowserItemInfo> visibleItems = new List<BrowserItemInfo>();
@@ -45,7 +45,7 @@ namespace DotNetCommander
             };
             locationPanel.Controls.Add(locationBox);
 
-            archiveView = new ListView
+            archiveView = new BufferedListView
             {
                 AllowColumnReorder = true,
                 Dock = DockStyle.Fill,

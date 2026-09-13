@@ -14,7 +14,7 @@ namespace DotNetCommander
     {
         private readonly SearchService searchService = new SearchService();
         private readonly AddressBar addressBar;
-        private readonly ListView resultView;
+        private readonly BufferedListView resultView;
         private readonly Label statusLabel;
         private readonly Button cancelButton;
         private readonly List<BrowserItemInfo> visibleItems = new List<BrowserItemInfo>();
@@ -35,7 +35,7 @@ namespace DotNetCommander
             addressBar.ParentClick += (_, __) => LeaveRequested?.Invoke(this, EventArgs.Empty);
             addressBar.RefreshClick += (_, __) => RefreshPanel();
 
-            resultView = new ListView
+            resultView = new BufferedListView
             {
                 AllowColumnReorder = true,
                 Dock = DockStyle.Fill,

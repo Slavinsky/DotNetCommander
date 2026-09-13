@@ -14,7 +14,7 @@ namespace DotNetCommander
     {
         private readonly CompoundFileCatalogService catalogService = new CompoundFileCatalogService();
         private readonly AddressBar addressBar;
-        private readonly ListView compoundView;
+        private readonly BufferedListView compoundView;
         private readonly Label loadingLabel;
         private readonly List<CompoundCatalogEntry> catalog = new List<CompoundCatalogEntry>();
         private readonly List<BrowserItemInfo> visibleItems = new List<BrowserItemInfo>();
@@ -30,7 +30,7 @@ namespace DotNetCommander
             addressBar.RefreshClick += (_, __) => RefreshPanel();
             addressBar.ButtonClick += AddressBar_ButtonClick;
 
-            compoundView = new ListView
+            compoundView = new BufferedListView
             {
                 AllowColumnReorder = true,
                 Dock = DockStyle.Fill,
