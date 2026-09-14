@@ -198,6 +198,10 @@ namespace DotNetCommander
             parent.DropDownItems.Add(searchItem);
             parent.DropDownItems.Add(CreateMenuItem("aiOrganizerMenu", OpenAiOrganizer));
             parent.DropDownItems.Add(new ToolStripSeparator());
+            parent.DropDownItems.Add(CreateMenuItem("vectorIndexFolderMenu", OpenVectorIndex));
+            parent.DropDownItems.Add(CreateMenuItem("semanticSearchMenu", OpenSemanticSearch));
+            parent.DropDownItems.Add(CreateMenuItem("vectorRagMenu", OpenVectorRag));
+            parent.DropDownItems.Add(new ToolStripSeparator());
             parent.DropDownItems.Add(CreateMenuItem("options", OpenSettings));
         }
 
@@ -677,6 +681,39 @@ namespace DotNetCommander
                 fileBrowserLeft?.RefreshCurrentDirectory();
                 fileBrowserRight?.RefreshCurrentDirectory();
             }
+        }
+
+        private void OpenVectorIndex(object sender, EventArgs e)
+        {
+            string path = GetActivePhysicalDirectory();
+            if (path == null) return;
+            using var dialog = new FormVectorIndex(path);
+            dialog.ShowDialog(this);
+        }
+
+        private void OpenSemanticSearch(object sender, EventArgs e)
+        {
+            string path = GetActivePhysicalDirectory();
+            if (path == null) return;
+            using var dialog = new FormSemanticSearch(path, false);
+            dialog.ShowDialog(this);
+        }
+
+        private void OpenVectorRag(object sender, EventArgs e)
+        {
+            string path = GetActivePhysicalDirectory();
+            if (path == null) return;
+            using var dialog = new FormSemanticSearch(path, true);
+            dialog.ShowDialog(this);
+        }
+
+        private string GetActivePhysicalDirectory()
+        {
+            FileBrowser target = lastFileBrowser ?? fileBrowserLeft;
+            if (target != null && !target.IsVirtualMode && !string.IsNullOrWhiteSpace(target.CurrentPath) && Directory.Exists(target.CurrentPath))
+                return target.CurrentPath;
+            MessageBox.Show(this, Language.getString("aiOrganizerPhysicalFolderRequired"), Language.getString("Info"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+            return null;
         }
 
         private void Button_Delete(object sender, EventArgs e)

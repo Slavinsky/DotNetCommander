@@ -923,7 +923,7 @@
   <data name="rtfSaveSuccess" xml:space="preserve"><value>Файл успішно збережено!</value></data>
   <data name="rtfSuccessTitle" xml:space="preserve"><value>Успішно</value></data>
   <data name="rtfPreviewReadOnly" xml:space="preserve"><value>Перегляд доступний лише для читання. Натисніть Ctrl+Shift+S, щоб зберегти копію.</value></data>
-  <data name="rtfFileDialogFilter" xml:space="preserve"><value>Формат Rich Text (*.rtf)|*.rtf|Текстові файли (*.txt)|*.txt|Усі файли (*.*)|*.*</value></data>
+<data name="rtfFileDialogFilter" xml:space="preserve"><value>Формат Rich Text (*.rtf)|*.rtf|Текстові файли (*.txt)|*.txt|Файли Markdown (*.md)|*.md|Усі файли (*.*)|*.*</value></data>
   <data name="rtfStatusFormat" xml:space="preserve"><value>Рядків: {0}   Символів: {1:N0}   Виділено: {2:N0}   Рядок {3}, стовпець {4}</value></data>
   <data name="rtfUndo" xml:space="preserve"><value>Скасувати</value></data>
   <data name="rtfRedo" xml:space="preserve"><value>Повторити</value></data>
@@ -1091,4 +1091,50 @@ Esc - Закрити редактор</value></data>
   <data name="aiModelsDiskSize" xml:space="preserve"><value>Розмір на диску</value></data>
   <data name="aiModelsModified" xml:space="preserve"><value>Змінено</value></data>
   <data name="aiModelsDigest" xml:space="preserve"><value>Дайджест</value></data>
+  <data name="settingsTabFileTypes" xml:space="preserve"><value>Типи для індексу</value></data>
+  <data name="settingsFileTypesTitle" xml:space="preserve"><value>Типи файлів векторного індексу</value></data>
+  <data name="settingsFileTypesIntro" xml:space="preserve"><value>Виберіть категорії вмісту для векторного індексу. Розширення централізовано у FileTypeClassifier.</value></data>
+  <data name="settingsVectorTypeText" xml:space="preserve"><value>Звичайний текст і вихідний код</value></data>
+  <data name="settingsVectorTypeMarkdown" xml:space="preserve"><value>Файли Markdown</value></data>
+  <data name="settingsVectorTypeCsv" xml:space="preserve"><value>CSV та текст із роздільниками</value></data>
+<data name="settingsAiEmbeddingModel" xml:space="preserve"><value>Модель ембеддингів</value></data>
+<data name="settingsAiEmbeddingEndpoint" xml:space="preserve"><value>Адреса сервера ембеддингів</value></data>
+<data name="aiModelsVisibleModelsFormat" xml:space="preserve"><value>Показано: {0} з {1} моделей із {2}</value></data>
+<data name="vectorEmbeddingModelNotFoundFormat" xml:space="preserve"><value>Модель ембеддингів «{0}» не встановлена на {1}. Виберіть модель із цього сервера або змініть адресу сервера ембеддингів у налаштуваннях.</value></data>
+<data name="vectorEmbeddingModelUnsupportedFormat" xml:space="preserve"><value>Модель «{0}» на {1} не підтримує ембеддинги.</value></data>
+  <data name="settingsVectorStorePath" xml:space="preserve"><value>Розташування векторних сховищ</value></data>
+  <data name="settingsVectorStoreBrowse" xml:space="preserve"><value>Виберіть каталог векторних сховищ</value></data>
+  <data name="settingsVectorChunkSize" xml:space="preserve"><value>Розмір фрагмента (символів)</value></data>
+  <data name="settingsVectorChunkOverlap" xml:space="preserve"><value>Перекриття фрагментів (символів)</value></data>
+  <data name="settingsVectorMaxFileSize" xml:space="preserve"><value>Максимальний розмір файла (МБ)</value></data>
+  <data name="settingsVectorMaxStoreSize" xml:space="preserve"><value>Максимальний розмір сховища (МБ)</value></data>
+  <data name="vectorIndexFolderMenu" xml:space="preserve"><value>Індексувати папку...</value></data>
+  <data name="semanticSearchMenu" xml:space="preserve"><value>Семантичний пошук...</value></data>
+  <data name="vectorRagMenu" xml:space="preserve"><value>Запитати індексовані файли...</value></data>
+  <data name="vectorIndexTitle" xml:space="preserve"><value>Векторна індексація</value></data>
+  <data name="vectorIndexHeading" xml:space="preserve"><value>Індексація папки для семантичного пошуку</value></data>
+  <data name="vectorIndexPreparing" xml:space="preserve"><value>Підготовка векторного індексу...</value></data>
+  <data name="vectorIndexProgressFormat" xml:space="preserve"><value>Оброблено: {0}   Індексовано: {1}   Помилок: {2}</value></data>
+  <data name="vectorIndexCompleteFormat" xml:space="preserve"><value>Завершено. Оброблено: {0}; оновлено: {1}; фрагментів: {2}; помилок: {3}.</value></data>
+  <data name="vectorIndexCancelled" xml:space="preserve"><value>Операцію скасовано.</value></data>
+  <data name="vectorIndexCancelling" xml:space="preserve"><value>Скасування...</value></data>
+  <data name="vectorIndexFailed" xml:space="preserve"><value>Помилка векторної індексації.</value></data>
+  <data name="semanticSearchTitle" xml:space="preserve"><value>Семантичний пошук</value></data>
+  <data name="vectorRagTitle" xml:space="preserve"><value>Запит до індексованих файлів</value></data>
+  <data name="semanticSearchHeading" xml:space="preserve"><value>Пошук і запити за векторним індексом</value></data>
+  <data name="semanticSearchButton" xml:space="preserve"><value>Пошук</value></data>
+  <data name="vectorAskButton" xml:space="preserve"><value>Запитати AI</value></data>
+  <data name="semanticSearchScore" xml:space="preserve"><value>Оцінка</value></data>
+  <data name="semanticSearchFile" xml:space="preserve"><value>Файл</value></data>
+  <data name="semanticSearchChunk" xml:space="preserve"><value>Фрагмент</value></data>
+  <data name="semanticSearchPreview" xml:space="preserve"><value>Перегляд</value></data>
+  <data name="semanticSearchContent" xml:space="preserve"><value>Вибраний вміст</value></data>
+<data name="vectorRagAnswer" xml:space="preserve"><value>Відповідь AI</value></data>
+<data name="vectorRagOpenAnswer" xml:space="preserve"><value>Відкрити в окремому вікні...</value></data>
+<data name="vectorRagAnswerWindowTitle" xml:space="preserve"><value>Відповідь AI</value></data>
+<data name="vectorRagSaveAs" xml:space="preserve"><value>Зберегти як...</value></data>
+  <data name="vectorRagNoContext" xml:space="preserve"><value>Релевантного індексованого контексту не знайдено.</value></data>
+  <data name="semanticSearchWorking" xml:space="preserve"><value>Виконується...</value></data>
+  <data name="semanticSearchFailed" xml:space="preserve"><value>Помилка семантичного пошуку.</value></data>
+  <data name="semanticSearchResultsFormat" xml:space="preserve"><value>Результатів: {0}</value></data>
 </root>

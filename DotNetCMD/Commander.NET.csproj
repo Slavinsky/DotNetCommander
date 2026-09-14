@@ -18,14 +18,15 @@
       <Nullable>annotations</Nullable>
       <ApplicationIcon>Resources\icon.ico</ApplicationIcon>
       <Platforms>AnyCPU;x64</Platforms>
-      <Version>1.9.0</Version>
-      <AssemblyVersion>1.9.0.0</AssemblyVersion>
-      <FileVersion>1.9.0.0</FileVersion>
-      <InformationalVersion>1.9.0</InformationalVersion>
+      <Version>1.9.2</Version>
+      <AssemblyVersion>1.9.2.0</AssemblyVersion>
+      <FileVersion>1.9.2.0</FileVersion>
+      <InformationalVersion>1.9.2</InformationalVersion>
       <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
   </PropertyGroup>
   <ItemGroup>
     <Compile Remove="Properties\**" />
+    <Compile Remove="TASKS\**\*.cs" />
     <Compile Remove="ThirdParty\OpenMcdf\src\AssemblyInfo.cs" />
     <EmbeddedResource Remove="Properties\**" />
     <None Remove="Properties\**" />

@@ -14,6 +14,7 @@ namespace DotNetCommander
     {
         private readonly string endpoint;
         private readonly string initialModelName;
+        private readonly string initialEmbeddingModelName;
         private readonly AiOrganizationService service = new AiOrganizationService();
         private readonly ComboBox filterComboBox;
         private readonly DataGridView modelsGrid;
@@ -25,10 +26,11 @@ namespace DotNetCommander
         private CancellationTokenSource cancellation;
         private IReadOnlyList<OllamaModelDescriptor> models = Array.Empty<OllamaModelDescriptor>();
 
-        public FormAiModels(string endpoint, string initialModelName)
+        public FormAiModels(string endpoint, string initialModelName, string initialEmbeddingModelName = null, bool startWithEmbeddingFilter = false)
         {
             this.endpoint = endpoint;
             this.initialModelName = initialModelName ?? string.Empty;
+            this.initialEmbeddingModelName = initialEmbeddingModelName ?? string.Empty;
             Text = Language.getString("aiModelsTitle");
             StartPosition = FormStartPosition.CenterParent;
             MinimumSize = new Size(820, 560);
@@ -78,7 +80,7 @@ namespace DotNetCommander
             filterComboBox.Items.Add(Language.getString("aiModelsFilterThinking"));
             filterComboBox.Items.Add(Language.getString("aiModelsFilterEmbedding"));
             filterComboBox.Items.Add(Language.getString("aiModelsFilterAll"));
-            filterComboBox.SelectedIndex = 0;
+            filterComboBox.SelectedIndex = startWithEmbeddingFilter ? 4 : 0;
             filterComboBox.SelectedIndexChanged += (_, __) => ApplyFilter();
             filterPanel.Controls.Add(filterComboBox);
 
@@ -141,6 +143,7 @@ namespace DotNetCommander
         }
 
         public string SelectedModelName { get; private set; }
+        public bool SelectedModelIsEmbedding { get; private set; }
 
         protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
         {
@@ -173,7 +176,8 @@ namespace DotNetCommander
             {
                 models = await service.GetModelsAsync(endpoint, cancellation.Token);
                 ApplyFilter();
-                statusLabel.Text = string.Format(Language.getString("aiOrganizerModelsLoadedFormat"), models.Count);
+                int visibleCount = modelsGrid.Rows.Count;
+                statusLabel.Text = string.Format(Language.getString("aiModelsVisibleModelsFormat"), visibleCount, models.Count, endpoint);
             }
             catch (OperationCanceledException)
             {
@@ -218,7 +222,8 @@ namespace DotNetCommander
                     FormatBytes(model.Size),
                     string.Join(", ", model.Capabilities ?? new List<string>()));
                 modelsGrid.Rows[rowIndex].Tag = model;
-                if (string.Equals(model.Name, initialModelName, StringComparison.OrdinalIgnoreCase))
+                string initialName = filterComboBox.SelectedIndex == 4 ? initialEmbeddingModelName : initialModelName;
+                if (string.Equals(model.Name, initialName, StringComparison.OrdinalIgnoreCase))
                     selectedIndex = rowIndex;
             }
 
@@ -238,7 +243,7 @@ namespace DotNetCommander
         private void ShowSelectedDetails()
         {
             OllamaModelDescriptor model = SelectedModel();
-            useButton.Enabled = model != null && IsSuitablePlannerModel(model);
+            useButton.Enabled = CanUseSelectedModel(model);
             if (model == null)
             {
                 detailsTextBox.Clear();
@@ -264,9 +269,10 @@ namespace DotNetCommander
         private void UseSelectedModel()
         {
             OllamaModelDescriptor model = SelectedModel();
-            if (model == null || !IsSuitablePlannerModel(model))
+            if (!CanUseSelectedModel(model))
                 return;
             SelectedModelName = model.Name;
+            SelectedModelIsEmbedding = filterComboBox.SelectedIndex == 4;
             DialogResult = DialogResult.OK;
             Close();
         }
@@ -281,12 +287,19 @@ namespace DotNetCommander
             return model != null && (model.Capabilities.Count == 0 || model.HasCapability("completion"));
         }
 
+        private bool CanUseSelectedModel(OllamaModelDescriptor model)
+        {
+            return filterComboBox.SelectedIndex == 4
+                ? model != null && model.HasCapability("embedding")
+                : IsSuitablePlannerModel(model);
+        }
+
         private void SetBusy(bool value, string status)
         {
             filterComboBox.Enabled = !value;
             modelsGrid.Enabled = !value;
             refreshButton.Enabled = !value;
-            useButton.Enabled = !value && SelectedModel() != null && IsSuitablePlannerModel(SelectedModel());
+            useButton.Enabled = !value && CanUseSelectedModel(SelectedModel());
             progressBar.Visible = value;
             statusLabel.Text = status ?? string.Empty;
         }

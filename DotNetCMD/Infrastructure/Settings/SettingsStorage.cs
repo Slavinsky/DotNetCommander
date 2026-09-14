@@ -8,5 +8,21 @@ namespace DotNetCommander
         {
             return ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.PerUserRoamingAndLocal).FilePath;
         }
+
+        public static string GetDefaultVectorStoreBasePath()
+        {
+            return Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                "DotNetCommander",
+                "VectorStores");
+        }
+
+        public static string GetVectorStoreBasePath()
+        {
+            string configuredPath = Properties.Settings.Default.VectorStoreBasePath;
+            return string.IsNullOrWhiteSpace(configuredPath)
+                ? GetDefaultVectorStoreBasePath()
+                : Path.GetFullPath(Environment.ExpandEnvironmentVariables(configuredPath.Trim()));
+        }
     }
 }

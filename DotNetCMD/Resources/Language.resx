@@ -1091,7 +1091,7 @@ Retry the item, ignore it and continue, or abort the operation?</value></data>
   <data name="rtfSaveSuccess" xml:space="preserve"><value>File saved successfully!</value></data>
   <data name="rtfSuccessTitle" xml:space="preserve"><value>Success</value></data>
   <data name="rtfPreviewReadOnly" xml:space="preserve"><value>Preview is read-only. Use Ctrl+Shift+S to save a copy.</value></data>
-  <data name="rtfFileDialogFilter" xml:space="preserve"><value>Rich Text Format (*.rtf)|*.rtf|Text files (*.txt)|*.txt|All files (*.*)|*.*</value></data>
+<data name="rtfFileDialogFilter" xml:space="preserve"><value>Rich Text Format (*.rtf)|*.rtf|Text files (*.txt)|*.txt|Markdown files (*.md)|*.md|All files (*.*)|*.*</value></data>
   <data name="rtfStatusFormat" xml:space="preserve"><value>Lines: {0}   Chars: {1:N0}   Sel: {2:N0}   Ln {3}, Col {4}</value></data>
   <data name="rtfUndo" xml:space="preserve"><value>Undo</value></data>
   <data name="rtfRedo" xml:space="preserve"><value>Redo</value></data>
@@ -1259,4 +1259,50 @@ Esc - Close editor</value></data>
   <data name="aiModelsDiskSize" xml:space="preserve"><value>Disk size</value></data>
   <data name="aiModelsModified" xml:space="preserve"><value>Modified</value></data>
   <data name="aiModelsDigest" xml:space="preserve"><value>Digest</value></data>
+  <data name="settingsTabFileTypes" xml:space="preserve"><value>Index file types</value></data>
+  <data name="settingsFileTypesTitle" xml:space="preserve"><value>Vector index file types</value></data>
+  <data name="settingsFileTypesIntro" xml:space="preserve"><value>Select content categories accepted by the vector index. Extensions remain centralized in FileTypeClassifier.</value></data>
+  <data name="settingsVectorTypeText" xml:space="preserve"><value>Plain text and source files</value></data>
+  <data name="settingsVectorTypeMarkdown" xml:space="preserve"><value>Markdown files</value></data>
+  <data name="settingsVectorTypeCsv" xml:space="preserve"><value>CSV and delimited text files</value></data>
+<data name="settingsAiEmbeddingModel" xml:space="preserve"><value>Embedding model</value></data>
+<data name="settingsAiEmbeddingEndpoint" xml:space="preserve"><value>Embedding endpoint</value></data>
+<data name="aiModelsVisibleModelsFormat" xml:space="preserve"><value>Shown: {0} of {1} models from {2}</value></data>
+<data name="vectorEmbeddingModelNotFoundFormat" xml:space="preserve"><value>Embedding model “{0}” is not installed on {1}. Select a model from this endpoint or change the embedding endpoint in Settings.</value></data>
+<data name="vectorEmbeddingModelUnsupportedFormat" xml:space="preserve"><value>Model “{0}” on {1} does not support embeddings.</value></data>
+  <data name="settingsVectorStorePath" xml:space="preserve"><value>Vector store location</value></data>
+  <data name="settingsVectorStoreBrowse" xml:space="preserve"><value>Select the vector store folder</value></data>
+  <data name="settingsVectorChunkSize" xml:space="preserve"><value>Chunk size (characters)</value></data>
+  <data name="settingsVectorChunkOverlap" xml:space="preserve"><value>Chunk overlap (characters)</value></data>
+  <data name="settingsVectorMaxFileSize" xml:space="preserve"><value>Maximum indexed file size (MB)</value></data>
+  <data name="settingsVectorMaxStoreSize" xml:space="preserve"><value>Maximum store size (MB)</value></data>
+  <data name="vectorIndexFolderMenu" xml:space="preserve"><value>Index folder...</value></data>
+  <data name="semanticSearchMenu" xml:space="preserve"><value>Semantic search...</value></data>
+  <data name="vectorRagMenu" xml:space="preserve"><value>Ask indexed files...</value></data>
+  <data name="vectorIndexTitle" xml:space="preserve"><value>Vector indexing</value></data>
+  <data name="vectorIndexHeading" xml:space="preserve"><value>Index folder for semantic search</value></data>
+  <data name="vectorIndexPreparing" xml:space="preserve"><value>Preparing the vector index...</value></data>
+  <data name="vectorIndexProgressFormat" xml:space="preserve"><value>Processed: {0}   Indexed: {1}   Errors: {2}</value></data>
+  <data name="vectorIndexCompleteFormat" xml:space="preserve"><value>Complete. Processed: {0}; updated: {1}; chunks: {2}; errors: {3}.</value></data>
+  <data name="vectorIndexCancelled" xml:space="preserve"><value>Operation cancelled.</value></data>
+  <data name="vectorIndexCancelling" xml:space="preserve"><value>Cancelling...</value></data>
+  <data name="vectorIndexFailed" xml:space="preserve"><value>Vector indexing failed.</value></data>
+  <data name="semanticSearchTitle" xml:space="preserve"><value>Semantic search</value></data>
+  <data name="vectorRagTitle" xml:space="preserve"><value>Ask indexed files</value></data>
+  <data name="semanticSearchHeading" xml:space="preserve"><value>Search and ask using the vector index</value></data>
+  <data name="semanticSearchButton" xml:space="preserve"><value>Search</value></data>
+  <data name="vectorAskButton" xml:space="preserve"><value>Ask AI</value></data>
+  <data name="semanticSearchScore" xml:space="preserve"><value>Score</value></data>
+  <data name="semanticSearchFile" xml:space="preserve"><value>File</value></data>
+  <data name="semanticSearchChunk" xml:space="preserve"><value>Chunk</value></data>
+  <data name="semanticSearchPreview" xml:space="preserve"><value>Preview</value></data>
+  <data name="semanticSearchContent" xml:space="preserve"><value>Selected content</value></data>
+<data name="vectorRagAnswer" xml:space="preserve"><value>AI answer</value></data>
+<data name="vectorRagOpenAnswer" xml:space="preserve"><value>Open in separate window...</value></data>
+<data name="vectorRagAnswerWindowTitle" xml:space="preserve"><value>AI answer</value></data>
+<data name="vectorRagSaveAs" xml:space="preserve"><value>Save as...</value></data>
+  <data name="vectorRagNoContext" xml:space="preserve"><value>No relevant indexed context was found.</value></data>
+  <data name="semanticSearchWorking" xml:space="preserve"><value>Working...</value></data>
+  <data name="semanticSearchFailed" xml:space="preserve"><value>Semantic search failed.</value></data>
+  <data name="semanticSearchResultsFormat" xml:space="preserve"><value>Results: {0}</value></data>
 </root>

@@ -17,6 +17,7 @@ namespace DotNetCommander
         private readonly Panel richTextPage;
         private readonly Panel operationsPage;
         private readonly Panel aiPage;
+        private readonly Panel fileTypesPage;
         private readonly Panel performancePage;
         private readonly ComboBox browserFontComboBox;
         private readonly ComboBox browserRowColorModeComboBox;
@@ -60,6 +61,16 @@ namespace DotNetCommander
         private readonly CheckBox watchDirectoryChangesCheckBox;
         private readonly TextBox aiEndpointTextBox;
         private readonly TextBox aiModelTextBox;
+        private readonly TextBox aiEmbeddingEndpointTextBox;
+        private readonly TextBox aiEmbeddingModelTextBox;
+        private readonly TextBox vectorStorePathTextBox;
+        private readonly CheckBox vectorIndexTextCheckBox;
+        private readonly CheckBox vectorIndexMarkdownCheckBox;
+        private readonly CheckBox vectorIndexCsvCheckBox;
+        private readonly NumericUpDown vectorIndexChunkSizeNumeric;
+        private readonly NumericUpDown vectorIndexChunkOverlapNumeric;
+        private readonly NumericUpDown vectorIndexMaxFileSizeNumeric;
+        private readonly NumericUpDown vectorIndexMaxStoreSizeNumeric;
         private readonly NumericUpDown aiMaxFileCountNumeric;
         private readonly NumericUpDown aiBatchSizeNumeric;
         private readonly ComboBox aiContextModeComboBox;
@@ -94,6 +105,7 @@ namespace DotNetCommander
             categoryListBox.Items.Add(Language.getString("settingsTabRichText"));
             categoryListBox.Items.Add(Language.getString("settingsTabOperations"));
             categoryListBox.Items.Add(Language.getString("settingsTabAi"));
+            categoryListBox.Items.Add(Language.getString("settingsTabFileTypes"));
             categoryListBox.Items.Add(Language.getString("settingsTabPerformance"));
             categoryListBox.SelectedIndexChanged += (_, __) => ShowSelectedPage();
 
@@ -108,6 +120,7 @@ namespace DotNetCommander
             richTextPage = new Panel { Dock = DockStyle.Fill, Padding = new Padding(8) };
             operationsPage = new Panel { Dock = DockStyle.Fill, Padding = new Padding(8) };
             aiPage = new Panel { Dock = DockStyle.Fill, Padding = new Padding(8) };
+            fileTypesPage = new Panel { Dock = DockStyle.Fill, Padding = new Padding(8) };
             performancePage = new Panel { Dock = DockStyle.Fill, Padding = new Padding(8) };
 
             browserFontComboBox = new ComboBox
@@ -333,6 +346,16 @@ namespace DotNetCommander
 
             aiEndpointTextBox = new TextBox { Width = 320 };
             aiModelTextBox = new TextBox { Width = 320 };
+            aiEmbeddingEndpointTextBox = new TextBox { Width = 320 };
+            aiEmbeddingModelTextBox = new TextBox { Width = 320 };
+            vectorStorePathTextBox = new TextBox { Width = 420 };
+            vectorIndexTextCheckBox = new CheckBox { Dock = DockStyle.Top, Height = 34, Text = Language.getString("settingsVectorTypeText") };
+            vectorIndexMarkdownCheckBox = new CheckBox { Dock = DockStyle.Top, Height = 34, Text = Language.getString("settingsVectorTypeMarkdown") };
+            vectorIndexCsvCheckBox = new CheckBox { Dock = DockStyle.Top, Height = 34, Text = Language.getString("settingsVectorTypeCsv") };
+            vectorIndexChunkSizeNumeric = CreateNumeric(256, 32768, 120);
+            vectorIndexChunkOverlapNumeric = CreateNumeric(0, 8192, 120);
+            vectorIndexMaxFileSizeNumeric = CreateNumeric(1, 4096, 120);
+            vectorIndexMaxStoreSizeNumeric = CreateNumeric(16, 1024 * 1024, 120);
             aiContextModeComboBox = new ComboBox
             {
                 DropDownStyle = ComboBoxStyle.DropDownList,
@@ -354,6 +377,7 @@ namespace DotNetCommander
             BuildRichTextPage();
             BuildOperationsPage();
             BuildAiPage();
+            BuildFileTypesPage();
             BuildPerformancePage();
 
             pageHostPanel.Controls.Add(viewPage);
@@ -361,6 +385,7 @@ namespace DotNetCommander
             pageHostPanel.Controls.Add(richTextPage);
             pageHostPanel.Controls.Add(operationsPage);
             pageHostPanel.Controls.Add(aiPage);
+            pageHostPanel.Controls.Add(fileTypesPage);
             pageHostPanel.Controls.Add(performancePage);
 
             var buttonPanel = new Panel
@@ -598,7 +623,17 @@ namespace DotNetCommander
         {
             var layout = CreateSettingsLayout();
             AddRow(layout, Language.getString("settingsAiEndpoint"), aiEndpointTextBox);
-            AddRow(layout, Language.getString("settingsAiModel"), aiModelTextBox);
+            var completionModelPanel = CreateModelPickerPanel(aiModelTextBox, false);
+            AddRow(layout, Language.getString("settingsAiModel"), completionModelPanel);
+            AddRow(layout, Language.getString("settingsAiEmbeddingEndpoint"), aiEmbeddingEndpointTextBox);
+            var embeddingModelPanel = CreateModelPickerPanel(aiEmbeddingModelTextBox, true);
+            AddRow(layout, Language.getString("settingsAiEmbeddingModel"), embeddingModelPanel);
+            var storagePanel = new FlowLayoutPanel { AutoSize = true, FlowDirection = FlowDirection.LeftToRight, WrapContents = false };
+            storagePanel.Controls.Add(vectorStorePathTextBox);
+            var browseButton = new Button { AutoSize = true, Text = Language.getString("browse") };
+            browseButton.Click += (_, __) => BrowseVectorStorePath();
+            storagePanel.Controls.Add(browseButton);
+            AddRow(layout, Language.getString("settingsVectorStorePath"), storagePanel);
             AddRow(layout, Language.getString("settingsAiMaxFiles"), aiMaxFileCountNumeric);
             AddRow(layout, Language.getString("settingsAiBatchSize"), aiBatchSizeNumeric);
             AddRow(layout, Language.getString("aiOrganizerContext"), aiContextModeComboBox);
@@ -611,17 +646,24 @@ namespace DotNetCommander
                 ForeColor = SystemColors.GrayText,
                 Text = Language.getString("settingsAiLimitsNote")
             });
-            var modelsButton = new Button
-            {
-                AutoSize = true,
-                MinimumSize = new Size(150, 34),
-                Text = Language.getString("settingsAiModelsButton")
-            };
-            modelsButton.Click += (_, __) => ShowAiModels();
-            AddRow(layout, string.Empty, modelsButton);
-
             aiPage.Controls.Add(layout);
             aiPage.Controls.Add(CreatePageHeader(Language.getString("settingsAiTitle"), Language.getString("settingsAiIntro")));
+        }
+
+        private void BuildFileTypesPage()
+        {
+            var layout = CreateSettingsLayout();
+            AddRow(layout, Language.getString("settingsVectorChunkSize"), vectorIndexChunkSizeNumeric);
+            AddRow(layout, Language.getString("settingsVectorChunkOverlap"), vectorIndexChunkOverlapNumeric);
+            AddRow(layout, Language.getString("settingsVectorMaxFileSize"), vectorIndexMaxFileSizeNumeric);
+            AddRow(layout, Language.getString("settingsVectorMaxStoreSize"), vectorIndexMaxStoreSizeNumeric);
+            var typesPanel = new Panel { Dock = DockStyle.Top, Height = 112 };
+            typesPanel.Controls.Add(vectorIndexCsvCheckBox);
+            typesPanel.Controls.Add(vectorIndexMarkdownCheckBox);
+            typesPanel.Controls.Add(vectorIndexTextCheckBox);
+            fileTypesPage.Controls.Add(layout);
+            fileTypesPage.Controls.Add(typesPanel);
+            fileTypesPage.Controls.Add(CreatePageHeader(Language.getString("settingsFileTypesTitle"), Language.getString("settingsFileTypesIntro")));
         }
 
         private void LoadSettings()
@@ -672,6 +714,18 @@ namespace DotNetCommander
             watchDirectoryChangesCheckBox.Checked = Properties.Settings.Default.FileBrowserWatchDirectoryChanges;
             aiEndpointTextBox.Text = Properties.Settings.Default.AiOrganizerEndpoint;
             aiModelTextBox.Text = Properties.Settings.Default.AiOrganizerModel;
+            aiEmbeddingEndpointTextBox.Text = Properties.Settings.Default.AiEmbeddingEndpoint;
+            aiEmbeddingModelTextBox.Text = Properties.Settings.Default.AiEmbeddingModel;
+            vectorStorePathTextBox.Text = string.IsNullOrWhiteSpace(Properties.Settings.Default.VectorStoreBasePath)
+                ? SettingsStorage.GetDefaultVectorStoreBasePath()
+                : Properties.Settings.Default.VectorStoreBasePath;
+            vectorIndexTextCheckBox.Checked = Properties.Settings.Default.VectorIndexTextEnabled;
+            vectorIndexMarkdownCheckBox.Checked = Properties.Settings.Default.VectorIndexMarkdownEnabled;
+            vectorIndexCsvCheckBox.Checked = Properties.Settings.Default.VectorIndexCsvEnabled;
+            vectorIndexChunkSizeNumeric.Value = Math.Max(vectorIndexChunkSizeNumeric.Minimum, Math.Min(vectorIndexChunkSizeNumeric.Maximum, Properties.Settings.Default.VectorIndexChunkSizeCharacters));
+            vectorIndexChunkOverlapNumeric.Value = Math.Max(vectorIndexChunkOverlapNumeric.Minimum, Math.Min(vectorIndexChunkOverlapNumeric.Maximum, Properties.Settings.Default.VectorIndexChunkOverlapCharacters));
+            vectorIndexMaxFileSizeNumeric.Value = Math.Max(vectorIndexMaxFileSizeNumeric.Minimum, Math.Min(vectorIndexMaxFileSizeNumeric.Maximum, Properties.Settings.Default.VectorIndexMaxFileSizeMb));
+            vectorIndexMaxStoreSizeNumeric.Value = Math.Max(vectorIndexMaxStoreSizeNumeric.Minimum, Math.Min(vectorIndexMaxStoreSizeNumeric.Maximum, Properties.Settings.Default.VectorIndexMaxStoreSizeMb));
             aiMaxFileCountNumeric.Value = Math.Max(
                 aiMaxFileCountNumeric.Minimum,
                 Math.Min(aiMaxFileCountNumeric.Maximum, Properties.Settings.Default.AiOrganizerMaxFileCount));
@@ -743,6 +797,22 @@ namespace DotNetCommander
             Properties.Settings.Default.AiOrganizerModel = string.IsNullOrWhiteSpace(aiModelTextBox.Text)
                 ? "qwen3.5:latest"
                 : aiModelTextBox.Text.Trim();
+            Properties.Settings.Default.AiEmbeddingModel = string.IsNullOrWhiteSpace(aiEmbeddingModelTextBox.Text)
+                ? "embeddinggemma:latest"
+                : aiEmbeddingModelTextBox.Text.Trim();
+            Properties.Settings.Default.AiEmbeddingEndpoint = string.IsNullOrWhiteSpace(aiEmbeddingEndpointTextBox.Text)
+                ? "http://localhost:11434"
+                : aiEmbeddingEndpointTextBox.Text.Trim();
+            Properties.Settings.Default.VectorStoreBasePath = string.IsNullOrWhiteSpace(vectorStorePathTextBox.Text)
+                ? string.Empty
+                : vectorStorePathTextBox.Text.Trim();
+            Properties.Settings.Default.VectorIndexTextEnabled = vectorIndexTextCheckBox.Checked;
+            Properties.Settings.Default.VectorIndexMarkdownEnabled = vectorIndexMarkdownCheckBox.Checked;
+            Properties.Settings.Default.VectorIndexCsvEnabled = vectorIndexCsvCheckBox.Checked;
+            Properties.Settings.Default.VectorIndexChunkSizeCharacters = (int)vectorIndexChunkSizeNumeric.Value;
+            Properties.Settings.Default.VectorIndexChunkOverlapCharacters = Math.Min((int)vectorIndexChunkOverlapNumeric.Value, (int)vectorIndexChunkSizeNumeric.Value - 1);
+            Properties.Settings.Default.VectorIndexMaxFileSizeMb = (int)vectorIndexMaxFileSizeNumeric.Value;
+            Properties.Settings.Default.VectorIndexMaxStoreSizeMb = (int)vectorIndexMaxStoreSizeNumeric.Value;
             Properties.Settings.Default.AiOrganizerMaxFileCount = (int)aiMaxFileCountNumeric.Value;
             Properties.Settings.Default.AiOrganizerBatchSize = (int)aiBatchSizeNumeric.Value;
             Properties.Settings.Default.AiOrganizerContextMode = AiOrganizerContextModeStorage.ToValue(
@@ -754,14 +824,51 @@ namespace DotNetCommander
             Properties.Settings.Default.Save();
         }
 
-        private void ShowAiModels()
+        private Control CreateModelPickerPanel(TextBox textBox, bool embedding)
         {
-            string endpoint = string.IsNullOrWhiteSpace(aiEndpointTextBox.Text)
+            var panel = new FlowLayoutPanel { AutoSize = true, FlowDirection = FlowDirection.LeftToRight, WrapContents = false };
+            panel.Controls.Add(textBox);
+            var button = new Button
+            {
+                AutoSize = true,
+                MinimumSize = new Size(120, 34),
+                Text = Language.getString("settingsAiModelsButton")
+            };
+            button.Click += (_, __) => ShowAiModels(embedding);
+            panel.Controls.Add(button);
+            return panel;
+        }
+
+        private void ShowAiModels(bool embedding)
+        {
+            string endpointText = embedding ? aiEmbeddingEndpointTextBox.Text : aiEndpointTextBox.Text;
+            string endpoint = string.IsNullOrWhiteSpace(endpointText)
                 ? "http://localhost:11434"
-                : aiEndpointTextBox.Text.Trim();
-            using var dialog = new FormAiModels(endpoint, aiModelTextBox.Text.Trim());
+                : endpointText.Trim();
+            using var dialog = new FormAiModels(
+                endpoint,
+                aiModelTextBox.Text.Trim(),
+                aiEmbeddingModelTextBox.Text.Trim(),
+                embedding);
             if (dialog.ShowDialog(this) == DialogResult.OK && !string.IsNullOrWhiteSpace(dialog.SelectedModelName))
-                aiModelTextBox.Text = dialog.SelectedModelName;
+            {
+                if (dialog.SelectedModelIsEmbedding)
+                    aiEmbeddingModelTextBox.Text = dialog.SelectedModelName;
+                else
+                    aiModelTextBox.Text = dialog.SelectedModelName;
+            }
+        }
+
+        private void BrowseVectorStorePath()
+        {
+            using var dialog = new FolderBrowserDialog
+            {
+                Description = Language.getString("settingsVectorStoreBrowse"),
+                ShowNewFolderButton = true,
+                SelectedPath = vectorStorePathTextBox.Text
+            };
+            if (dialog.ShowDialog(this) == DialogResult.OK)
+                vectorStorePathTextBox.Text = dialog.SelectedPath;
         }
 
         private void SelectLanguageOption(string value)
@@ -781,7 +888,8 @@ namespace DotNetCommander
             richTextPage.Visible = categoryListBox.SelectedIndex == 2;
             operationsPage.Visible = categoryListBox.SelectedIndex == 3;
             aiPage.Visible = categoryListBox.SelectedIndex == 4;
-            performancePage.Visible = categoryListBox.SelectedIndex == 5;
+            fileTypesPage.Visible = categoryListBox.SelectedIndex == 5;
+            performancePage.Visible = categoryListBox.SelectedIndex == 6;
         }
 
         private void UpdateAiContentControls()

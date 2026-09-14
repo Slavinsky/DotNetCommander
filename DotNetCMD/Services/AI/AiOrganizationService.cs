@@ -43,6 +43,60 @@ namespace DotNetCommander
                 ?? new List<OllamaModelDescriptor>();
         }
 
+        public async Task<float[][]> GetEmbeddingsAsync(
+            string endpoint,
+            string model,
+            IReadOnlyList<string> inputs,
+            CancellationToken cancellationToken)
+        {
+            if (inputs == null || inputs.Count == 0)
+                return Array.Empty<float[]>();
+
+            Uri requestUri = BuildRequestUri(endpoint, "api/embed");
+            object request = new
+            {
+                model = (model ?? string.Empty).Trim(),
+                input = inputs
+            };
+            using var content = new StringContent(JsonSerializer.Serialize(request), Encoding.UTF8, "application/json");
+            using HttpResponseMessage response = await httpClient.PostAsync(requestUri, content, cancellationToken).ConfigureAwait(false);
+            string responseText = await response.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
+            EnsureSuccess(response, responseText);
+            OllamaEmbedResponse envelope = JsonSerializer.Deserialize<OllamaEmbedResponse>(responseText, JsonOptions);
+            if (envelope?.Embeddings == null)
+                throw new InvalidDataException("Ollama returned no embeddings.");
+            return envelope.Embeddings.ToArray();
+        }
+
+        public async Task<string> AskAsync(
+            string endpoint,
+            string model,
+            string systemPrompt,
+            string userMessage,
+            CancellationToken cancellationToken)
+        {
+            Uri requestUri = BuildRequestUri(endpoint, "api/chat");
+            object request = new
+            {
+                model = (model ?? string.Empty).Trim(),
+                stream = false,
+                think = false,
+                messages = new object[]
+                {
+                    new { role = "system", content = systemPrompt ?? string.Empty },
+                    new { role = "user", content = userMessage ?? string.Empty }
+                }
+            };
+            using var content = new StringContent(JsonSerializer.Serialize(request), Encoding.UTF8, "application/json");
+            using HttpResponseMessage response = await httpClient.PostAsync(requestUri, content, cancellationToken).ConfigureAwait(false);
+            string responseText = await response.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
+            EnsureSuccess(response, responseText);
+            OllamaChatResponse envelope = JsonSerializer.Deserialize<OllamaChatResponse>(responseText, JsonOptions);
+            string result = envelope?.Message?.Content;
+            if (string.IsNullOrWhiteSpace(result)) throw new InvalidDataException(Language.getString("aiOrganizerEmptyResponse"));
+            return result.Trim();
+        }
+
         public async Task<AiOrganizationPlan> AnalyzeAsync(
             string rootPath,
             string instruction,
@@ -848,6 +902,12 @@ namespace DotNetCommander
         {
             [JsonPropertyName("message")]
             public OllamaMessage Message { get; set; }
+        }
+
+        private sealed class OllamaEmbedResponse
+        {
+            [JsonPropertyName("embeddings")]
+            public List<float[]> Embeddings { get; set; } = new List<float[]>();
         }
 
         private sealed class OllamaMessage

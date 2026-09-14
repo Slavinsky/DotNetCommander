@@ -589,6 +589,86 @@ namespace DotNetCommander.Properties {
 
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("embeddinggemma:latest")]
+        public string AiEmbeddingModel {
+            get { return ((string)(this["AiEmbeddingModel"])); }
+            set { this["AiEmbeddingModel"] = value; }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("http://localhost:11434")]
+        public string AiEmbeddingEndpoint {
+            get { return ((string)(this["AiEmbeddingEndpoint"])); }
+            set { this["AiEmbeddingEndpoint"] = value; }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string VectorStoreBasePath {
+            get { return ((string)(this["VectorStoreBasePath"])); }
+            set { this["VectorStoreBasePath"] = value; }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool VectorIndexTextEnabled {
+            get { return ((bool)(this["VectorIndexTextEnabled"])); }
+            set { this["VectorIndexTextEnabled"] = value; }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool VectorIndexMarkdownEnabled {
+            get { return ((bool)(this["VectorIndexMarkdownEnabled"])); }
+            set { this["VectorIndexMarkdownEnabled"] = value; }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool VectorIndexCsvEnabled {
+            get { return ((bool)(this["VectorIndexCsvEnabled"])); }
+            set { this["VectorIndexCsvEnabled"] = value; }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("2000")]
+        public int VectorIndexChunkSizeCharacters {
+            get { return ((int)(this["VectorIndexChunkSizeCharacters"])); }
+            set { this["VectorIndexChunkSizeCharacters"] = value; }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("200")]
+        public int VectorIndexChunkOverlapCharacters {
+            get { return ((int)(this["VectorIndexChunkOverlapCharacters"])); }
+            set { this["VectorIndexChunkOverlapCharacters"] = value; }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("16")]
+        public int VectorIndexMaxFileSizeMb {
+            get { return ((int)(this["VectorIndexMaxFileSizeMb"])); }
+            set { this["VectorIndexMaxFileSizeMb"] = value; }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("2048")]
+        public int VectorIndexMaxStoreSizeMb {
+            get { return ((int)(this["VectorIndexMaxStoreSizeMb"])); }
+            set { this["VectorIndexMaxStoreSizeMb"] = value; }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("250")]
         public int AiOrganizerMaxFileCount {
             get {

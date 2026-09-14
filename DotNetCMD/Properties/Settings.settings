@@ -143,6 +143,36 @@
     <Setting Name="AiOrganizerModel" Type="System.String" Scope="User">
       <Value Profile="(Default)">qwen3.5:latest</Value>
     </Setting>
+    <Setting Name="AiEmbeddingModel" Type="System.String" Scope="User">
+      <Value Profile="(Default)">embeddinggemma:latest</Value>
+    </Setting>
+    <Setting Name="AiEmbeddingEndpoint" Type="System.String" Scope="User">
+      <Value Profile="(Default)">http://localhost:11434</Value>
+    </Setting>
+    <Setting Name="VectorStoreBasePath" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="VectorIndexTextEnabled" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="VectorIndexMarkdownEnabled" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="VectorIndexCsvEnabled" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="VectorIndexChunkSizeCharacters" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">2000</Value>
+    </Setting>
+    <Setting Name="VectorIndexChunkOverlapCharacters" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">200</Value>
+    </Setting>
+    <Setting Name="VectorIndexMaxFileSizeMb" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">16</Value>
+    </Setting>
+    <Setting Name="VectorIndexMaxStoreSizeMb" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">2048</Value>
+    </Setting>
     <Setting Name="AiOrganizerMaxFileCount" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">250</Value>
     </Setting>

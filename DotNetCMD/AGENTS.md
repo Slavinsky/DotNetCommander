@@ -9,7 +9,7 @@ Namespace: `DotNetCommander`
 
 Поточна активна збірка:
 - `Commander.NET.csproj` — `net8.0-windows10.0.22621.0`
-- Версія: `1.9.0`
+- Версія: `1.9.2`
 
 Історична збірка:
 - `DotNetCommander.csproj` — оригінальний .NET Framework-проєкт
@@ -25,6 +25,8 @@ Namespace: `DotNetCommander`
 - `Dialogs/Operations/FormArchiveOperation.cs` — асинхронний діалог створення й розпакування архівів з прогресом і скасуванням
 - `Dialogs/Common/FormSettings.cs` — commander-style `Options` з категоріями `View`, `Editor`, `Rich Text`, `Operations`, `AI organizer`, `Performance`
 - `Dialogs/Common/FormAiModels.cs` — каталог моделей вибраного Ollama endpoint із фільтрами capabilities, розширеними параметрами та вибором моделі за замовчуванням
+- `Dialogs/Common/FormVectorIndex.cs` — асинхронна індексація активної фізичної папки у локальний per-root VectorStore з прогресом і скасуванням
+- `Dialogs/Common/FormSemanticSearch.cs` — semantic search та мінімальний RAG-діалог за індексованими файлами з top-K джерелами, форматованим Markdown-відображенням відповіді й відкриттям її в окремому вікні для збереження
 - `Dialogs/Common/FormAbout.cs` — `About` з версією, описом і шляхом до `user.config`
 - `Dialogs/Common/FormKeyboardHelp.cs` — спільне commander-style вікно клавіатурної довідки з локалізованою таблицею shortcut/action
 - `Dialogs/Common/FormNewFile.cs` — commander-style створення нового файла з вибором редактора
@@ -50,6 +52,7 @@ Namespace: `DotNetCommander`
 - `Controls/Navigation/` — breadcrumb-навігація та її сегментні кнопки
 - `Services/Operations/FileOperationService.cs` — планування та виконання `copy/move/delete`
 - `Services/AI/AiOrganizationService.cs` — локальний Ollama-клієнт для безпечного JSON-планування впорядкування файлів за метаданими й обмеженими фрагментами текстового вмісту; модель не виконує файлові операції напряму
+- `Services/AI/VectorStore.cs`, `VectorStoreRegistry.cs`, `VectorIndexService.cs` — binary snapshot format v2, настраюване центральне сховище окремих per-root індексів, Ollama embeddings, incremental indexing, linear top-K і RAG glue
 - `Services/Archives/ArchiveService.cs` — виконання створення й безпечного розпакування архівів на стандартних API .NET 8; визначення типу делеговано `FileTypeClassifier`
 - `Application/CommandService.cs` — виконання основних commander-команд і відкриття внутрішніх viewer/editor форм
 - `Services/Files/` — доступ до файлової системи, класифікація типів, XML-aware визначення кодування тексту та process-wide кеш shell-іконок
@@ -63,6 +66,7 @@ Namespace: `DotNetCommander`
 ## Поточні можливості
 - двопанельна навігація по файловій системі з адресним рядком і панеллю дисків;
 - `Tools -> AI folder organizer...` формує через Ollama перевірюваний план переміщення/перейменування файлів верхнього рівня активної фізичної папки пакетами настроюваного розміру; контракт вимагає `move/skip/need_content` для кожного файла, один раз повторює запит для пропущених елементів і показує progress/elapsed/ETA. Режими `Auto`, metadata-only і metadata+content керують контекстом; окремий summary-only режим описує папку без файлових дій. `/api/tags` постачає список, параметри й capabilities моделей, у planner-комбо потрапляють completion-моделі, а розширена таблиця доступна з `Options -> AI organizer -> Models`. Кожна дія має дослівну підставу з даних свого файла; виконання лише після підтвердження через `FileOperationService`, без видалення, перезапису та виходу за межі папки;
+- `Tools -> Index folder...`, `Semantic search...` і `Ask indexed files...` створюють/оновлюють локальні per-root vector indexes через Ollama `/api/embed`, виконують linear top-K та формують обмежений RAG-контекст для `/api/chat`; формат v2 фіксує model digest і vector dimension, а шлях, окремий embedding endpoint, embedding-модель, типи файлів і ліміти доступні в `Options`;
 - `Alt+F7` запускає фоновий пошук у каталозі за маскою/regex та текстом; результати відображаються як `SearchBrowser` і підтримують preview, copy/move/delete;
 - Файлова, GEDCOM та DataSet-панелі використовують `AddressBar` із компактними breadcrumb-сегментами та mouse-friendly кнопками `Back`, `Up` і `Refresh`, що викликають ті самі команди, що `Backspace`, `Ctrl+PgUp` і `Ctrl+R`;
 - commander-style командний рядок під панелями: запуск програм і команд із параметрами в каталозі активної панелі, історія через `Up/Down`, фокус через `Ctrl+L`, `Ctrl+Enter` вставляє назву поточного елемента, `Shift+Enter` залишає консоль відкритою;

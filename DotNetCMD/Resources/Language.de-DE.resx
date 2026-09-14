@@ -924,7 +924,7 @@ Element erneut versuchen, ignorieren und fortfahren oder Vorgang abbrechen?</val
   <data name="rtfSaveSuccess" xml:space="preserve"><value>Datei wurde erfolgreich gespeichert!</value></data>
   <data name="rtfSuccessTitle" xml:space="preserve"><value>Erfolg</value></data>
   <data name="rtfPreviewReadOnly" xml:space="preserve"><value>Die Vorschau ist schreibgeschützt. Mit Ctrl+Shift+S kann eine Kopie gespeichert werden.</value></data>
-  <data name="rtfFileDialogFilter" xml:space="preserve"><value>Rich Text Format (*.rtf)|*.rtf|Textdateien (*.txt)|*.txt|Alle Dateien (*.*)|*.*</value></data>
+<data name="rtfFileDialogFilter" xml:space="preserve"><value>Rich Text Format (*.rtf)|*.rtf|Textdateien (*.txt)|*.txt|Markdown-Dateien (*.md)|*.md|Alle Dateien (*.*)|*.*</value></data>
   <data name="rtfStatusFormat" xml:space="preserve"><value>Zeilen: {0}   Zeichen: {1:N0}   Auswahl: {2:N0}   Z. {3}, Sp. {4}</value></data>
   <data name="rtfUndo" xml:space="preserve"><value>Rückgängig</value></data>
   <data name="rtfRedo" xml:space="preserve"><value>Wiederholen</value></data>
@@ -1092,4 +1092,50 @@ Esc - Editor schließen</value></data>
   <data name="aiModelsDiskSize" xml:space="preserve"><value>Speichergröße</value></data>
   <data name="aiModelsModified" xml:space="preserve"><value>Geändert</value></data>
   <data name="aiModelsDigest" xml:space="preserve"><value>Digest</value></data>
+  <data name="settingsTabFileTypes" xml:space="preserve"><value>Index-Dateitypen</value></data>
+  <data name="settingsFileTypesTitle" xml:space="preserve"><value>Dateitypen des Vektorindex</value></data>
+  <data name="settingsFileTypesIntro" xml:space="preserve"><value>Wählen Sie Inhaltskategorien für den Vektorindex. Erweiterungen bleiben zentral in FileTypeClassifier.</value></data>
+  <data name="settingsVectorTypeText" xml:space="preserve"><value>Klartext und Quellcode</value></data>
+  <data name="settingsVectorTypeMarkdown" xml:space="preserve"><value>Markdown-Dateien</value></data>
+  <data name="settingsVectorTypeCsv" xml:space="preserve"><value>CSV und getrennte Textdateien</value></data>
+<data name="settingsAiEmbeddingModel" xml:space="preserve"><value>Embedding-Modell</value></data>
+<data name="settingsAiEmbeddingEndpoint" xml:space="preserve"><value>Embedding-Endpunkt</value></data>
+<data name="aiModelsVisibleModelsFormat" xml:space="preserve"><value>Angezeigt: {0} von {1} Modellen von {2}</value></data>
+<data name="vectorEmbeddingModelNotFoundFormat" xml:space="preserve"><value>Das Embedding-Modell „{0}“ ist auf {1} nicht installiert. Wählen Sie ein Modell dieses Endpunkts oder ändern Sie den Embedding-Endpunkt in den Einstellungen.</value></data>
+<data name="vectorEmbeddingModelUnsupportedFormat" xml:space="preserve"><value>Das Modell „{0}“ auf {1} unterstützt keine Embeddings.</value></data>
+  <data name="settingsVectorStorePath" xml:space="preserve"><value>Speicherort der Vektorspeicher</value></data>
+  <data name="settingsVectorStoreBrowse" xml:space="preserve"><value>Ordner für Vektorspeicher auswählen</value></data>
+  <data name="settingsVectorChunkSize" xml:space="preserve"><value>Fragmentgröße (Zeichen)</value></data>
+  <data name="settingsVectorChunkOverlap" xml:space="preserve"><value>Fragmentüberlappung (Zeichen)</value></data>
+  <data name="settingsVectorMaxFileSize" xml:space="preserve"><value>Maximale Dateigröße (MB)</value></data>
+  <data name="settingsVectorMaxStoreSize" xml:space="preserve"><value>Maximale Speichergröße (MB)</value></data>
+  <data name="vectorIndexFolderMenu" xml:space="preserve"><value>Ordner indizieren...</value></data>
+  <data name="semanticSearchMenu" xml:space="preserve"><value>Semantische Suche...</value></data>
+  <data name="vectorRagMenu" xml:space="preserve"><value>Indizierte Dateien fragen...</value></data>
+  <data name="vectorIndexTitle" xml:space="preserve"><value>Vektorindizierung</value></data>
+  <data name="vectorIndexHeading" xml:space="preserve"><value>Ordner für semantische Suche indizieren</value></data>
+  <data name="vectorIndexPreparing" xml:space="preserve"><value>Vektorindex wird vorbereitet...</value></data>
+  <data name="vectorIndexProgressFormat" xml:space="preserve"><value>Verarbeitet: {0}   Indiziert: {1}   Fehler: {2}</value></data>
+  <data name="vectorIndexCompleteFormat" xml:space="preserve"><value>Fertig. Verarbeitet: {0}; aktualisiert: {1}; Fragmente: {2}; Fehler: {3}.</value></data>
+  <data name="vectorIndexCancelled" xml:space="preserve"><value>Vorgang abgebrochen.</value></data>
+  <data name="vectorIndexCancelling" xml:space="preserve"><value>Wird abgebrochen...</value></data>
+  <data name="vectorIndexFailed" xml:space="preserve"><value>Vektorindizierung fehlgeschlagen.</value></data>
+  <data name="semanticSearchTitle" xml:space="preserve"><value>Semantische Suche</value></data>
+  <data name="vectorRagTitle" xml:space="preserve"><value>Indizierte Dateien fragen</value></data>
+  <data name="semanticSearchHeading" xml:space="preserve"><value>Suchen und fragen mit dem Vektorindex</value></data>
+  <data name="semanticSearchButton" xml:space="preserve"><value>Suchen</value></data>
+  <data name="vectorAskButton" xml:space="preserve"><value>AI fragen</value></data>
+  <data name="semanticSearchScore" xml:space="preserve"><value>Wert</value></data>
+  <data name="semanticSearchFile" xml:space="preserve"><value>Datei</value></data>
+  <data name="semanticSearchChunk" xml:space="preserve"><value>Fragment</value></data>
+  <data name="semanticSearchPreview" xml:space="preserve"><value>Vorschau</value></data>
+  <data name="semanticSearchContent" xml:space="preserve"><value>Ausgewählter Inhalt</value></data>
+<data name="vectorRagAnswer" xml:space="preserve"><value>AI-Antwort</value></data>
+<data name="vectorRagOpenAnswer" xml:space="preserve"><value>In separatem Fenster öffnen...</value></data>
+<data name="vectorRagAnswerWindowTitle" xml:space="preserve"><value>AI-Antwort</value></data>
+<data name="vectorRagSaveAs" xml:space="preserve"><value>Speichern unter...</value></data>
+  <data name="vectorRagNoContext" xml:space="preserve"><value>Kein relevanter indizierter Kontext gefunden.</value></data>
+  <data name="semanticSearchWorking" xml:space="preserve"><value>Wird ausgeführt...</value></data>
+  <data name="semanticSearchFailed" xml:space="preserve"><value>Semantische Suche fehlgeschlagen.</value></data>
+  <data name="semanticSearchResultsFormat" xml:space="preserve"><value>Ergebnisse: {0}</value></data>
 </root>

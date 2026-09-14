@@ -25,6 +25,8 @@ namespace View
         private string currentFilePath;
         private bool previewMode;
         private string markdownPreviewSource;
+        private string suggestedSaveFileName;
+        private ToolStrip previewToolStrip;
         private bool markdownPreviewHasTables;
         private Timer markdownResizeTimer;
         private int lastMarkdownRenderWidth;
@@ -577,6 +579,7 @@ namespace View
                 markdownRenderGeneration++;
                 markdownResizeTimer.Stop();
                 markdownPreviewSource = null;
+                suggestedSaveFileName = null;
                 markdownPreviewHasTables = false;
                 lastMarkdownRenderWidth = 0;
                 currentFilePath = filePath;
@@ -614,6 +617,51 @@ namespace View
                     DotNetCommander.Language.getString("error"),
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+        }
+
+        public async void LoadMarkdownContent(string markdown, string suggestedFileName, string windowTitle)
+        {
+            try
+            {
+                markdownRenderGeneration++;
+                markdownResizeTimer.Stop();
+                markdownPreviewSource = markdown ?? string.Empty;
+                markdownPreviewHasTables = ContainsMarkdownTable(markdownPreviewSource);
+                lastMarkdownRenderWidth = 0;
+                currentFilePath = null;
+                this.suggestedSaveFileName = string.IsNullOrWhiteSpace(suggestedFileName)
+                    ? "document.md"
+                    : suggestedFileName;
+                previewMode = true;
+                currentTextEncoding = new UTF8Encoding(false);
+                richTextBox.ReadOnly = true;
+                EnsurePreviewToolStrip();
+                Text = string.IsNullOrWhiteSpace(windowTitle)
+                    ? DotNetCommander.Language.getString("rtfEditorTitle")
+                    : windowTitle;
+                await RenderMarkdownPreviewAsync(showWaitAfterDelay: true);
+                ShowStatusMessage(DotNetCommander.Language.getString("rtfPreviewMode"));
+                MoveCaretToDocumentStart();
+                UpdateStatusBar();
+            }
+            catch (Exception ex)
+            {
+                DotNetCommander.LogService.LogException("RtfEdit.LoadMarkdownContent", ex);
+                MessageBox.Show(string.Format(DotNetCommander.Language.getString("rtfLoadErrorFormat"), ex.Message),
+                    DotNetCommander.Language.getString("error"),
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void EnsurePreviewToolStrip()
+        {
+            if (previewToolStrip != null) return;
+            previewToolStrip = new ToolStrip { GripStyle = ToolStripGripStyle.Hidden, Dock = DockStyle.Top };
+            var saveAsButton = new ToolStripButton(DotNetCommander.Language.getString("vectorRagSaveAs"));
+            saveAsButton.Click += (_, __) => SaveFileAs();
+            previewToolStrip.Items.Add(saveAsButton);
+            Controls.Add(previewToolStrip);
+            previewToolStrip.BringToFront();
         }
 
         private void RtfEdit_Resize(object sender, EventArgs e)
@@ -844,6 +892,11 @@ namespace View
                     saveDialog.InitialDirectory = initialDirectory;
                 }
             }
+            else if (!string.IsNullOrWhiteSpace(suggestedSaveFileName))
+            {
+                saveDialog.FileName = suggestedSaveFileName;
+                saveDialog.FilterIndex = GetRtfSaveFilterIndex(suggestedSaveFileName);
+            }
 
             if (saveDialog.ShowDialog(this) != DialogResult.OK)
                 return false;
@@ -859,6 +912,8 @@ namespace View
                 string extension = Path.GetExtension(path)?.ToLowerInvariant() ?? string.Empty;
                 if (extension == ".rtf")
                     richTextBox.SaveFile(path, RichTextBoxStreamType.RichText);
+                else if (extension == ".md" && markdownPreviewSource != null)
+                    DotNetCommander.TextFileEncodingService.WriteAllText(path, markdownPreviewSource, currentTextEncoding);
                 else
                     DotNetCommander.TextFileEncodingService.WriteAllText(path, richTextBox.Text, currentTextEncoding);
 
@@ -878,7 +933,7 @@ namespace View
         private static int GetRtfSaveFilterIndex(string filePath)
         {
             string extension = Path.GetExtension(filePath)?.ToLowerInvariant();
-            return extension == ".txt" ? 2 : 1;
+            return extension == ".txt" ? 2 : extension == ".md" ? 3 : 1;
         }
 
         private void NotifySaveSuccess(string path)
