@@ -115,11 +115,11 @@ namespace DotNetCommander.Resources {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на Past.
+        ///   Ищет локализованную строку, похожую на Paste.
         /// </summary>
-        internal static string past {
+        internal static string paste {
             get {
-                return ResourceManager.GetString("past", resourceCulture);
+                return ResourceManager.GetString("paste", resourceCulture);
             }
         }
         

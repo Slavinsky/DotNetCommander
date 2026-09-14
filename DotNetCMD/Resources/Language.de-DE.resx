@@ -168,7 +168,7 @@
   <data name="newFolderNameInvalid" xml:space="preserve">
     <value>Der Ordnername enthält ungültige Zeichen oder nicht unterstützte Pfadsegmente.</value>
   </data>
-  <data name="past" xml:space="preserve">
+  <data name="paste" xml:space="preserve">
     <value>Einfügen</value>
   </data>
   <data name="qDeleteItem" xml:space="preserve">

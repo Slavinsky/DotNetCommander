@@ -536,7 +536,7 @@ namespace DotNetCommander
         }
 
     /*
-     * Comand Buttons (e.g.: Copy, Past)
+     * Comand Buttons (e.g.: Copy, Paste)
      */
     private void Button_View(object sender, EventArgs e)
     {

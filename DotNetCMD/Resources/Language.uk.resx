@@ -168,7 +168,7 @@
   <data name="newFolderNameInvalid" xml:space="preserve">
     <value>Назва папки містить неприпустимі символи або непідтримувані сегменти шляху.</value>
   </data>
-  <data name="past" xml:space="preserve">
+  <data name="paste" xml:space="preserve">
     <value>Вставити</value>
   </data>
   <data name="qDeleteItem" xml:space="preserve">

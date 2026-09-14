@@ -216,8 +216,8 @@
   <data name="editorNotSupported" xml:space="preserve">
     <value>No built-in editor is registered for this file type.</value>
   </data>
-  <data name="past" xml:space="preserve">
-    <value>Past</value>
+  <data name="paste" xml:space="preserve">
+    <value>Paste</value>
   </data>
   <data name="qDeleteItem" xml:space="preserve">
     <value>Are you sure you want to delete this item?</value>
