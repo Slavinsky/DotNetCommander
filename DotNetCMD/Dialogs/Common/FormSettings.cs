@@ -19,6 +19,8 @@ namespace DotNetCommander
         private readonly Panel aiPage;
         private readonly Panel performancePage;
         private readonly ComboBox browserFontComboBox;
+        private readonly ComboBox browserRowColorModeComboBox;
+
         private readonly ComboBox textEditorFontComboBox;
         private readonly ComboBox rtfEditorFontComboBox;
         private readonly ComboBox markdownPreviewFontComboBox;
@@ -171,6 +173,15 @@ namespace DotNetCommander
             uiLanguageComboBox.Items.Add(new LanguageOption("uk", "Українська"));
 
             browserFontSizeNumeric = CreateNumeric(8, 32, 120);
+            browserRowColorModeComboBox = new ComboBox
+            {
+                DropDownStyle = ComboBoxStyle.DropDownList,
+                Width = 280
+            };
+            browserRowColorModeComboBox.Items.Add(new RowColorModeOption(BrowserRowColoring.None, Language.getString("settingsBrowserRowColorNone")));
+            browserRowColorModeComboBox.Items.Add(new RowColorModeOption(BrowserRowColoring.Striped, Language.getString("settingsBrowserRowColorStriped")));
+            browserRowColorModeComboBox.Items.Add(new RowColorModeOption(BrowserRowColoring.ByExtension, Language.getString("settingsBrowserRowColorByExtension")));
+
             textEditorFontSizeNumeric = CreateNumeric(6, 72, 120);
             rtfEditorFontSizeNumeric = CreateNumeric(6, 72, 120);
             markdownPreviewBaseFontSizeNumeric = CreateNumeric(8, 48, 120);
@@ -405,6 +416,8 @@ namespace DotNetCommander
             AddRow(layout, Language.getString("settingsLanguage"), uiLanguageComboBox);
             AddRow(layout, Language.getString("settingsBrowserFontName"), browserFontComboBox);
             AddRow(layout, Language.getString("settingsBrowserFontSize"), browserFontSizeNumeric);
+            AddRow(layout, Language.getString("settingsBrowserRowColorMode"), browserRowColorModeComboBox);
+
             AddRow(layout, Language.getString("settingsColumnNameWidth"), nameColumnWidthNumeric);
             AddRow(layout, Language.getString("settingsColumnTypeWidth"), typeColumnWidthNumeric);
             AddRow(layout, Language.getString("settingsColumnSizeWidth"), sizeColumnWidthNumeric);
@@ -616,6 +629,8 @@ namespace DotNetCommander
             SelectLanguageOption(Properties.Settings.Default.UiLanguage);
             SelectFontComboValue(browserFontComboBox, Properties.Settings.Default.BrowserFontName, "Microsoft Sans Serif");
             browserFontSizeNumeric.Value = (decimal)Math.Max(8f, Properties.Settings.Default.BrowserFontSize);
+            SelectRowColorMode(Properties.Settings.Default.BrowserRowColorMode);
+
             SelectFontComboValue(dialogFontComboBox, Properties.Settings.Default.DialogFontName, "Segoe UI");
             dialogFontSizeNumeric.Value = (decimal)Math.Max(8f, Properties.Settings.Default.DialogFontSize);
             dialogCaptionFontSizeNumeric.Value = (decimal)Math.Max(8f, Properties.Settings.Default.DialogCaptionFontSize);
@@ -682,6 +697,9 @@ namespace DotNetCommander
             Properties.Settings.Default.UiLanguage = (uiLanguageComboBox.SelectedItem as LanguageOption)?.Value ?? "auto";
             Properties.Settings.Default.BrowserFontName = browserFontComboBox.SelectedItem?.ToString() ?? "Microsoft Sans Serif";
             Properties.Settings.Default.BrowserFontSize = (float)browserFontSizeNumeric.Value;
+            Properties.Settings.Default.BrowserRowColorMode =
+                (browserRowColorModeComboBox.SelectedItem as RowColorModeOption)?.Value ?? BrowserRowColoring.None;
+
             Properties.Settings.Default.DialogFontName = dialogFontComboBox.SelectedItem?.ToString() ?? "Segoe UI";
             Properties.Settings.Default.DialogFontSize = (float)dialogFontSizeNumeric.Value;
             Properties.Settings.Default.DialogCaptionFontSize = (float)dialogCaptionFontSizeNumeric.Value;
@@ -894,6 +912,33 @@ namespace DotNetCommander
             });
 
             return panel;
+        }
+
+        private void SelectRowColorMode(string value)
+        {
+            RowColorModeOption selectedOption = browserRowColorModeComboBox.Items
+                .OfType<RowColorModeOption>()
+                .FirstOrDefault(option => string.Equals(option.Value, value, StringComparison.OrdinalIgnoreCase))
+                ?? browserRowColorModeComboBox.Items.OfType<RowColorModeOption>().FirstOrDefault();
+
+            browserRowColorModeComboBox.SelectedItem = selectedOption;
+        }
+
+        private sealed class RowColorModeOption
+        {
+            public RowColorModeOption(string value, string displayName)
+            {
+                Value = value;
+                DisplayName = displayName;
+            }
+
+            public string Value { get; }
+            public string DisplayName { get; }
+
+            public override string ToString()
+            {
+                return DisplayName;
+            }
         }
 
         private sealed class LanguageOption

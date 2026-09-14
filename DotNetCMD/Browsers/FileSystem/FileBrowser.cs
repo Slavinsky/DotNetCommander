@@ -579,6 +579,8 @@ namespace DotNetCommander
       browserView.ShowGroups = browserView.View == System.Windows.Forms.View.Details &&
         Properties.Settings.Default.FileBrowserDirectoriesFirst;
       ApplySorting();
+      BrowserRowColoring.Apply(browserView, Properties.Settings.Default.BrowserRowColorMode);
+
     }
 
     /**
@@ -687,6 +689,8 @@ namespace DotNetCommander
           {
             browserView.Items.AddRange(pendingItems.ToArray());
           }
+          BrowserRowColoring.Apply(browserView, Properties.Settings.Default.BrowserRowColorMode);
+
         }
         finally
         {

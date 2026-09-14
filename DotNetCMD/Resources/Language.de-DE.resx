@@ -616,6 +616,19 @@
   <data name="settingsDirectoriesFirst" xml:space="preserve">
     <value>Ordner beim Sortieren vor Dateien anzeigen (kann große Listen verlangsamen)</value>
   </data>
+  <data name="settingsBrowserRowColorMode" xml:space="preserve">
+    <value>Zeilenfarbmodus</value>
+  </data>
+  <data name="settingsBrowserRowColorNone" xml:space="preserve">
+    <value>Keine</value>
+  </data>
+  <data name="settingsBrowserRowColorStriped" xml:space="preserve">
+    <value>Abwechselnde Zeilenfarben</value>
+  </data>
+  <data name="settingsBrowserRowColorByExtension" xml:space="preserve">
+    <value>Zeilen nach Dateityp färben</value>
+  </data>
+
   <data name="settingsLanguage" xml:space="preserve">
     <value>Sprache der Benutzeroberfläche</value>
   </data>

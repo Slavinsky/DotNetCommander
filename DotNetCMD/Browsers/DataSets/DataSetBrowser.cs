@@ -262,6 +262,7 @@ namespace DotNetCommander
             grid.ColumnHeadersDefaultCellStyle.Font = browserFont;
             grid.ColumnHeadersHeight = Math.Max(24, browserFont.Height + 8);
             grid.RowTemplate.Height = Math.Max(22, browserFont.Height + 8);
+            BrowserRowColoring.Apply(grid, Properties.Settings.Default.BrowserRowColorMode);
         }
 
         private void ActivateSelectedItem()
@@ -319,6 +320,7 @@ namespace DotNetCommander
             else if (internalPath.StartsWith("relation/", StringComparison.OrdinalIgnoreCase))
                 RenderRelationDetails();
 
+            BrowserRowColoring.Apply(grid, Properties.Settings.Default.BrowserRowColorMode);
             addressBar.Path = DisplayLocation;
             grid.ResumeLayout();
             RaiseLocationChanged(DisplayLocation);

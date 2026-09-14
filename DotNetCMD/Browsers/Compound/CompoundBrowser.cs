@@ -100,6 +100,7 @@ namespace DotNetCommander
             compoundView.Columns[3].Width = Math.Max(60, widths.SizeWidth);
             compoundView.Columns[4].Width = Math.Max(80, widths.DateWidth);
             compoundView.View = view == System.Windows.Forms.View.Details ? view : System.Windows.Forms.View.Details;
+            BrowserRowColoring.Apply(compoundView, Properties.Settings.Default.BrowserRowColorMode);
         }
 
         public async Task<bool> OpenCompoundAsync(string path, bool reportFailure = true)
@@ -320,6 +321,8 @@ namespace DotNetCommander
             {
                 compoundView.EndUpdate();
             }
+            BrowserRowColoring.Apply(compoundView, Properties.Settings.Default.BrowserRowColorMode);
+
 
             addressBar.Path = DisplayLocation;
             RaiseLocationChanged(DisplayLocation);

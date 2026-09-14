@@ -783,6 +783,19 @@
   <data name="settingsDirectoriesFirst" xml:space="preserve">
     <value>Keep folders before files when sorting (may slow down large lists)</value>
   </data>
+  <data name="settingsBrowserRowColorMode" xml:space="preserve">
+    <value>Row color mode</value>
+  </data>
+  <data name="settingsBrowserRowColorNone" xml:space="preserve">
+    <value>None</value>
+  </data>
+  <data name="settingsBrowserRowColorStriped" xml:space="preserve">
+    <value>Alternating row colors</value>
+  </data>
+  <data name="settingsBrowserRowColorByExtension" xml:space="preserve">
+    <value>Color rows by file type</value>
+  </data>
+
   <data name="settingsLanguage" xml:space="preserve">
     <value>Interface language</value>
   </data>

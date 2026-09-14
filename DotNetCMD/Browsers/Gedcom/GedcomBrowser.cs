@@ -269,7 +269,10 @@ namespace DotNetCommander
             browserView.View = view;
             if (catalog != null)
                 RenderCurrentLocation();
+            BrowserRowColoring.Apply(browserView, Properties.Settings.Default.BrowserRowColorMode);
         }
+
+
 
         private void ActivateSelectedItem()
         {
@@ -336,6 +339,8 @@ namespace DotNetCommander
             {
                 browserView.EndUpdate();
             }
+            BrowserRowColoring.Apply(browserView, Properties.Settings.Default.BrowserRowColorMode);
+
 
             addressBar.Path = DisplayLocation;
             RaiseLocationChanged(DisplayLocation);

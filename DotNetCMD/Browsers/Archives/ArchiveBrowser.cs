@@ -246,6 +246,8 @@ namespace DotNetCommander
             archiveView.View = view;
             UpdateItemTextForView();
             QueueIconLoading();
+            BrowserRowColoring.Apply(archiveView, Properties.Settings.Default.BrowserRowColorMode);
+
         }
 
         private async Task RefreshAsync()
@@ -337,6 +339,8 @@ namespace DotNetCommander
         {
             archiveView.ListViewItemSorter = new ArchiveListViewItemComparer(sortColumn, sortAscending);
             archiveView.Sort();
+            BrowserRowColoring.Apply(archiveView, Properties.Settings.Default.BrowserRowColorMode);
+
         }
 
         private void RenderCurrentPath(string preferredEntry = null)

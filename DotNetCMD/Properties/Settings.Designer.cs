@@ -166,6 +166,18 @@ namespace DotNetCommander.Properties {
                 this["BrowserFontSize"] = value;
             }
         }
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("None")]
+        public string BrowserRowColorMode {
+            get {
+                return ((string)(this["BrowserRowColorMode"]));
+            }
+            set {
+                this["BrowserRowColorMode"] = value;
+            }
+        }
+
 
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
