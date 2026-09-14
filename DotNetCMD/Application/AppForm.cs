@@ -170,7 +170,7 @@ namespace DotNetCommander
             parent.DropDownItems.Clear();
             parent.DropDownItems.Add(CreateMenuItem("copy", Button_Copy));
             parent.DropDownItems.Add(CreateMenuItem("cut", Edit_Cut));
-            parent.DropDownItems.Add(CreateMenuItem("past", Edit_Paste));
+            parent.DropDownItems.Add(CreateMenuItem("paste", Edit_Paste));
             parent.DropDownItems.Add(new ToolStripSeparator());
             parent.DropDownItems.Add(CreateMenuItem("rename", Edit_Rename));
         }
@@ -536,7 +536,7 @@ namespace DotNetCommander
         }
 
     /*
-     * Comand Buttons (e.g.: Copy, Past)
+     * Comand Buttons (e.g.: Copy, Paste)
      */
     private void Button_View(object sender, EventArgs e)
     {

@@ -168,7 +168,7 @@
   <data name="newFolderNameInvalid" xml:space="preserve">
     <value>Назва папки містить неприпустимі символи або непідтримувані сегменти шляху.</value>
   </data>
-  <data name="past" xml:space="preserve">
+  <data name="paste" xml:space="preserve">
     <value>Вставити</value>
   </data>
   <data name="qDeleteItem" xml:space="preserve">
@@ -615,6 +615,18 @@
   </data>
   <data name="settingsDirectoriesFirst" xml:space="preserve">
     <value>Під час сортування завжди показувати каталоги перед файлами (може сповільнити великі списки)</value>
+  </data>
+  <data name="settingsBrowserRowColorMode" xml:space="preserve">
+    <value>Режим кольорів рядків</value>
+  </data>
+  <data name="settingsBrowserRowColorNone" xml:space="preserve">
+    <value>Немає</value>
+  </data>
+  <data name="settingsBrowserRowColorStriped" xml:space="preserve">
+    <value>Чергування кольорів рядків</value>
+  </data>
+  <data name="settingsBrowserRowColorByExtension" xml:space="preserve">
+    <value>Фарбувати рядки за типом файла</value>
   </data>
   <data name="settingsLanguage" xml:space="preserve">
     <value>Мова інтерфейсу</value>

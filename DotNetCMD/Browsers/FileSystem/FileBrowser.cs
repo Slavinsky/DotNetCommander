@@ -179,8 +179,8 @@ namespace DotNetCommander
       browserView.ShowGroups = false;
 
       // Mindestens 1 Item muss im ContextMenü vorhanden sein
-      ToolStripMenuItem toolItem = new ToolStripMenuItem(Language.getString("past"));
-      toolItem.Tag = "past";
+      ToolStripMenuItem toolItem = new ToolStripMenuItem(Language.getString("paste"));
+      toolItem.Tag = "paste";
       contextMenu.Items.Add(toolItem);
 
 
@@ -579,6 +579,8 @@ namespace DotNetCommander
       browserView.ShowGroups = browserView.View == System.Windows.Forms.View.Details &&
         Properties.Settings.Default.FileBrowserDirectoriesFirst;
       ApplySorting();
+      BrowserRowColoring.Apply(browserView, Properties.Settings.Default.BrowserRowColorMode);
+
     }
 
     /**
@@ -687,6 +689,8 @@ namespace DotNetCommander
           {
             browserView.Items.AddRange(pendingItems.ToArray());
           }
+          BrowserRowColoring.Apply(browserView, Properties.Settings.Default.BrowserRowColorMode);
+
         }
         finally
         {
@@ -921,7 +925,7 @@ editBox.Focus();*/
         }
         Clipboard.SetFileDropList(paths);
       }
-      else if (tag == "past") {
+      else if (tag == "paste") {
         StringCollection paths = Clipboard.GetFileDropList();
         CopyWindow = new FormCopy(paths, CurrentPath);
         CopyWindow.ActionComplete += new FormCopy.ActionCompleteHandler(this.CopyComplete);
@@ -956,8 +960,8 @@ editBox.Focus();*/
         contextMenu.Items.Add(toolItem);
       }
 
-      toolItem = new ToolStripMenuItem(Language.getString("past"));
-      toolItem.Tag = "past";
+      toolItem = new ToolStripMenuItem(Language.getString("paste"));
+      toolItem.Tag = "paste";
       contextMenu.Items.Add(toolItem);
 
       if (browserView.SelectedItems.Count > 0) {

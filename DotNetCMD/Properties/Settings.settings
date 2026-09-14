@@ -38,6 +38,9 @@
     <Setting Name="BrowserFontSize" Type="System.Single" Scope="User">
       <Value Profile="(Default)">11.25</Value>
     </Setting>
+    <Setting Name="BrowserRowColorMode" Type="System.String" Scope="User">
+      <Value Profile="(Default)">None</Value>
+    </Setting>
     <Setting Name="DialogFontName" Type="System.String" Scope="User">
       <Value Profile="(Default)">Segoe UI</Value>
     </Setting>

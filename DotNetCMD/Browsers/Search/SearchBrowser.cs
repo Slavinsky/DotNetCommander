@@ -14,7 +14,7 @@ namespace DotNetCommander
     {
         private readonly SearchService searchService = new SearchService();
         private readonly AddressBar addressBar;
-        private readonly ListView resultView;
+        private readonly BufferedListView resultView;
         private readonly Label statusLabel;
         private readonly Button cancelButton;
         private readonly List<BrowserItemInfo> visibleItems = new List<BrowserItemInfo>();
@@ -35,7 +35,7 @@ namespace DotNetCommander
             addressBar.ParentClick += (_, __) => LeaveRequested?.Invoke(this, EventArgs.Empty);
             addressBar.RefreshClick += (_, __) => RefreshPanel();
 
-            resultView = new ListView
+            resultView = new BufferedListView
             {
                 AllowColumnReorder = true,
                 Dock = DockStyle.Fill,
@@ -128,6 +128,8 @@ namespace DotNetCommander
             resultView.Columns[4].Width = Math.Max(70, widths.SizeWidth);
             resultView.Columns[5].Width = Math.Max(90, widths.DateWidth);
             resultView.View = view == System.Windows.Forms.View.Details ? view : System.Windows.Forms.View.Details;
+            BrowserRowColoring.Apply(resultView, Properties.Settings.Default.BrowserRowColorMode);
+
         }
 
         public async Task StartSearchAsync(SearchQuery query)
@@ -284,6 +286,8 @@ namespace DotNetCommander
             finally
             {
                 resultView.EndUpdate();
+                BrowserRowColoring.Apply(resultView, Properties.Settings.Default.BrowserRowColorMode);
+
             }
         }
 

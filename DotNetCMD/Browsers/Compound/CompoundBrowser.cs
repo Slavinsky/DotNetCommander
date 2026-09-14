@@ -14,7 +14,7 @@ namespace DotNetCommander
     {
         private readonly CompoundFileCatalogService catalogService = new CompoundFileCatalogService();
         private readonly AddressBar addressBar;
-        private readonly ListView compoundView;
+        private readonly BufferedListView compoundView;
         private readonly Label loadingLabel;
         private readonly List<CompoundCatalogEntry> catalog = new List<CompoundCatalogEntry>();
         private readonly List<BrowserItemInfo> visibleItems = new List<BrowserItemInfo>();
@@ -30,7 +30,7 @@ namespace DotNetCommander
             addressBar.RefreshClick += (_, __) => RefreshPanel();
             addressBar.ButtonClick += AddressBar_ButtonClick;
 
-            compoundView = new ListView
+            compoundView = new BufferedListView
             {
                 AllowColumnReorder = true,
                 Dock = DockStyle.Fill,
@@ -100,6 +100,7 @@ namespace DotNetCommander
             compoundView.Columns[3].Width = Math.Max(60, widths.SizeWidth);
             compoundView.Columns[4].Width = Math.Max(80, widths.DateWidth);
             compoundView.View = view == System.Windows.Forms.View.Details ? view : System.Windows.Forms.View.Details;
+            BrowserRowColoring.Apply(compoundView, Properties.Settings.Default.BrowserRowColorMode);
         }
 
         public async Task<bool> OpenCompoundAsync(string path, bool reportFailure = true)
@@ -320,6 +321,8 @@ namespace DotNetCommander
             {
                 compoundView.EndUpdate();
             }
+            BrowserRowColoring.Apply(compoundView, Properties.Settings.Default.BrowserRowColorMode);
+
 
             addressBar.Path = DisplayLocation;
             RaiseLocationChanged(DisplayLocation);

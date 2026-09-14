@@ -216,8 +216,8 @@
   <data name="editorNotSupported" xml:space="preserve">
     <value>No built-in editor is registered for this file type.</value>
   </data>
-  <data name="past" xml:space="preserve">
-    <value>Past</value>
+  <data name="paste" xml:space="preserve">
+    <value>Paste</value>
   </data>
   <data name="qDeleteItem" xml:space="preserve">
     <value>Are you sure you want to delete this item?</value>
@@ -783,6 +783,19 @@
   <data name="settingsDirectoriesFirst" xml:space="preserve">
     <value>Keep folders before files when sorting (may slow down large lists)</value>
   </data>
+  <data name="settingsBrowserRowColorMode" xml:space="preserve">
+    <value>Row color mode</value>
+  </data>
+  <data name="settingsBrowserRowColorNone" xml:space="preserve">
+    <value>None</value>
+  </data>
+  <data name="settingsBrowserRowColorStriped" xml:space="preserve">
+    <value>Alternating row colors</value>
+  </data>
+  <data name="settingsBrowserRowColorByExtension" xml:space="preserve">
+    <value>Color rows by file type</value>
+  </data>
+
   <data name="settingsLanguage" xml:space="preserve">
     <value>Interface language</value>
   </data>

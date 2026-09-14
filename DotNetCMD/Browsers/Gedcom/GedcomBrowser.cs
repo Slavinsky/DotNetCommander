@@ -22,7 +22,7 @@ namespace DotNetCommander
         private const string TagPathPrefix = "tag/";
 
         private readonly AddressBar addressBar;
-        private readonly ListView browserView;
+        private readonly BufferedListView browserView;
         private readonly Label loadingLabel;
         private readonly ImageList sexIconsSmall;
         private readonly ImageList sexIconsLarge;
@@ -51,7 +51,7 @@ namespace DotNetCommander
             sexIconsSmall = CreateSexImageList(16);
             sexIconsLarge = CreateSexImageList(32);
 
-            browserView = new ListView
+            browserView = new BufferedListView
             {
                 AllowColumnReorder = true,
                 Dock = DockStyle.Fill,
@@ -269,7 +269,10 @@ namespace DotNetCommander
             browserView.View = view;
             if (catalog != null)
                 RenderCurrentLocation();
+            BrowserRowColoring.Apply(browserView, Properties.Settings.Default.BrowserRowColorMode);
         }
+
+
 
         private void ActivateSelectedItem()
         {
@@ -336,6 +339,8 @@ namespace DotNetCommander
             {
                 browserView.EndUpdate();
             }
+            BrowserRowColoring.Apply(browserView, Properties.Settings.Default.BrowserRowColorMode);
+
 
             addressBar.Path = DisplayLocation;
             RaiseLocationChanged(DisplayLocation);
