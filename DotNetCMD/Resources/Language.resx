@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -483,6 +483,16 @@
   <data name="helpRefreshActivePanel" xml:space="preserve">
     <value>Refresh active panel</value>
   </data>
+  <data name="helpInvertPhysicalSelection" xml:space="preserve"><value>Invert selection in the physical file panel</value></data>
+  <data name="helpSelectByMask" xml:space="preserve"><value>Select files and folders by name mask</value></data>
+  <data name="helpUnselectByMask" xml:space="preserve"><value>Unselect files and folders by name mask</value></data>
+  <data name="selectMaskTitle" xml:space="preserve"><value>Select by name mask</value></data>
+  <data name="unselectMaskTitle" xml:space="preserve"><value>Unselect by name mask</value></data>
+  <data name="selectionMaskPrompt" xml:space="preserve"><value>Enter a filename mask. Use * for any number of characters and ? for one character.</value></data>
+  <data name="selectMaskApply" xml:space="preserve"><value>Select matches</value></data>
+  <data name="unselectMaskApply" xml:space="preserve"><value>Unselect matches</value></data>
+  <data name="copyPathsAsText" xml:space="preserve"><value>Copy full paths as text</value></data>
+  <data name="copyPathsClipboardFailed" xml:space="preserve"><value>Could not copy the selected paths to the text clipboard.</value></data>
   <data name="helpOpenArchiveBySignature" xml:space="preserve">
     <value>Open an archive, CFBF structured storage, GEDCOM panel, or try DataSet XML</value>
   </data>
@@ -491,6 +501,12 @@
   </data>
   <data name="helpNavigateParent" xml:space="preserve">
     <value>Go to the parent directory</value>
+  </data>
+  <data name="helpGoToLocation" xml:space="preserve">
+    <value>Go to the result location (search panel)</value>
+  </data>
+  <data name="helpFeedToPanel" xml:space="preserve">
+    <value>Feed search results to the passive panel (search panel)</value>
   </data>
   <data name="helpCloseApplication" xml:space="preserve">
     <value>Close application</value>
@@ -1072,11 +1088,17 @@ Retry the item, ignore it and continue, or abort the operation?</value></data>
   <data name="searchCompletedFormat" xml:space="preserve"><value>Found: {0}</value></data>
   <data name="searchCancelled" xml:space="preserve"><value>Search cancelled.</value></data>
   <data name="searchFailed" xml:space="preserve"><value>Search failed.</value></data>
+  <data name="searchFeedToPanel" xml:space="preserve"><value>Feed to passive panel</value></data>
+  <data name="searchFeedStatusFormat" xml:space="preserve"><value>{0} items in the fed list</value></data>
   <data name="searchInvalidScope" xml:space="preserve"><value>The search directory does not exist.</value></data>
   <data name="searchInvalidRegex" xml:space="preserve"><value>Invalid regular expression</value></data>
   <data name="compoundReading" xml:space="preserve"><value>Reading compound file structure...</value></data>
   <data name="compoundOpeningStream" xml:space="preserve"><value>Opening compound stream...</value></data>
   <data name="compoundOpenFailed" xml:space="preserve"><value>Could not open the compound file.</value></data>
+  <data name="compoundOpenExternally" xml:space="preserve"><value>Open externally...</value></data>
+  <data name="compoundExternalOpenTitle" xml:space="preserve"><value>Open externally</value></data>
+  <data name="compoundExternalOpenConfirm" xml:space="preserve"><value>Open a copy of this embedded stream outside the container? Only continue if you trust the source.</value></data>
+  <data name="compoundEmbeddedEnterBlocked" xml:space="preserve"><value>This embedded object is treated as untrusted and was not opened with the system. Use "Open externally..." from the context menu if you trust the source.</value></data>
   <data name="compoundStorage" xml:space="preserve"><value>Storage</value></data>
   <data name="compoundStream" xml:space="preserve"><value>Stream</value></data>
   <data name="compoundCopyRequiresFilePanel" xml:space="preserve"><value>Compound streams can only be copied to a physical file panel.</value></data>
@@ -1305,4 +1327,49 @@ Esc - Close editor</value></data>
   <data name="semanticSearchWorking" xml:space="preserve"><value>Working...</value></data>
   <data name="semanticSearchFailed" xml:space="preserve"><value>Semantic search failed.</value></data>
   <data name="semanticSearchResultsFormat" xml:space="preserve"><value>Results: {0}</value></data>
+  <data name="searchSizeFilter" xml:space="preserve"><value>Size (min..max)</value></data>
+  <data name="searchSizeHint" xml:space="preserve"><value>e.g. 512, 512k, 2M</value></data>
+  <data name="searchDateFrom" xml:space="preserve"><value>Modified from</value></data>
+  <data name="searchDateTo" xml:space="preserve"><value>Modified to</value></data>
+  <data name="searchRecent" xml:space="preserve"><value>Recent:</value></data>
+  <data name="searchRecentClear" xml:space="preserve"><value>Clear</value></data>
+  <data name="searchInvalidSize" xml:space="preserve"><value>Invalid size value: {0}. Allowed: bytes, 512k, 2M, 1G.</value></data>
+  <data name="searchInvalidSizeRange" xml:space="preserve"><value>Invalid size range: the minimum is greater than the maximum.</value></data>
+  <data name="searchInvalidDateRange" xml:space="preserve"><value>Invalid date range: the start date is after the end date.</value></data>
+  <data name="searchGoToLocation" xml:space="preserve"><value>Go to location</value></data>
+  <data name="searchGoToLocationMissing" xml:space="preserve"><value>The item was not found in the file system: {0}</value></data>
+  <data name="copyNamesAsText" xml:space="preserve"><value>Copy names as text</value></data>
+  <data name="copyNamesClipboardFailed" xml:space="preserve"><value>Could not copy the selected names to the text clipboard.</value></data>
+  <data name="copyRelativePathsAsText" xml:space="preserve"><value>Copy relative paths as text</value></data>
+  <data name="copyRelativePathsClipboardFailed" xml:space="preserve"><value>Could not copy the selected relative paths to the text clipboard.</value></data>
+  <data name="browseMetadataPartialTitle" xml:space="preserve"><value>Partial directory listing</value></data>
+  <data name="browseMetadataPartialFormat" xml:space="preserve"><value>The directory was opened, but metadata could not be read for {0} item(s). Items that could not be safely classified were omitted; unavailable size or time values are blank.</value></data>
+  <data name="aiOrganizerImageEvidenceFormat" xml:space="preserve"><value>Model's image observation (check the image): “{0}”</value></data>
+  <data name="aiOrganizerVisionImages" xml:space="preserve"><value>Send selected images (up to 12)</value></data>
+  <data name="aiOrganizerVisionChooseImages" xml:space="preserve"><value>Choose images...</value></data>
+  <data name="aiOrganizerVisionSelectedCountFormat" xml:space="preserve"><value>Selected images: {0}</value></data>
+  <data name="aiOrganizerVisionImageDialogTitle" xml:space="preserve"><value>Choose images for AI analysis</value></data>
+  <data name="aiOrganizerVisionImageDialogFilter" xml:space="preserve"><value>Images|*.jpg;*.jpeg;*.png;*.bmp;*.gif;*.tif;*.tiff|All files|*.*</value></data>
+  <data name="aiOrganizerVisionImagesOutsideFolderFormat" xml:space="preserve"><value>Images outside the current folder or unsupported files were ignored: {0}</value></data>
+  <data name="aiOrganizerVisionTooManySelectedFormat" xml:space="preserve"><value>Select no more than {0} images.</value></data>
+  <data name="aiOrganizerVisionConfirmSendFormat" xml:space="preserve"><value>Send these images to model "{0}" at "{1}"? Only resized copies will be sent; originals are unchanged.
+
+{2}</value></data>
+  <data name="aiOrganizerVisionModelRequired" xml:space="preserve"><value>Select a model with the vision capability before sending images.</value></data>
+  <data name="aiOrganizerVisionPreviewTitle" xml:space="preserve"><value>Review images prepared for the model</value></data>
+  <data name="aiOrganizerVisionPreviewPreparing" xml:space="preserve"><value>Preparing resized JPEG previews...</value></data>
+  <data name="aiOrganizerVisionPreviewContinue" xml:space="preserve"><value>Continue</value></data>
+  <data name="aiOrganizerVisionPreviewSkippedFormat" xml:space="preserve"><value>Ready: {0}; skipped: {1}</value></data>
+  <data name="aiOrganizerVisionPreviewReadyFormat" xml:space="preserve"><value>Ready to send: {0} resized JPEG copies</value></data>
+  <data name="aiOrganizerVisionPreviewFailed" xml:space="preserve"><value>Could not prepare image previews.</value></data>
+  <data name="aiOrganizerVisionNoPreviewImages" xml:space="preserve"><value>No selected image could be prepared for upload.</value></data>
+  <data name="aiOrganizerViewImageEvidence" xml:space="preserve"><value>View evidence image</value></data>
+  <data name="aiOrganizerImageEvidenceTitleFormat" xml:space="preserve"><value>Prepared evidence image — {0}</value></data>
+  <data name="aiOrganizerImageEvidenceHelpTitle" xml:space="preserve"><value>Image evidence preview</value></data>
+  <data name="aiOrganizerImageEvidenceHelpSubtitle" xml:space="preserve"><value>Inspect the resized JPEG copy prepared for the organizer request.</value></data>
+  <data name="aiOrganizerImageEvidenceHelpClose" xml:space="preserve"><value>Close the image preview</value></data>
+  <data name="aiOrganizerImageMetadataFormat" xml:space="preserve"><value>Original: {0} × {1}, {2:N0} bytes   →   Upload JPEG: {3} × {4}, {5:N0} bytes</value></data>
+  <data name="aiOrganizerImageSourcePreview" xml:space="preserve"><value>Source preview</value></data>
+  <data name="aiOrganizerImageUploadPreview" xml:space="preserve"><value>JPEG sent to model</value></data>
+  <data name="aiOrganizerImagesIncludedFormat" xml:space="preserve"><value>Images sent to the model: {0}; skipped by safety limits or unreadable: {1}</value></data>
 </root>

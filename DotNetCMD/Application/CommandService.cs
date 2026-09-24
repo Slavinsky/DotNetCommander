@@ -29,6 +29,73 @@ namespace DotNetCommander
             Clipboard.SetFileDropList(paths);
         }
 
+        public void CopySelectionPathsAsText(FileBrowser source, IWin32Window owner)
+        {
+            if (source == null || source.IsVirtualMode)
+                return;
+
+            CopySelectionText(source, owner,
+                item => item.NativePath ?? item.Location,
+                "copyPathsClipboardFailed",
+                "CommandService.CopySelectionPathsAsText");
+        }
+
+        public void CopySelectionNamesAsText(FileBrowser source, IWin32Window owner)
+        {
+            if (source == null || source.IsVirtualMode)
+                return;
+
+            CopySelectionText(source, owner,
+                item => item.Name,
+                "copyNamesClipboardFailed",
+                "CommandService.CopySelectionNamesAsText");
+        }
+
+        public void CopySelectionRelativePathsAsText(FileBrowser source, IWin32Window owner)
+        {
+            if (source == null || source.IsVirtualMode || string.IsNullOrWhiteSpace(source.CurrentPath))
+                return;
+
+            CopySelectionText(source, owner,
+                item =>
+                {
+                    string path = item.NativePath ?? item.Location;
+                    return string.IsNullOrWhiteSpace(path) ? null : Path.GetRelativePath(source.CurrentPath, path);
+                },
+                "copyRelativePathsClipboardFailed",
+                "CommandService.CopySelectionRelativePathsAsText");
+        }
+
+        private static void CopySelectionText(
+            FileBrowser source,
+            IWin32Window owner,
+            Func<BrowserItemInfo, string> getText,
+            string errorResourceKey,
+            string logOperation)
+        {
+            string[] lines = source.SelectedItems
+                .Select(getText)
+                .Where(line => !string.IsNullOrWhiteSpace(line))
+                .ToArray();
+            if (lines.Length == 0)
+                return;
+
+            try
+            {
+                Clipboard.SetText(string.Join(Environment.NewLine, lines));
+            }
+            catch (Exception ex)
+            {
+                LogService.LogException(logOperation, ex);
+                MessageBox.Show(
+                    owner,
+                    Language.getString(errorResourceKey) + Environment.NewLine + ex.Message,
+                    Language.getString("error"),
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error);
+            }
+        }
+
         public void PasteFromClipboard(FileBrowser destination, Action<int> onComplete, IWin32Window owner)
         {
             if (destination?.IsVirtualMode == true)

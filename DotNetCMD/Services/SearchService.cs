@@ -83,10 +83,15 @@ namespace DotNetCommander
                         string name = Path.GetFileName(entryPath);
 
                         if (MatchesName(name, pattern, query.UseRegex, nameRegex) &&
-                            (!isDirectory || query.IncludeDirectories) &&
-                            (isDirectory || MatchesContent(entryPath, query.ContentText, cancellationToken)))
+                            (!isDirectory || query.IncludeDirectories))
                         {
-                            results.Add(CreateResult(entryPath, name, isDirectory));
+                            BrowserItemInfo result = CreateResult(entryPath, name, isDirectory);
+                            if (MatchesSize(query, isDirectory, result.Size) &&
+                                MatchesDate(query, result.Modified) &&
+                                (isDirectory || MatchesContent(entryPath, query.ContentText, cancellationToken)))
+                            {
+                                results.Add(result);
+                            }
                         }
 
                         if (isDirectory && query.Recursive && !isReparsePoint &&
@@ -119,6 +124,42 @@ namespace DotNetCommander
             string[] masks = pattern.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
             return masks.Length == 0 || Array.Exists(masks, mask =>
                 FileSystemName.MatchesSimpleExpression(mask.Trim(), name, ignoreCase: true));
+        }
+
+        private static bool MatchesSize(SearchQuery query, bool isDirectory, long? size)
+        {
+            bool hasMin = query.MinSizeBytes.HasValue;
+            bool hasMax = query.MaxSizeBytes.HasValue;
+            if (!hasMin && !hasMax)
+                return true;
+
+            if (isDirectory || !size.HasValue)
+                return false;
+
+            if (hasMin && size.Value < query.MinSizeBytes.Value)
+                return false;
+
+            if (hasMax && size.Value > query.MaxSizeBytes.Value)
+                return false;
+
+            return true;
+        }
+
+        private static bool MatchesDate(SearchQuery query, DateTime? modified)
+        {
+            if (!query.ModifiedFrom.HasValue && !query.ModifiedTo.HasValue)
+                return true;
+
+            if (!modified.HasValue)
+                return false;
+
+            if (query.ModifiedFrom.HasValue && modified.Value < query.ModifiedFrom.Value)
+                return false;
+
+            if (query.ModifiedTo.HasValue && modified.Value > query.ModifiedTo.Value)
+                return false;
+
+            return true;
         }
 
         private static bool MatchesContent(string path, string searchText, CancellationToken cancellationToken)

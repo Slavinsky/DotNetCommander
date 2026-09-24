@@ -55,7 +55,7 @@ namespace DotNetCommander
             {
                 uint sizeFlag = largeIcon ? SHGFI_LARGEICON : SHGFI_SMALLICON;
                 uint fileAttributes = isDirectory ? FILE_ATTRIBUTE_DIRECTORY : FILE_ATTRIBUTE_NORMAL;
-                string iconLookupTarget = GetIconLookupTarget(fileName, isDirectory);
+                string iconLookupTarget = LongPathPolicy.Apply(GetIconLookupTarget(fileName, isDirectory));
                 SHGetFileInfo(
                     iconLookupTarget,
                     fileAttributes,
@@ -110,7 +110,7 @@ namespace DotNetCommander
             Win32.SHFILEINFO shinfo = new Win32.SHFILEINFO();
       try {
         uint sizeFlag = largeIcon ? SHGFI_LARGEICON : SHGFI_SMALLICON;
-        hImgSmall = Win32.SHGetFileInfo(FileName, 0, ref shinfo, (uint)Marshal.SizeOf(shinfo), Win32.SHGFI_ICON | sizeFlag);
+        hImgSmall = Win32.SHGetFileInfo(LongPathPolicy.Apply(FileName), 0, ref shinfo, (uint)Marshal.SizeOf(shinfo), Win32.SHGFI_ICON | sizeFlag);
       }
       catch (Exception ex) {
         LogService.LogException("Win32.FindIcon.SHGetFileInfo", ex);

@@ -1,3 +1,5 @@
+using System;
+
 namespace DotNetCommander
 {
     internal sealed class SearchQuery
@@ -9,6 +11,10 @@ namespace DotNetCommander
         public bool IncludeDirectories { get; set; } = true;
         public bool UseRegex { get; set; }
         public int MaxDepth { get; set; } = -1;
+        public long? MinSizeBytes { get; set; }
+        public long? MaxSizeBytes { get; set; }
+        public DateTime? ModifiedFrom { get; set; }
+        public DateTime? ModifiedTo { get; set; }
 
         public SearchQuery Clone()
         {

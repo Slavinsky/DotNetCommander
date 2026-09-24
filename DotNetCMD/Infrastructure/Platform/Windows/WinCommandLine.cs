@@ -1,4 +1,5 @@
 using System;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 
@@ -32,7 +33,15 @@ namespace DotNetCommander
             startInfo.ArgumentList.Add(keepConsoleOpen ? "/K" : "/C");
             startInfo.ArgumentList.Add(command);
 
-            Process.Start(startInfo);
+            try
+            {
+                Process.Start(startInfo);
+            }
+            catch (Win32Exception) when (LongPathPolicy.NeedsExtendedPrefix(resolvedWorkingDirectory))
+            {
+                startInfo.WorkingDirectory = LongPathPolicy.Apply(resolvedWorkingDirectory);
+                Process.Start(startInfo);
+            }
         }
     }
 }

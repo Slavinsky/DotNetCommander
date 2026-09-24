@@ -48,6 +48,8 @@ namespace DotNetCommander
             compoundView.ItemActivate += (_, __) => ActivateSelectedItem();
             compoundView.SelectedIndexChanged += (_, __) => RaiseSelectionChanged();
             compoundView.KeyDown += CompoundView_KeyDown;
+            compoundView.MouseDown += CompoundView_MouseDown;
+            compoundView.ContextMenuStrip = CreateContextMenu();
 
             loadingLabel = new Label
             {
@@ -242,32 +244,105 @@ namespace DotNetCommander
                 NavigateParent();
             else if (selected.IsStorage)
                 Navigate(selected.FullPath);
+            else if (selected.IsEmbedded)
+            {
+                MessageBox.Show(
+                    FindForm(),
+                    Language.getString("compoundEmbeddedEnterBlocked"),
+                    Language.getString("compoundExternalOpenTitle"),
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Information);
+            }
             else
             {
-                try
-                {
-                    SetLoading(true, Language.getString("compoundOpeningStream"));
-                    operationCancellation ??= new CancellationTokenSource();
-                    string materialized = await catalogService.MaterializeStreamAsync(
-                        CompoundPath,
-                        selected.FullPath,
-                        operationCancellation.Token);
-                    if (!string.IsNullOrWhiteSpace(materialized))
-                        WinContextMenu.Open(materialized);
-                }
-                catch (OperationCanceledException)
-                {
-                }
-                catch (Exception ex)
-                {
-                    LogService.LogException("CompoundBrowser.ActivateSelectedItem", ex);
-                    MessageBox.Show(FindForm(), ex.Message, Language.getString("error"), MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
-                finally
-                {
-                    SetLoading(false, string.Empty);
-                }
+                await MaterializeAndOpenAsync(selected);
             }
+        }
+
+        private async Task MaterializeAndOpenAsync(CompoundViewItem stream)
+        {
+            try
+            {
+                SetLoading(true, Language.getString("compoundOpeningStream"));
+                operationCancellation ??= new CancellationTokenSource();
+                string materialized = await catalogService.MaterializeStreamAsync(
+                    CompoundPath,
+                    stream.FullPath,
+                    operationCancellation.Token);
+                if (!string.IsNullOrWhiteSpace(materialized))
+                    WinContextMenu.Open(materialized);
+            }
+            catch (OperationCanceledException)
+            {
+            }
+            catch (Exception ex)
+            {
+                LogService.LogException("CompoundBrowser.MaterializeAndOpenAsync", ex);
+                MessageBox.Show(FindForm(), ex.Message, Language.getString("error"), MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            finally
+            {
+                SetLoading(false, string.Empty);
+            }
+        }
+
+        private void OpenSelectedExternally(object sender, EventArgs e)
+        {
+            CompoundViewItem selected = GetSingleSelectedStream();
+            if (selected == null)
+                return;
+
+            if (selected.IsEmbedded)
+            {
+                DialogResult answer = MessageBox.Show(
+                    FindForm(),
+                    Language.getString("compoundExternalOpenConfirm"),
+                    Language.getString("compoundExternalOpenTitle"),
+                    MessageBoxButtons.YesNo,
+                    MessageBoxIcon.Warning);
+                if (answer != DialogResult.Yes)
+                    return;
+            }
+
+            _ = MaterializeAndOpenAsync(selected);
+        }
+
+        private CompoundViewItem GetSingleSelectedStream()
+        {
+            return compoundView.SelectedItems.Count == 1
+                ? (compoundView.SelectedItems[0].Tag as CompoundViewItem) is CompoundViewItem item &&
+                  !item.IsParent && !item.IsStorage
+                    ? item
+                    : null
+                : null;
+        }
+
+        private ContextMenuStrip CreateContextMenu()
+        {
+            var menu = new ContextMenuStrip();
+            var openExternalItem = new ToolStripMenuItem(Language.getString("compoundOpenExternally"));
+            openExternalItem.Click += OpenSelectedExternally;
+            menu.Items.Add(openExternalItem);
+            menu.Opening += (_, __) =>
+            {
+                openExternalItem.Enabled = GetSingleSelectedStream() != null;
+            };
+            return menu;
+        }
+
+        private void CompoundView_MouseDown(object sender, MouseEventArgs e)
+        {
+            if (e.Button != MouseButtons.Right)
+                return;
+
+            ListViewItem hit = compoundView.GetItemAt(e.X, e.Y);
+            if (hit == null || hit.Selected)
+                return;
+
+            foreach (ListViewItem selected in compoundView.SelectedItems.Cast<ListViewItem>().ToArray())
+                selected.Selected = false;
+            hit.Selected = true;
+            hit.Focused = true;
         }
 
         private void CompoundView_KeyDown(object sender, KeyEventArgs e)
@@ -310,6 +385,7 @@ namespace DotNetCommander
                         Name = entry.Name,
                         FullPath = entry.FullPath,
                         IsStorage = entry.IsStorage,
+                        IsEmbedded = entry.IsEmbedded,
                         Size = entry.Size,
                         Modified = entry.Modified
                     };
@@ -410,6 +486,7 @@ namespace DotNetCommander
             public string FullPath { get; set; }
             public bool IsStorage { get; set; }
             public bool IsParent { get; set; }
+            public bool IsEmbedded { get; set; }
             public long? Size { get; set; }
             public DateTime? Modified { get; set; }
         }

@@ -46,12 +46,33 @@ namespace DotNetCommander
             using RootStorage root = RootStorage.OpenRead(path, StorageModeFlags.StrictValidation);
             var entries = new List<CompoundCatalogEntry>();
             var streamNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-            EnumerateStorage(root, string.Empty, 0, entries, streamNames, cancellationToken);
+            EnumerateStorage(root, string.Empty, 0, entries, streamNames, false, cancellationToken);
             return new CompoundFileCatalog(
                 Path.GetFullPath(path),
                 ClassifyDocument(streamNames, root.CLSID),
                 root.CLSID,
                 entries);
+        }
+
+        internal static void CleanupStaleMaterializationRoots(string baseDirectory)
+        {
+            if (string.IsNullOrWhiteSpace(baseDirectory) || !Directory.Exists(baseDirectory))
+                return;
+
+            foreach (string child in Directory.EnumerateFileSystemEntries(baseDirectory))
+            {
+                try
+                {
+                    if (Directory.Exists(child))
+                        Directory.Delete(child, true);
+                    else
+                        File.Delete(child);
+                }
+                catch (Exception ex) when (ex is IOException || ex is UnauthorizedAccessException)
+                {
+                    LogService.LogException("CompoundFileCatalogService.CleanupStaleMaterializationRoots", ex);
+                }
+            }
         }
 
         private static void EnumerateStorage(
@@ -60,6 +81,7 @@ namespace DotNetCommander
             int depth,
             List<CompoundCatalogEntry> entries,
             HashSet<string> streamNames,
+            bool untrustedInherited,
             CancellationToken cancellationToken)
         {
             if (depth > MaximumDepth)
@@ -73,6 +95,7 @@ namespace DotNetCommander
 
                 string fullPath = CombineInternalPath(parentPath, info.Name);
                 bool isStorage = info.Type == EntryType.Storage;
+                bool isObjectPool = string.Equals(info.Name, "ObjectPool", StringComparison.OrdinalIgnoreCase);
                 entries.Add(new CompoundCatalogEntry
                 {
                     Name = info.Name,
@@ -82,13 +105,15 @@ namespace DotNetCommander
                     Size = isStorage ? null : info.Length,
                     Created = NormalizeDate(info.CreationTime),
                     Modified = NormalizeDate(info.ModifiedTime),
-                    Clsid = info.CLSID
+                    Clsid = info.CLSID,
+                    IsEmbedded = untrustedInherited || info.CLSID != Guid.Empty
                 });
 
                 if (isStorage)
                 {
+                    bool childUntrusted = untrustedInherited || info.CLSID != Guid.Empty || isObjectPool;
                     Storage child = storage.OpenStorage(info.Name);
-                    EnumerateStorage(child, fullPath, depth + 1, entries, streamNames, cancellationToken);
+                    EnumerateStorage(child, fullPath, depth + 1, entries, streamNames, childUntrusted, cancellationToken);
                 }
                 else
                 {
@@ -183,7 +208,7 @@ namespace DotNetCommander
             return string.IsNullOrEmpty(parent) ? name : parent + "/" + name;
         }
 
-        private static string MakeSafeFileName(string name)
+        internal static string MakeSafeFileName(string name)
         {
             char[] invalid = Path.GetInvalidFileNameChars();
             var builder = new StringBuilder(Math.Max(1, name?.Length ?? 0));
@@ -192,7 +217,7 @@ namespace DotNetCommander
                 builder.Append(char.IsControl(character) || invalid.Contains(character) ? '_' : character);
             }
 
-            string result = builder.ToString().Trim().TrimEnd('.');
+            string result = builder.ToString().Trim().TrimEnd('.', ' ');
             return string.IsNullOrWhiteSpace(result) ? "stream.bin" : result;
         }
 
@@ -243,6 +268,7 @@ namespace DotNetCommander
         public string FullPath { get; set; }
         public string ParentPath { get; set; }
         public bool IsStorage { get; set; }
+        public bool IsEmbedded { get; set; }
         public long? Size { get; set; }
         public DateTime? Created { get; set; }
         public DateTime? Modified { get; set; }

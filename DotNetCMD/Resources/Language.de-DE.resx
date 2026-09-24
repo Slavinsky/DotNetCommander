@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -316,6 +316,16 @@
   <data name="helpRefreshActivePanel" xml:space="preserve">
     <value>Aktives Panel aktualisieren</value>
   </data>
+  <data name="helpInvertPhysicalSelection" xml:space="preserve"><value>Auswahl im physischen Dateibereich umkehren</value></data>
+  <data name="helpSelectByMask" xml:space="preserve"><value>Dateien und Ordner nach Namensmaske auswählen</value></data>
+  <data name="helpUnselectByMask" xml:space="preserve"><value>Auswahl von Dateien und Ordnern nach Namensmaske aufheben</value></data>
+  <data name="selectMaskTitle" xml:space="preserve"><value>Nach Namensmaske auswählen</value></data>
+  <data name="unselectMaskTitle" xml:space="preserve"><value>Auswahl nach Namensmaske aufheben</value></data>
+  <data name="selectionMaskPrompt" xml:space="preserve"><value>Dateinamenmaske eingeben. * steht für beliebig viele Zeichen, ? für genau ein Zeichen.</value></data>
+  <data name="selectMaskApply" xml:space="preserve"><value>Treffer auswählen</value></data>
+  <data name="unselectMaskApply" xml:space="preserve"><value>Auswahl aufheben</value></data>
+  <data name="copyPathsAsText" xml:space="preserve"><value>Vollständige Pfade als Text kopieren</value></data>
+  <data name="copyPathsClipboardFailed" xml:space="preserve"><value>Die ausgewählten Pfade konnten nicht in die Textzwischenablage kopiert werden.</value></data>
   <data name="helpOpenArchiveBySignature" xml:space="preserve">
     <value>Archiv, strukturierten CFBF-Speicher, GEDCOM-Ansicht oder DataSet-XML öffnen</value>
   </data>
@@ -324,6 +334,12 @@
   </data>
   <data name="helpNavigateParent" xml:space="preserve">
     <value>Zum übergeordneten Ordner wechseln</value>
+  </data>
+  <data name="helpGoToLocation" xml:space="preserve">
+    <value>Zum Speicherort des Ergebnisses (Suchbereich)</value>
+  </data>
+  <data name="helpFeedToPanel" xml:space="preserve">
+    <value>Suchergebnisse an die passive Ablage übergeben (Suchbereich)</value>
   </data>
   <data name="helpCloseApplication" xml:space="preserve">
     <value>Anwendung schließen</value>
@@ -905,11 +921,17 @@ Element erneut versuchen, ignorieren und fortfahren oder Vorgang abbrechen?</val
   <data name="searchCompletedFormat" xml:space="preserve"><value>Gefunden: {0}</value></data>
   <data name="searchCancelled" xml:space="preserve"><value>Suche abgebrochen.</value></data>
   <data name="searchFailed" xml:space="preserve"><value>Suche fehlgeschlagen.</value></data>
+  <data name="searchFeedToPanel" xml:space="preserve"><value>In die passive Ablage</value></data>
+  <data name="searchFeedStatusFormat" xml:space="preserve"><value>{0} Elemente in der übernommenen Liste</value></data>
   <data name="searchInvalidScope" xml:space="preserve"><value>Der Suchordner ist nicht vorhanden.</value></data>
   <data name="searchInvalidRegex" xml:space="preserve"><value>Ungültiger regulärer Ausdruck</value></data>
   <data name="compoundReading" xml:space="preserve"><value>Verbunddateistruktur wird gelesen...</value></data>
   <data name="compoundOpeningStream" xml:space="preserve"><value>Verbunddatei-Datenstrom wird geöffnet...</value></data>
   <data name="compoundOpenFailed" xml:space="preserve"><value>Die Verbunddatei konnte nicht geöffnet werden.</value></data>
+  <data name="compoundOpenExternally" xml:space="preserve"><value>Extern öffnen...</value></data>
+  <data name="compoundExternalOpenTitle" xml:space="preserve"><value>Extern öffnen</value></data>
+  <data name="compoundExternalOpenConfirm" xml:space="preserve"><value>Eine Kopie dieses eingebetteten Streams außerhalb des Containers öffnen? Fahren Sie nur fort, wenn Sie der Quelle vertrauen.</value></data>
+  <data name="compoundEmbeddedEnterBlocked" xml:space="preserve"><value>Dieses eingebettete Objekt gilt als nicht vertrauenswürdig und wurde nicht geöffnet. Verwenden Sie «Extern öffnen...» im Kontextmenü, wenn Sie der Quelle vertrauen.</value></data>
   <data name="compoundStorage" xml:space="preserve"><value>Speicher</value></data>
   <data name="compoundStream" xml:space="preserve"><value>Datenstrom</value></data>
   <data name="compoundCopyRequiresFilePanel" xml:space="preserve"><value>Verbunddatei-Datenströme können nur in eine physische Dateiansicht kopiert werden.</value></data>
@@ -1138,4 +1160,105 @@ Esc - Editor schließen</value></data>
   <data name="semanticSearchWorking" xml:space="preserve"><value>Wird ausgeführt...</value></data>
   <data name="semanticSearchFailed" xml:space="preserve"><value>Semantische Suche fehlgeschlagen.</value></data>
   <data name="semanticSearchResultsFormat" xml:space="preserve"><value>Ergebnisse: {0}</value></data>
+  <data name="newFile" xml:space="preserve"><value>Neue Datei</value></data>
+  <data name="newFileDialogTitle" xml:space="preserve"><value>Neue Datei erstellen</value></data>
+  <data name="newFileDefaultName" xml:space="preserve"><value>NeueDatei.txt</value></data>
+  <data name="newFileInlineTitle" xml:space="preserve"><value>Neue Datei erstellen</value></data>
+  <data name="newFileInlineDescription" xml:space="preserve"><value>Dateinamen eingeben und den zu öffnenden Editor auswählen</value></data>
+  <data name="newFileName" xml:space="preserve"><value>Dateiname</value></data>
+  <data name="newFileType" xml:space="preserve"><value>Editor-Typ</value></data>
+  <data name="newFileLocation" xml:space="preserve"><value>Speicherort</value></data>
+  <data name="newFileTarget" xml:space="preserve"><value>Zielpfad</value></data>
+  <data name="newFileCreate" xml:space="preserve"><value>Erstellen</value></data>
+  <data name="newFileNameRequired" xml:space="preserve"><value>Geben Sie einen Dateinamen ein.</value></data>
+  <data name="newFileNameInvalid" xml:space="preserve"><value>Der Dateiname enthält ungültige Zeichen.</value></data>
+  <data name="editorTypeText" xml:space="preserve"><value>Texteditor (.txt)</value></data>
+  <data name="editorTypeMarkdown" xml:space="preserve"><value>Markdown-Editor (.md)</value></data>
+  <data name="editorTypeRtf" xml:space="preserve"><value>RTF-Editor (.rtf)</value></data>
+  <data name="editorNotSupported" xml:space="preserve"><value>Für diesen Dateityp ist kein integrierter Editor registriert.</value></data>
+  <data name="compare" xml:space="preserve"><value>Vergleichen</value></data>
+  <data name="open" xml:space="preserve"><value>Öffnen</value></data>
+  <data name="openWith" xml:space="preserve"><value>Öffnen mit...</value></data>
+  <data name="properties" xml:space="preserve"><value>Eigenschaften</value></data>
+  <data name="shellActionFailedFormat" xml:space="preserve"><value>Shell-Aktion konnte nicht ausgeführt werden: {0}</value></data>
+  <data name="shellExecuteFailedFormat" xml:space="preserve"><value>Windows-Shell-Ausführung fehlgeschlagen, Fehlercode {0}.</value></data>
+  <data name="compareWindowTitle" xml:space="preserve"><value>Dateien vergleichen</value></data>
+  <data name="compareWindowTitleFormat" xml:space="preserve"><value>Vergleich: {0} / {1}</value></data>
+  <data name="compareLoading" xml:space="preserve"><value>Vergleich wird geladen...</value></data>
+  <data name="compareLoadFailed" xml:space="preserve"><value>Vergleich konnte nicht geladen werden.</value></data>
+  <data name="compareSelectSource" xml:space="preserve"><value>Wählen Sie eine Datei im aktiven Fenster zum Vergleichen.</value></data>
+  <data name="compareSelectTarget" xml:space="preserve"><value>Wählen Sie eine Datei im passiven Fenster oder lassen Sie dort eine gleichnamige Datei.</value></data>
+  <data name="compareFoldersNotSupported" xml:space="preserve"><value>Der Ordnervergleich wird noch nicht unterstützt.</value></data>
+  <data name="compareTextTooLarge" xml:space="preserve"><value>Der Textvergleich ist auf Dateien bis 1 MB begrenzt. Stattdessen wird eine Binärübersicht angezeigt.</value></data>
+  <data name="compareModeText" xml:space="preserve"><value>Textvergleich</value></data>
+  <data name="compareModeCsv" xml:space="preserve"><value>CSV-Vergleich</value></data>
+  <data name="compareModeImage" xml:space="preserve"><value>Bildvergleich</value></data>
+  <data name="compareModeBinary" xml:space="preserve"><value>Binärübersicht</value></data>
+  <data name="compareSummaryIdentical" xml:space="preserve"><value>Die Dateien sind identisch.</value></data>
+  <data name="compareSummaryTextFormat" xml:space="preserve"><value>Geänderte Zeilen: {0}, nur links: {1}, nur rechts: {2}</value></data>
+  <data name="compareSummaryCsvFormat" xml:space="preserve"><value>Unterschiedliche CSV-Zellen: {0}</value></data>
+  <data name="compareSummaryImageFormat" xml:space="preserve"><value>Bilder unterscheiden sich. Links: {0}, rechts: {1}</value></data>
+  <data name="compareSummaryBinaryDifferent" xml:space="preserve"><value>Der Binärinhalt unterscheidet sich.</value></data>
+  <data name="compareLinesFormat" xml:space="preserve"><value>Ausgerichtete Zeilen: {0}</value></data>
+  <data name="compareCsvShapeFormat" xml:space="preserve"><value>Links: {0} Zeilen / {1} Spalten, rechts: {2} Zeilen / {3} Spalten</value></data>
+  <data name="compareHashesFormat" xml:space="preserve"><value>Hashes: {0} / {1}</value></data>
+  <data name="compareLeftLine" xml:space="preserve"><value>Links Nr.</value></data>
+  <data name="compareLeftText" xml:space="preserve"><value>Linker Text</value></data>
+  <data name="compareRightLine" xml:space="preserve"><value>Rechts Nr.</value></data>
+  <data name="compareRightText" xml:space="preserve"><value>Rechter Text</value></data>
+  <data name="compareMetaSize" xml:space="preserve"><value>Größe</value></data>
+  <data name="compareMetaModified" xml:space="preserve"><value>Geändert</value></data>
+  <data name="compareMetaDimensions" xml:space="preserve"><value>Abmessungen</value></data>
+  <data name="compareMetaDpi" xml:space="preserve"><value>DPI</value></data>
+  <data name="compareMetaFormat" xml:space="preserve"><value>Format</value></data>
+  <data name="compareMetaHash" xml:space="preserve"><value>SHA-256</value></data>
+  <data name="fileTooLargePreview" xml:space="preserve"><value>Die Datei ist zu groß für die Vorschau.</value></data>
+  <data name="previewNotSupported" xml:space="preserve"><value>Für diesen Dateityp wird keine Vorschau unterstützt.</value></data>
+  <data name="Info" xml:space="preserve"><value>Info</value></data>
+  <data name="close" xml:space="preserve"><value>Schließen</value></data>
+  <data name="searchSizeFilter" xml:space="preserve"><value>Größe (min..max)</value></data>
+  <data name="searchSizeHint" xml:space="preserve"><value>z. B. 512, 512k, 2M</value></data>
+  <data name="searchDateFrom" xml:space="preserve"><value>Geändert ab</value></data>
+  <data name="searchDateTo" xml:space="preserve"><value>Geändert bis</value></data>
+  <data name="searchRecent" xml:space="preserve"><value>Zuletzt:</value></data>
+  <data name="searchRecentClear" xml:space="preserve"><value>Leeren</value></data>
+  <data name="searchInvalidSize" xml:space="preserve"><value>Ungültiger Größenwert: {0}. Erlaubt: Bytes, 512k, 2M, 1G.</value></data>
+  <data name="searchInvalidSizeRange" xml:space="preserve"><value>Ungültiger Größenbereich: das Minimum ist größer als das Maximum.</value></data>
+  <data name="searchInvalidDateRange" xml:space="preserve"><value>Ungültiger Datumsbereich: das Startdatum liegt nach dem Enddatum.</value></data>
+  <data name="searchGoToLocation" xml:space="preserve"><value>Zum Speicherort wechseln</value></data>
+  <data name="searchGoToLocationMissing" xml:space="preserve"><value>Das Element wurde im Dateisystem nicht gefunden: {0}</value></data>
+  <data name="copyNamesAsText" xml:space="preserve"><value>Namen als Text kopieren</value></data>
+  <data name="copyNamesClipboardFailed" xml:space="preserve"><value>Die ausgewählten Namen konnten nicht in die Textzwischenablage kopiert werden.</value></data>
+  <data name="copyRelativePathsAsText" xml:space="preserve"><value>Relative Pfade als Text kopieren</value></data>
+  <data name="copyRelativePathsClipboardFailed" xml:space="preserve"><value>Die ausgewählten relativen Pfade konnten nicht in die Textzwischenablage kopiert werden.</value></data>
+  <data name="browseMetadataPartialTitle" xml:space="preserve"><value>Unvollständige Ordnerliste</value></data>
+  <data name="browseMetadataPartialFormat" xml:space="preserve"><value>Der Ordner wurde geöffnet, aber Metadaten konnten für {0} Element(e) nicht gelesen werden. Elemente, deren Typ nicht sicher bestimmt werden konnte, wurden ausgelassen; nicht verfügbare Größen- oder Zeitangaben bleiben leer.</value></data>
+  <data name="aiOrganizerVisionImages" xml:space="preserve"><value>Ausgewählte Bilder senden (bis zu 12)</value></data>
+  <data name="aiOrganizerVisionChooseImages" xml:space="preserve"><value>Bilder auswählen...</value></data>
+  <data name="aiOrganizerVisionSelectedCountFormat" xml:space="preserve"><value>Ausgewählte Bilder: {0}</value></data>
+  <data name="aiOrganizerVisionImageDialogTitle" xml:space="preserve"><value>Bilder für die KI-Analyse auswählen</value></data>
+  <data name="aiOrganizerVisionImageDialogFilter" xml:space="preserve"><value>Bilder|*.jpg;*.jpeg;*.png;*.bmp;*.gif;*.tif;*.tiff|Alle Dateien|*.*</value></data>
+  <data name="aiOrganizerVisionImagesOutsideFolderFormat" xml:space="preserve"><value>Bilder außerhalb des aktuellen Ordners oder nicht unterstützte Dateien wurden ignoriert: {0}</value></data>
+  <data name="aiOrganizerVisionTooManySelectedFormat" xml:space="preserve"><value>Wählen Sie höchstens {0} Bilder aus.</value></data>
+  <data name="aiOrganizerVisionConfirmSendFormat" xml:space="preserve"><value>Diese Bilder an Modell „{0}“ unter „{1}“ senden? Es werden nur verkleinerte Kopien gesendet; die Originale bleiben unverändert.
+
+{2}</value></data>
+  <data name="aiOrganizerVisionModelRequired" xml:space="preserve"><value>Wählen Sie zum Senden von Bildern ein Modell mit Vision-Unterstützung aus.</value></data>
+  <data name="aiOrganizerVisionPreviewTitle" xml:space="preserve"><value>Für das Modell vorbereitete Bilder prüfen</value></data>
+  <data name="aiOrganizerVisionPreviewPreparing" xml:space="preserve"><value>Verkleinerte JPEG-Vorschauen werden vorbereitet...</value></data>
+  <data name="aiOrganizerVisionPreviewContinue" xml:space="preserve"><value>Weiter</value></data>
+  <data name="aiOrganizerVisionPreviewSkippedFormat" xml:space="preserve"><value>Fertig: {0}; übersprungen: {1}</value></data>
+  <data name="aiOrganizerVisionPreviewReadyFormat" xml:space="preserve"><value>Bereit zum Senden: {0} verkleinerte JPEG-Kopien</value></data>
+  <data name="aiOrganizerVisionPreviewFailed" xml:space="preserve"><value>Bildvorschauen konnten nicht vorbereitet werden.</value></data>
+  <data name="aiOrganizerVisionNoPreviewImages" xml:space="preserve"><value>Keines der ausgewählten Bilder konnte für den Upload vorbereitet werden.</value></data>
+  <data name="aiOrganizerViewImageEvidence" xml:space="preserve"><value>Belegbild anzeigen</value></data>
+  <data name="aiOrganizerImageEvidenceTitleFormat" xml:space="preserve"><value>Vorbereitetes Belegbild — {0}</value></data>
+  <data name="aiOrganizerImageEvidenceHelpTitle" xml:space="preserve"><value>Belegbildvorschau</value></data>
+  <data name="aiOrganizerImageEvidenceHelpSubtitle" xml:space="preserve"><value>Prüfen Sie die verkleinerte JPEG-Kopie für die Anfrage des Organizers.</value></data>
+  <data name="aiOrganizerImageEvidenceHelpClose" xml:space="preserve"><value>Bildvorschau schließen</value></data>
+  <data name="aiOrganizerImageMetadataFormat" xml:space="preserve"><value>Original: {0} × {1}, {2:N0} Byte   →   Upload-JPEG: {3} × {4}, {5:N0} Byte</value></data>
+  <data name="aiOrganizerImageSourcePreview" xml:space="preserve"><value>Quellvorschau</value></data>
+  <data name="aiOrganizerImageUploadPreview" xml:space="preserve"><value>JPEG für das Modell</value></data>
+  <data name="aiOrganizerImagesIncludedFormat" xml:space="preserve"><value>An das Modell gesendete Bilder: {0}; wegen Größenlimits oder Lesefehlern übersprungen: {1}</value></data>
+  <data name="aiOrganizerImageEvidenceFormat" xml:space="preserve"><value>Bildbeobachtung des Modells (Bild prüfen): „{0}“</value></data>
 </root>

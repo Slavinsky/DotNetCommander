@@ -54,6 +54,8 @@ namespace DotNetCommander
             fileBrowserRight.AdjacentPanelRequested += FileBrowser_AdjacentPanelRequested;
             fileBrowserLeft.ArchiveDeviceChanged += FileBrowser_ArchiveDeviceChanged;
             fileBrowserRight.ArchiveDeviceChanged += FileBrowser_ArchiveDeviceChanged;
+            fileBrowserLeft.FeedToPanelRequested += FileBrowser_FeedToPanelRequested;
+            fileBrowserRight.FeedToPanelRequested += FileBrowser_FeedToPanelRequested;
 
             functionModifierLabel = new ToolStripLabel
             {
@@ -170,6 +172,24 @@ namespace DotNetCommander
             parent.DropDownItems.Clear();
             parent.DropDownItems.Add(CreateMenuItem("copy", Button_Copy));
             parent.DropDownItems.Add(CreateMenuItem("cut", Edit_Cut));
+            parent.DropDownItems.Add(new ToolStripSeparator());
+            ToolStripMenuItem copyPathsItem = CreateMenuItem("copyPathsAsText", Edit_CopyPathsAsText);
+            ToolStripMenuItem copyNamesItem = CreateMenuItem("copyNamesAsText", Edit_CopyNamesAsText);
+            ToolStripMenuItem copyRelativePathsItem = CreateMenuItem("copyRelativePathsAsText", Edit_CopyRelativePathsAsText);
+            copyPathsItem.Enabled = false;
+            copyNamesItem.Enabled = false;
+            copyRelativePathsItem.Enabled = false;
+            parent.DropDownOpening += (_, __) =>
+            {
+                FileBrowser active = lastFileBrowser ?? fileBrowserLeft;
+                bool canCopySelection = active != null && !active.IsVirtualMode && active.SelectedItems.Count > 0;
+                copyPathsItem.Enabled = canCopySelection;
+                copyNamesItem.Enabled = canCopySelection;
+                copyRelativePathsItem.Enabled = canCopySelection && !string.IsNullOrWhiteSpace(active.CurrentPath);
+            };
+            parent.DropDownItems.Add(copyPathsItem);
+            parent.DropDownItems.Add(copyNamesItem);
+            parent.DropDownItems.Add(copyRelativePathsItem);
             parent.DropDownItems.Add(CreateMenuItem("paste", Edit_Paste));
             parent.DropDownItems.Add(new ToolStripSeparator());
             parent.DropDownItems.Add(CreateMenuItem("rename", Edit_Rename));
@@ -241,6 +261,21 @@ namespace DotNetCommander
         private void Edit_Paste(object sender, EventArgs e)
         {
             commandService.PasteFromClipboard(lastFileBrowser ?? fileBrowserLeft, CopyComplete, this);
+        }
+
+        private void Edit_CopyPathsAsText(object sender, EventArgs e)
+        {
+            commandService.CopySelectionPathsAsText(lastFileBrowser ?? fileBrowserLeft, this);
+        }
+
+        private void Edit_CopyNamesAsText(object sender, EventArgs e)
+        {
+            commandService.CopySelectionNamesAsText(lastFileBrowser ?? fileBrowserLeft, this);
+        }
+
+        private void Edit_CopyRelativePathsAsText(object sender, EventArgs e)
+        {
+            commandService.CopySelectionRelativePathsAsText(lastFileBrowser ?? fileBrowserLeft, this);
         }
 
         private void Edit_Rename(object sender, EventArgs e)
@@ -378,6 +413,39 @@ namespace DotNetCommander
             {
                 InsertCurrentItemNameIntoCommandLine();
                 return true;
+            }
+            if (keyData == Keys.Multiply)
+            {
+                FileBrowser focusedBrowser = fileBrowserLeft.IsPhysicalFileListFocused
+                    ? fileBrowserLeft
+                    : fileBrowserRight.IsPhysicalFileListFocused ? fileBrowserRight : null;
+                if (focusedBrowser != null && focusedBrowser.InvertPhysicalSelection())
+                    return true;
+            }
+            if (keyData == Keys.Add || keyData == Keys.Subtract)
+            {
+                FileBrowser focusedBrowser = fileBrowserLeft.IsPhysicalFileListFocused
+                    ? fileBrowserLeft
+                    : fileBrowserRight.IsPhysicalFileListFocused ? fileBrowserRight : null;
+                if (focusedBrowser != null)
+                {
+                    bool selectMatches = keyData == Keys.Add;
+                    using var dialog = new FormSelectionMask(selectMatches);
+                    if (dialog.ShowDialog(this) == DialogResult.OK)
+                        focusedBrowser.ApplyPhysicalSelectionMask(dialog.Mask, selectMatches);
+                    return true;
+                }
+            }
+            if (keyData == (Keys.Control | Keys.Shift | Keys.C))
+            {
+                FileBrowser focusedBrowser = fileBrowserLeft.IsPhysicalFileListFocused
+                    ? fileBrowserLeft
+                    : fileBrowserRight.IsPhysicalFileListFocused ? fileBrowserRight : null;
+                if (focusedBrowser != null)
+                {
+                    commandService.CopySelectionPathsAsText(focusedBrowser, this);
+                    return true;
+                }
             }
             if (keyData == (Keys.Control | Keys.Q) || keyData == Keys.F2)
             {
@@ -1667,12 +1735,18 @@ namespace DotNetCommander
                 new KeyboardHelpItem("F7", Language.getString("newFolder")),
                 new KeyboardHelpItem("Alt+F7", Language.getString("search")),
                 new KeyboardHelpItem("F8", Language.getString("delete")),
+                new KeyboardHelpItem("Num *", Language.getString("helpInvertPhysicalSelection")),
+                new KeyboardHelpItem("Num +", Language.getString("helpSelectByMask")),
+                new KeyboardHelpItem("Num -", Language.getString("helpUnselectByMask")),
+                new KeyboardHelpItem("Ctrl+Shift+C", Language.getString("copyPathsAsText")),
                 new KeyboardHelpItem("Alt+F9", Language.getString("archiveExtract")),
                 new KeyboardHelpItem("Tab", Language.getString("helpSwitchPanel")),
                 new KeyboardHelpItem("Ctrl+PgDn", Language.getString("helpOpenArchiveBySignature")),
                 new KeyboardHelpItem("Backspace", Language.getString("helpHistoryBack")),
                 new KeyboardHelpItem("Ctrl+PgUp", Language.getString("helpNavigateParent")),
                 new KeyboardHelpItem("Ctrl+R", Language.getString("helpRefreshActivePanel")),
+                new KeyboardHelpItem("Ctrl+G", Language.getString("helpGoToLocation")),
+                new KeyboardHelpItem("Ctrl+F", Language.getString("helpFeedToPanel")),
                 new KeyboardHelpItem("Ctrl+L", Language.getString("helpFocusCommandLine")),
                 new KeyboardHelpItem("Ctrl+Enter", Language.getString("helpCopyNameToCommandLine")),
                 new KeyboardHelpItem("Shift+Enter", Language.getString("helpPersistentConsole")),
@@ -1688,6 +1762,24 @@ namespace DotNetCommander
         private FileBrowser GetPassiveBrowser(FileBrowser activeBrowser)
         {
             return activeBrowser == fileBrowserRight ? fileBrowserLeft : fileBrowserRight;
+        }
+
+        private void FileBrowser_FeedToPanelRequested(object sender, SearchFeedEventArgs e)
+        {
+            if (sender is not FileBrowser source)
+            {
+                return;
+            }
+
+            FileBrowser target = GetPassiveBrowser(source);
+            if (target == null || ReferenceEquals(target, source))
+            {
+                return;
+            }
+
+            source.ExitSearch(false);
+            target.ActivatePanel();
+            target.EnterResultsSnapshot(e.Items, e.Description);
         }
 
         private void CloseChildWindows()

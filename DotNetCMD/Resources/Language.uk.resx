@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -316,6 +316,16 @@
   <data name="helpRefreshActivePanel" xml:space="preserve">
     <value>Оновити активну панель</value>
   </data>
+  <data name="helpInvertPhysicalSelection" xml:space="preserve"><value>Інвертувати виділення у фізичній файловій панелі</value></data>
+  <data name="helpSelectByMask" xml:space="preserve"><value>Виділити файли й каталоги за маскою імені</value></data>
+  <data name="helpUnselectByMask" xml:space="preserve"><value>Зняти виділення з файлів і каталогів за маскою імені</value></data>
+  <data name="selectMaskTitle" xml:space="preserve"><value>Виділення за маскою імені</value></data>
+  <data name="unselectMaskTitle" xml:space="preserve"><value>Зняття виділення за маскою імені</value></data>
+  <data name="selectionMaskPrompt" xml:space="preserve"><value>Введіть маску імені файла. * відповідає будь-якій кількості символів, ? — одному символу.</value></data>
+  <data name="selectMaskApply" xml:space="preserve"><value>Виділити збіги</value></data>
+  <data name="unselectMaskApply" xml:space="preserve"><value>Зняти виділення</value></data>
+  <data name="copyPathsAsText" xml:space="preserve"><value>Копіювати повні шляхи як текст</value></data>
+  <data name="copyPathsClipboardFailed" xml:space="preserve"><value>Не вдалося скопіювати вибрані шляхи в текстовий буфер обміну.</value></data>
   <data name="helpOpenArchiveBySignature" xml:space="preserve">
     <value>Відкрити архів, структуроване сховище CFBF, панель GEDCOM або спробувати DataSet XML</value>
   </data>
@@ -324,6 +334,12 @@
   </data>
   <data name="helpNavigateParent" xml:space="preserve">
     <value>Перейти до батьківського каталогу</value>
+  </data>
+  <data name="helpGoToLocation" xml:space="preserve">
+    <value>Перейти до розташування знахідки (панель пошуку)</value>
+  </data>
+  <data name="helpFeedToPanel" xml:space="preserve">
+    <value>Передати результати пошуку в пасивну панель (панель пошуку)</value>
   </data>
   <data name="helpCloseApplication" xml:space="preserve">
     <value>Закрити застосунок</value>
@@ -904,11 +920,17 @@
   <data name="searchCompletedFormat" xml:space="preserve"><value>Знайдено: {0}</value></data>
   <data name="searchCancelled" xml:space="preserve"><value>Пошук скасовано.</value></data>
   <data name="searchFailed" xml:space="preserve"><value>Помилка пошуку.</value></data>
+  <data name="searchFeedToPanel" xml:space="preserve"><value>До пасивної панелі</value></data>
+  <data name="searchFeedStatusFormat" xml:space="preserve"><value>{0} елементів у перенесеному списку</value></data>
   <data name="searchInvalidScope" xml:space="preserve"><value>Каталог пошуку не існує.</value></data>
   <data name="searchInvalidRegex" xml:space="preserve"><value>Некоректний регулярний вираз</value></data>
   <data name="compoundReading" xml:space="preserve"><value>Читання структури складеного файла...</value></data>
   <data name="compoundOpeningStream" xml:space="preserve"><value>Відкриття потоку складеного файла...</value></data>
   <data name="compoundOpenFailed" xml:space="preserve"><value>Не вдалося відкрити складений файл.</value></data>
+  <data name="compoundOpenExternally" xml:space="preserve"><value>Відкрити зовні...</value></data>
+  <data name="compoundExternalOpenTitle" xml:space="preserve"><value>Відкрити зовні</value></data>
+  <data name="compoundExternalOpenConfirm" xml:space="preserve"><value>Відкрити копію цього вбудованого потоку поза контейнером? Продовжуйте, лише якщо джерело заслуговує довіри.</value></data>
+  <data name="compoundEmbeddedEnterBlocked" xml:space="preserve"><value>Цей вбудований об'єкт вважають ненадійним, і система його не відкрила. Скористайтеся «Відкрити зовні...» у контекстному меню, якщо джерело заслуговує довіри.</value></data>
   <data name="compoundStorage" xml:space="preserve"><value>Сховище</value></data>
   <data name="compoundStream" xml:space="preserve"><value>Потік</value></data>
   <data name="compoundCopyRequiresFilePanel" xml:space="preserve"><value>Потоки складеного файла можна копіювати лише у фізичну файлову панель.</value></data>
@@ -1137,4 +1159,105 @@ Esc - Закрити редактор</value></data>
   <data name="semanticSearchWorking" xml:space="preserve"><value>Виконується...</value></data>
   <data name="semanticSearchFailed" xml:space="preserve"><value>Помилка семантичного пошуку.</value></data>
   <data name="semanticSearchResultsFormat" xml:space="preserve"><value>Результатів: {0}</value></data>
+  <data name="newFile" xml:space="preserve"><value>Новий файл</value></data>
+  <data name="newFileDialogTitle" xml:space="preserve"><value>Створення нового файла</value></data>
+  <data name="newFileDefaultName" xml:space="preserve"><value>НовийФайл.txt</value></data>
+  <data name="newFileInlineTitle" xml:space="preserve"><value>Створити новий файл</value></data>
+  <data name="newFileInlineDescription" xml:space="preserve"><value>Введіть ім’я файла та виберіть редактор для його відкриття</value></data>
+  <data name="newFileName" xml:space="preserve"><value>Ім’я файла</value></data>
+  <data name="newFileType" xml:space="preserve"><value>Тип редактора</value></data>
+  <data name="newFileLocation" xml:space="preserve"><value>Розташування</value></data>
+  <data name="newFileTarget" xml:space="preserve"><value>Шлях призначення</value></data>
+  <data name="newFileCreate" xml:space="preserve"><value>Створити</value></data>
+  <data name="newFileNameRequired" xml:space="preserve"><value>Введіть ім’я файла.</value></data>
+  <data name="newFileNameInvalid" xml:space="preserve"><value>Ім’я файла містить недопустимі символи.</value></data>
+  <data name="editorTypeText" xml:space="preserve"><value>Текстовий редактор (.txt)</value></data>
+  <data name="editorTypeMarkdown" xml:space="preserve"><value>Редактор Markdown (.md)</value></data>
+  <data name="editorTypeRtf" xml:space="preserve"><value>Редактор RTF (.rtf)</value></data>
+  <data name="editorNotSupported" xml:space="preserve"><value>Для цього типу файла не зареєстровано вбудований редактор.</value></data>
+  <data name="compare" xml:space="preserve"><value>Порівняти</value></data>
+  <data name="open" xml:space="preserve"><value>Відкрити</value></data>
+  <data name="openWith" xml:space="preserve"><value>Відкрити за допомогою...</value></data>
+  <data name="properties" xml:space="preserve"><value>Властивості</value></data>
+  <data name="shellActionFailedFormat" xml:space="preserve"><value>Не вдалося виконати дію оболонки: {0}</value></data>
+  <data name="shellExecuteFailedFormat" xml:space="preserve"><value>Помилка виконання Windows Shell: код {0}.</value></data>
+  <data name="compareWindowTitle" xml:space="preserve"><value>Порівняння файлів</value></data>
+  <data name="compareWindowTitleFormat" xml:space="preserve"><value>Порівняння: {0} / {1}</value></data>
+  <data name="compareLoading" xml:space="preserve"><value>Завантаження порівняння...</value></data>
+  <data name="compareLoadFailed" xml:space="preserve"><value>Не вдалося завантажити порівняння.</value></data>
+  <data name="compareSelectSource" xml:space="preserve"><value>Виберіть файл в активній панелі для порівняння.</value></data>
+  <data name="compareSelectTarget" xml:space="preserve"><value>Виберіть файл у пасивній панелі або залиште там файл із такою самою назвою.</value></data>
+  <data name="compareFoldersNotSupported" xml:space="preserve"><value>Порівняння папок поки не підтримується.</value></data>
+  <data name="compareTextTooLarge" xml:space="preserve"><value>Порівняння тексту обмежене файлами до 1 МБ. Показано бінарний підсумок.</value></data>
+  <data name="compareModeText" xml:space="preserve"><value>Текстова різниця</value></data>
+  <data name="compareModeCsv" xml:space="preserve"><value>Порівняння CSV</value></data>
+  <data name="compareModeImage" xml:space="preserve"><value>Порівняння зображень</value></data>
+  <data name="compareModeBinary" xml:space="preserve"><value>Бінарний підсумок</value></data>
+  <data name="compareSummaryIdentical" xml:space="preserve"><value>Файли ідентичні.</value></data>
+  <data name="compareSummaryTextFormat" xml:space="preserve"><value>Змінені рядки: {0}, лише ліворуч: {1}, лише праворуч: {2}</value></data>
+  <data name="compareSummaryCsvFormat" xml:space="preserve"><value>Відмінні клітинки CSV: {0}</value></data>
+  <data name="compareSummaryImageFormat" xml:space="preserve"><value>Зображення відрізняються. Ліворуч: {0}, праворуч: {1}</value></data>
+  <data name="compareSummaryBinaryDifferent" xml:space="preserve"><value>Бінарний вміст відрізняється.</value></data>
+  <data name="compareLinesFormat" xml:space="preserve"><value>Вирівняні рядки: {0}</value></data>
+  <data name="compareCsvShapeFormat" xml:space="preserve"><value>Ліворуч: {0} рядків / {1} стовпців, праворуч: {2} рядків / {3} стовпців</value></data>
+  <data name="compareHashesFormat" xml:space="preserve"><value>Хеші: {0} / {1}</value></data>
+  <data name="compareLeftLine" xml:space="preserve"><value>Ліворуч №</value></data>
+  <data name="compareLeftText" xml:space="preserve"><value>Текст ліворуч</value></data>
+  <data name="compareRightLine" xml:space="preserve"><value>Праворуч №</value></data>
+  <data name="compareRightText" xml:space="preserve"><value>Текст праворуч</value></data>
+  <data name="compareMetaSize" xml:space="preserve"><value>Розмір</value></data>
+  <data name="compareMetaModified" xml:space="preserve"><value>Змінено</value></data>
+  <data name="compareMetaDimensions" xml:space="preserve"><value>Розміри</value></data>
+  <data name="compareMetaDpi" xml:space="preserve"><value>DPI</value></data>
+  <data name="compareMetaFormat" xml:space="preserve"><value>Формат</value></data>
+  <data name="compareMetaHash" xml:space="preserve"><value>SHA-256</value></data>
+  <data name="fileTooLargePreview" xml:space="preserve"><value>Файл завеликий для перегляду.</value></data>
+  <data name="previewNotSupported" xml:space="preserve"><value>Перегляд цього типу файла не підтримується.</value></data>
+  <data name="Info" xml:space="preserve"><value>Інформація</value></data>
+  <data name="close" xml:space="preserve"><value>Закрити</value></data>
+  <data name="searchSizeFilter" xml:space="preserve"><value>Розмір (мін..макс)</value></data>
+  <data name="searchSizeHint" xml:space="preserve"><value>напр. 512, 512k, 2M</value></data>
+  <data name="searchDateFrom" xml:space="preserve"><value>Змінено з</value></data>
+  <data name="searchDateTo" xml:space="preserve"><value>Змінено по</value></data>
+  <data name="searchRecent" xml:space="preserve"><value>Нещодавні:</value></data>
+  <data name="searchRecentClear" xml:space="preserve"><value>Очистити</value></data>
+  <data name="searchInvalidSize" xml:space="preserve"><value>Некоректне значення розміру: {0}. Дозволено: байти, 512k, 2M, 1G.</value></data>
+  <data name="searchInvalidSizeRange" xml:space="preserve"><value>Некоректний діапазон розмірів: мінімум більший за максимум.</value></data>
+  <data name="searchInvalidDateRange" xml:space="preserve"><value>Некоректний діапазон дат: дата початку пізніша за дату завершення.</value></data>
+  <data name="searchGoToLocation" xml:space="preserve"><value>Перейти до розташування</value></data>
+  <data name="searchGoToLocationMissing" xml:space="preserve"><value>Елемент не знайдено у файловій системі: {0}</value></data>
+  <data name="copyNamesAsText" xml:space="preserve"><value>Копіювати імена як текст</value></data>
+  <data name="copyNamesClipboardFailed" xml:space="preserve"><value>Не вдалося скопіювати вибрані імена в текстовий буфер обміну.</value></data>
+  <data name="copyRelativePathsAsText" xml:space="preserve"><value>Копіювати відносні шляхи як текст</value></data>
+  <data name="copyRelativePathsClipboardFailed" xml:space="preserve"><value>Не вдалося скопіювати вибрані відносні шляхи в текстовий буфер обміну.</value></data>
+  <data name="browseMetadataPartialTitle" xml:space="preserve"><value>Частковий список каталогу</value></data>
+  <data name="browseMetadataPartialFormat" xml:space="preserve"><value>Каталог відкрито, але метадані не вдалося прочитати для елементів: {0}. Елементи, тип яких не вдалося безпечно визначити, пропущено; недоступні значення розміру або часу не показано.</value></data>
+  <data name="aiOrganizerVisionImages" xml:space="preserve"><value>Надсилати вибрані зображення (до 12)</value></data>
+  <data name="aiOrganizerVisionChooseImages" xml:space="preserve"><value>Вибрати зображення...</value></data>
+  <data name="aiOrganizerVisionSelectedCountFormat" xml:space="preserve"><value>Вибрано зображень: {0}</value></data>
+  <data name="aiOrganizerVisionImageDialogTitle" xml:space="preserve"><value>Вибір зображень для AI-аналізу</value></data>
+  <data name="aiOrganizerVisionImageDialogFilter" xml:space="preserve"><value>Зображення|*.jpg;*.jpeg;*.png;*.bmp;*.gif;*.tif;*.tiff|Усі файли|*.*</value></data>
+  <data name="aiOrganizerVisionImagesOutsideFolderFormat" xml:space="preserve"><value>Пропущено зображення поза поточною папкою або непідтримувані файли: {0}</value></data>
+  <data name="aiOrganizerVisionTooManySelectedFormat" xml:space="preserve"><value>Виберіть не більше ніж {0} зображень.</value></data>
+  <data name="aiOrganizerVisionConfirmSendFormat" xml:space="preserve"><value>Надіслати ці зображення моделі «{0}» за адресою «{1}»? Будуть надіслані лише зменшені копії; оригінали не зміняться.
+
+{2}</value></data>
+  <data name="aiOrganizerVisionModelRequired" xml:space="preserve"><value>Для надсилання зображень виберіть модель із підтримкою vision.</value></data>
+  <data name="aiOrganizerVisionPreviewTitle" xml:space="preserve"><value>Перевірка зображень, підготовлених для моделі</value></data>
+  <data name="aiOrganizerVisionPreviewPreparing" xml:space="preserve"><value>Підготовка зменшених JPEG-копій...</value></data>
+  <data name="aiOrganizerVisionPreviewContinue" xml:space="preserve"><value>Продовжити</value></data>
+  <data name="aiOrganizerVisionPreviewSkippedFormat" xml:space="preserve"><value>Готово: {0}; пропущено: {1}</value></data>
+  <data name="aiOrganizerVisionPreviewReadyFormat" xml:space="preserve"><value>Готово до надсилання: {0} зменшених JPEG-копій</value></data>
+  <data name="aiOrganizerVisionPreviewFailed" xml:space="preserve"><value>Не вдалося підготувати попередній перегляд зображень.</value></data>
+  <data name="aiOrganizerVisionNoPreviewImages" xml:space="preserve"><value>Не вдалося підготувати жодне вибране зображення до надсилання.</value></data>
+  <data name="aiOrganizerViewImageEvidence" xml:space="preserve"><value>Переглянути зображення-підставу</value></data>
+  <data name="aiOrganizerImageEvidenceTitleFormat" xml:space="preserve"><value>Підготовлене зображення-підстава — {0}</value></data>
+  <data name="aiOrganizerImageEvidenceHelpTitle" xml:space="preserve"><value>Перегляд зображення-підстави</value></data>
+  <data name="aiOrganizerImageEvidenceHelpSubtitle" xml:space="preserve"><value>Перегляньте зменшену JPEG-копію, підготовлену для запиту організатора.</value></data>
+  <data name="aiOrganizerImageEvidenceHelpClose" xml:space="preserve"><value>Закрити перегляд зображення</value></data>
+  <data name="aiOrganizerImageMetadataFormat" xml:space="preserve"><value>Оригінал: {0} × {1}, {2:N0} байт   →   JPEG для надсилання: {3} × {4}, {5:N0} байт</value></data>
+  <data name="aiOrganizerImageSourcePreview" xml:space="preserve"><value>Перегляд джерела</value></data>
+  <data name="aiOrganizerImageUploadPreview" xml:space="preserve"><value>JPEG для моделі</value></data>
+  <data name="aiOrganizerImagesIncludedFormat" xml:space="preserve"><value>Моделі надіслано зображень: {0}; пропущено через ліміти або помилки читання: {1}</value></data>
+  <data name="aiOrganizerImageEvidenceFormat" xml:space="preserve"><value>Спостереження моделі за зображенням (перевірте файл): «{0}»</value></data>
 </root>

@@ -20,6 +20,63 @@ namespace DotNetCommander
             return Directory.EnumerateDirectories(path, pattern, searchOption);
         }
 
+        public static bool IsReparsePoint(string path)
+        {
+            try
+            {
+                return (File.GetAttributes(path) & FileAttributes.ReparsePoint) != 0;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
+        public static List<string> CollectDirectories(string rootPath)
+        {
+            var directories = new List<string>();
+            Walk(rootPath, null, directories);
+            return directories;
+        }
+
+        public static List<string> CollectFiles(string rootPath)
+        {
+            var files = new List<string>();
+            Walk(rootPath, files, null);
+            return files;
+        }
+
+        private static void Walk(string rootPath, List<string> files, List<string> directories)
+        {
+            if (IsReparsePoint(rootPath))
+            {
+                return;
+            }
+
+            var pending = new Stack<string>();
+            pending.Push(rootPath);
+            while (pending.Count > 0)
+            {
+                string current = pending.Pop();
+                try
+                {
+                    files?.AddRange(Directory.EnumerateFiles(current));
+                    foreach (string directory in Directory.EnumerateDirectories(current))
+                    {
+                        directories?.Add(directory);
+                        if (!IsReparsePoint(directory))
+                        {
+                            pending.Push(directory);
+                        }
+                    }
+                }
+                catch (UnauthorizedAccessException ex)
+                {
+                    throw new DirectoryAccessDeniedException(current, ex);
+                }
+            }
+        }
+
         public static void CreateDirectory(string path)
         {
             Directory.CreateDirectory(path);
@@ -32,7 +89,15 @@ namespace DotNetCommander
 
         public static void DeleteFile(string path)
         {
-            File.Delete(path);
+            try
+            {
+                File.Delete(path);
+            }
+            catch (UnauthorizedAccessException)
+            {
+                ClearReadOnlyAttribute(path);
+                File.Delete(path);
+            }
         }
 
         public static void MoveDirectory(string sourcePath, string destinationPath)
@@ -42,12 +107,48 @@ namespace DotNetCommander
 
         public static void MoveFile(string sourcePath, string destinationPath)
         {
+            ClearReadOnlyAttributeIfPresent(destinationPath);
             File.Move(sourcePath, destinationPath, true);
         }
 
         public static void CommitTemporaryFile(string temporaryPath, string destinationPath, bool overwriteExisting)
         {
+            if (overwriteExisting)
+            {
+                ClearReadOnlyAttributeIfPresent(destinationPath);
+            }
+
             File.Move(temporaryPath, destinationPath, overwriteExisting);
+        }
+
+        public static void CopyAttributes(string sourcePath, string destinationPath)
+        {
+            try
+            {
+                FileAttributes attributes = File.GetAttributes(sourcePath) & ~FileAttributes.ReparsePoint;
+                File.SetAttributes(destinationPath, attributes);
+            }
+            catch (Exception ex)
+            {
+                LogService.LogException("FileSystemService.CopyAttributes", ex);
+            }
+        }
+
+        private static void ClearReadOnlyAttributeIfPresent(string path)
+        {
+            if (File.Exists(path))
+            {
+                ClearReadOnlyAttribute(path);
+            }
+        }
+
+        private static void ClearReadOnlyAttribute(string path)
+        {
+            FileAttributes attributes = File.GetAttributes(path);
+            if ((attributes & FileAttributes.ReadOnly) != 0)
+            {
+                File.SetAttributes(path, attributes & ~FileAttributes.ReadOnly);
+            }
         }
 
         public static FileStream OpenRead(string path)
@@ -57,6 +158,11 @@ namespace DotNetCommander
 
         public static FileStream OpenWrite(string path, bool overwriteExisting)
         {
+            if (overwriteExisting)
+            {
+                ClearReadOnlyAttributeIfPresent(path);
+            }
+
             return new FileStream(
                 path,
                 overwriteExisting ? FileMode.Create : FileMode.CreateNew,
@@ -104,5 +210,16 @@ namespace DotNetCommander
         {
             return Path.GetPathRoot(Path.GetFullPath(path)) ?? string.Empty;
         }
+    }
+
+    internal sealed class DirectoryAccessDeniedException : IOException
+    {
+        public DirectoryAccessDeniedException(string path, Exception innerException)
+            : base("Access to the directory is denied: '" + path + "'.", innerException)
+        {
+            Path = path;
+        }
+
+        public string Path { get; }
     }
 }

@@ -1,16 +1,16 @@
 # DotNetCommander Roadmap
 
-> Тут зафіксовано лише незавершені напрями розвитку після `1.9.2`.
+> Тут зафіксовано лише незавершені напрями розвитку після `1.9.16`.
 > Поточні можливості описано в `AGENTS.md`, виконані зміни — у `CHANGE.md`.
 > Номери версій є орієнтирами, а не обіцянкою дати випуску.
 
-## Найближчий незавершений AI-крок
+## Найближчий незавершений reliability-крок
 
-- Каталог моделей уже розпізнає й показує capability `vision`, але AI-організатор поки не передає зображення моделі. Потрібен окремий безпечний image pipeline: явний режим користувача, перевірка capability, обмеження кількості/розміру, створення зменшених копій і пакетне надсилання без автоматичного читання всіх фотографій.
+- Окремо перевірити довгі шляхи на межі shell API, файлових операцій, архівів і viewer-ів. Поточна обробка метаданих фізичної панелі не доводить сумісність усіх цих сценаріїв.
 
 ## Нумерація версій
 
-- Поточний зафіксований реліз — `1.9.2`.
+- Поточний зафіксований реліз — `1.9.16`.
 - Наступний великий milestone — `1.10.0`; номер `1.9.x` лишається для невеликих сумісних виправлень.
 - Подальші етапи мають повні SemVer-номери: `1.10.0`, `1.11.0`, `1.12.0`, `1.13.0+`.
 - Реалізована можливість одразу переноситься до `CHANGE.md` і не продовжує значитися майбутнім пунктом лише заради збереження старої нумерації етапів.
@@ -50,15 +50,15 @@ DotNetCommander розвивається як Windows-first commander, а не �
 
 ### Файлова й shell-надійність
 
-- Провести long-path hardening для навігації, `copy/move/delete`, архівів, drag-and-drop і внутрішніх viewer/editor.
-- Перевірити Unicode-імена, read-only/hidden/system атрибути, symlink/junction/reparse points і недоступні каталоги.
+- Long-path: для навігації/`copy/move`/архівів/viewer працюють BCL-можливості .NET 8, shell-дії й командний рядок харднуться через `LongPathPolicy` + `longPathAware`-маніфест (1.9.11); лишилося довести зовнішній drag-and-drop і WScript `.lnk`-резолюцію.
+- Unicode-імена, атрибути read-only/hidden/system, symlink/junction reparse points (1.9.12) і ACL-недоступні каталоги (1.9.14: структурований `CompletedWithErrors` без виконаних дій, conflict-скан без винятків, deny-окремого файла через failure handler) зроблено в `FileOperationService`.
 - Перевірити мережеві та VPN-шляхи: старт, refresh, закриття програми, відновлення history і повторне підключення.
-- Стабілізувати `FileSystemWatcher` під час rename-серій, масових змін і зовнішніх shell-операцій.
+- FileSystemWatcher стабілізовано через `DirectoryRefreshCoalescer` (quiet-window + max-latency cap + re-arm на Error, 1.9.13); лишилося прогнати вручну масові shell-операції поверх панелі.
 - Довести drag-and-drop для зовнішніх застосунків і віртуальних панелей до чітко визначеного набору підтримуваних сценаріїв.
 
 ### Перевірюваність
 
-- Додати перший test project для `FileOperationService`, path helpers, `FileTypeClassifier`, CSV/DataSet/GEDCOM/CFBF parsing та archive/container path safety.
+- Тестовий проєкт `Tests/` уже створено (xUnit, 182 тести: `FileTypeClassifier`, `TextFileEncodingService`, фільтри `SearchService`, `SearchQueryHistory`, безпека розпакування архівів, embedded-stream classification, `FileOperationService` copy/move/delete/conflicts включно з junction/reparse, атрибутами та ACL-відмовами, path-хелпери, CSV loader, DataSet XML reader, GEDCOM catalog parser, `LongPathPolicy`, `DirectoryRefreshCoalescer`, CFBF parsing і container path safety, підготовка AI-зображень).
 - Винести чисту логіку з `AppForm` і `FileBrowser` там, де це безпосередньо відкриває можливість тестування.
 - Додати CI з `dotnet build` і запуском тестів на Windows.
 
@@ -76,27 +76,21 @@ DotNetCommander розвивається як Windows-first commander, а не �
 
 ### Search
 
-Вихідна точка `1.8.2`: `Alt+F7`, каталог, маска/regex, пошук тексту, рекурсія та глибина, фонове виконання з прогресом/скасуванням, `SearchBrowser` і стандартні `F3/F4`, Quick View, compare, copy/move/delete вже реалізовано й тут повторно не планується.
-
-- Додати фільтри за датою й розміром.
-- Додати явну команду переходу до реального розташування знайденого файла без його запуску.
-- Додати «Feed to panel» для повторної роботи із зафіксованим набором результатів.
-- Зберігати останні пошукові запити без перетворення history на приховане довготривале сховище.
+Вихідна точка `1.9.7`: `Alt+F7`, каталог, маска/regex, пошук тексту, рекурсія та глибина, фонове виконання з прогресом/скасуванням, `SearchBrowser` і стандартні `F3/F4`, Quick View, compare, copy/move/delete вже реалізовано; додано фільтри за розміром і датою зміни, команду `Go to location` (`Ctrl+G` / контекстне меню), `Feed to passive panel` (`Ctrl+F`) для фіксації набору результатів у пасивній панелі та сесійну історію останніх 10 запитів у діалозі з відновленням полів і кнопкою очищення. Ці пункти повторно не плануються; відкритих пунктів у секції Search немає.
 
 ### Compound File / CFBF
 
-Вихідна точка `1.8.2`: OpenMcdf уже інтегровано як source snapshot; `CompoundBrowser` показує storages/streams, класифікує тип контейнера, підтримує history, Quick View, `F3`, RAW/Hex і copy-out через `F5`. Для Word Binary уже витягується main story через `FIB` і `CLX/Piece Table`. Ці можливості не плануються повторно як «нове дерево», «hex viewer» або базовий export.
+Вихідна точка `1.9.8`: OpenMcdf уже інтегровано як source snapshot; `CompoundBrowser` показує storages/streams, класифікує тип контейнера, підтримує history, Quick View, `F3`, RAW/Hex і copy-out через `F5`. Для Word Binary уже витягується main story через `FIB` і `CLX/Piece Table`. Security boundary зафіксовано: embedded streams (`ObjectPool`, CLSID) вважаються ненадійними, `Enter` їх не запускає через системну асоціацію, зовнішнє відкриття — окрема явна дія «Open externally...» з попередженням, матеріалізовані temp-файли прибираються на старті (crash recovery) і при закритті панелі. Ці пункти повторно не плануються.
 
 Порядок реалізації:
 
-1. Зафіксувати security boundary: embedded streams вважати недовіреними, не запускати їх через системну асоціацію за звичайним Enter/подвійним кліком; зовнішнє відкриття зробити окремою явною дією з попередженням. Матеріалізовані temp-файли гарантовано прибирати після session/crash recovery.
-2. Виправити semantics export: зберігати логічні імена потоків без технічного hash-prefix, безпечно відображати заборонені/reserved Windows names, виявляти колізії, підтримати рекурсивне копіювання вибраного storage зі структурою підкаталогів і пропускати конфлікти через спільний operation pipeline.
-3. Додати content-aware preview потоків за signature/encoding: text, image, RTF/CSV та RAW fallback; спеціальні Office-потоки не маскувати випадковим розширенням.
-4. Показувати root/entry CLSID, `SummaryInformation` і `DocumentSummaryInformation` у структурованому metadata view; окремо позначати encrypted/protected документи й наявність macro/embedded executable content, не виконуючи його.
-5. Розпізнавати найпоширеніші embedded payload wrappers (`Ole10Native`, `Package`) та дозволяти окремо експортувати raw stream або точно виділений payload без удаваної «конвертації у сучасний формат».
-6. Додати обмежений пошук усередині текстоподібних streams, повторно використовуючи search pipeline, cancellation і ліміти розміру.
-7. Перетворити strict validation OpenMcdf на зрозумілий read-only integrity report: пошкоджені структури, недоступні streams і частково прочитані дані. Цифрові підписи документа не змішувати зі структурною цілісністю CFBF.
-8. Розглянути окремий salvage/export mode для пошкоджених контейнерів; він ніколи не змінює оригінал і не називається автоматичним «ремонтом».
+1. Виправити semantics export: зберігати логічні імена потоків без технічного hash-prefix, безпечно відображати заборонені/reserved Windows names, виявляти колізії, підтримати рекурсивне копіювання вибраного storage зі структурою підкаталогів і пропускати конфлікти через спільний operation pipeline.
+2. Додати content-aware preview потоків за signature/encoding: text, image, RTF/CSV та RAW fallback; спеціальні Office-потоки не маскувати випадковим розширенням.
+3. Показувати root/entry CLSID, `SummaryInformation` і `DocumentSummaryInformation` у структурованому metadata view; окремо позначати encrypted/protected документи й наявність macro/embedded executable content, не виконуючи його.
+4. Розпізнавати найпоширеніші embedded payload wrappers (`Ole10Native`, `Package`) та дозволяти окремо експортувати raw stream або точно виділений payload без удаваної «конвертації у сучасний формат».
+5. Додати обмежений пошук усередині текстоподібних streams, повторно використовуючи search pipeline, cancellation і ліміти розміру.
+6. Перетворити strict validation OpenMcdf на зрозумілий read-only integrity report: пошкоджені структури, недоступні streams і частково прочитані дані. Цифрові підписи документа не змішувати зі структурною цілісністю CFBF.
+7. Розглянути окремий salvage/export mode для пошкоджених контейнерів; він ніколи не змінює оригінал і не називається автоматичним «ремонтом».
 
 Для всіх CFBF-операцій потрібні захисні межі на кількість entries, nesting depth, сумарний materialized size, окремий stream size, час роботи та кількість помилок. Вкладені контейнери мають обмежувати рекурсію.
 
@@ -114,8 +108,10 @@ DotNetCommander розвивається як Windows-first commander, а не �
 
 ### Selection and Metadata
 
-- Виділення та зняття виділення за маскою (`Num+` / `Num-`) і інверсія selection.
-- Копіювання імені, повного шляху та відносного шляху.
+- [x] Інверсія selection у фізичній файловій панелі клавішею `NumPad *`.
+- [x] Виділення та зняття виділення за маскою (`Num+` / `Num-`) у фізичній панелі.
+- [x] Копіювання повних шляхів виділених елементів як багаторядкового тексту (`Ctrl+Shift+C`, Edit menu) у фізичній панелі.
+- [x] Копіювання імен і відносних шляхів вибраних елементів як багаторядкового тексту в фізичній панелі.
 - Зміна read-only/hidden/system атрибутів і часових міток для одного або кількох елементів.
 - Явна політика для symlink/reparse point, щоб пакетна команда не обходила дерево несподівано.
 

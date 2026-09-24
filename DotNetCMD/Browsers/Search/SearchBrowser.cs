@@ -20,6 +20,7 @@ namespace DotNetCommander
         private readonly List<BrowserItemInfo> visibleItems = new List<BrowserItemInfo>();
         private CancellationTokenSource searchCancellation;
         private SearchQuery currentQuery;
+        private string frozenDescription;
         private int searchGeneration;
 
         public SearchBrowser()
@@ -54,6 +55,8 @@ namespace DotNetCommander
             resultView.SelectedIndexChanged += (_, __) => RaiseSelectionChanged();
             resultView.ItemActivate += (_, __) => ActivateSelectedResult();
             resultView.KeyDown += ResultView_KeyDown;
+            resultView.MouseDown += ResultView_MouseDown;
+            resultView.ContextMenuStrip = CreateContextMenu();
 
             var statusPanel = new Panel
             {
@@ -86,16 +89,20 @@ namespace DotNetCommander
 
         public event EventHandler LeaveRequested;
         public event EventHandler<SearchResultActivatedEventArgs> ResultActivated;
+        public event EventHandler<SearchResultActivatedEventArgs> GoToLocationRequested;
+        public event EventHandler<SearchFeedEventArgs> FeedToPanelRequested;
 
         public SearchQuery CurrentQuery => currentQuery?.Clone();
         public bool IsSearching => searchCancellation != null;
-        public override string DisplayLocation => currentQuery == null
-            ? Language.getString("searchResults")
-            : string.Format(
-                CultureInfo.CurrentCulture,
-                Language.getString("searchDisplayLocationFormat"),
-                currentQuery.NamePattern,
-                currentQuery.ScopeDirectory);
+        public bool IsFrozenList => frozenDescription != null && currentQuery == null;
+        public override string DisplayLocation => frozenDescription
+            ?? (currentQuery == null
+                ? Language.getString("searchResults")
+                : string.Format(
+                    CultureInfo.CurrentCulture,
+                    Language.getString("searchDisplayLocationFormat"),
+                    currentQuery.NamePattern,
+                    currentQuery.ScopeDirectory));
         public override IReadOnlyList<BrowserItemInfo> Items => visibleItems;
         public override IReadOnlyList<BrowserItemInfo> SelectedItems => resultView.SelectedItems
             .Cast<ListViewItem>()
@@ -139,6 +146,7 @@ namespace DotNetCommander
 
             CancelSearch();
             currentQuery = query.Clone();
+            frozenDescription = null;
             int generation = ++searchGeneration;
             searchCancellation = new CancellationTokenSource();
             CancellationToken token = searchCancellation.Token;
@@ -209,6 +217,26 @@ namespace DotNetCommander
             searchCancellation?.Dispose();
             searchCancellation = null;
             cancelButton.Visible = false;
+        }
+
+        public void ShowFrozenResults(IReadOnlyList<BrowserItemInfo> items, string description)
+        {
+            CancelSearch();
+            currentQuery = null;
+            frozenDescription = string.IsNullOrWhiteSpace(description)
+                ? Language.getString("searchResults")
+                : description;
+            visibleItems.Clear();
+            visibleItems.AddRange(items ?? Array.Empty<BrowserItemInfo>());
+            addressBar.Path = string.Empty;
+            PopulateResults(visibleItems);
+            statusLabel.Text = string.Format(
+                CultureInfo.CurrentCulture,
+                Language.getString("searchFeedStatusFormat"),
+                visibleItems.Count);
+            cancelButton.Visible = false;
+            RaiseLocationChanged(DisplayLocation);
+            RaiseSelectionChanged();
         }
 
         public void FocusItems()
@@ -298,6 +326,60 @@ namespace DotNetCommander
                 ResultActivated?.Invoke(this, new SearchResultActivatedEventArgs(selected.NativePath, selected.IsDirectory));
         }
 
+        private ContextMenuStrip CreateContextMenu()
+        {
+            var menu = new ContextMenuStrip();
+            var goToItem = new ToolStripMenuItem(Language.getString("searchGoToLocation"))
+            {
+                ShortcutKeyDisplayString = "Ctrl+G"
+            };
+            goToItem.Click += (_, __) => GoToLocation();
+            menu.Items.Add(goToItem);
+            var feedItem = new ToolStripMenuItem(Language.getString("searchFeedToPanel"))
+            {
+                ShortcutKeyDisplayString = "Ctrl+F"
+            };
+            feedItem.Click += (_, __) => FeedToPanel();
+            menu.Items.Add(feedItem);
+            menu.Opening += (_, __) =>
+            {
+                feedItem.Enabled = !IsSearching && visibleItems.Count > 0;
+            };
+            return menu;
+        }
+
+        private void GoToLocation()
+        {
+            BrowserItemInfo selected = SelectedItems.FirstOrDefault();
+            if (selected != null)
+                GoToLocationRequested?.Invoke(this, new SearchResultActivatedEventArgs(selected.NativePath, selected.IsDirectory));
+        }
+
+        private void FeedToPanel()
+        {
+            if (IsSearching || visibleItems.Count == 0)
+                return;
+
+            FeedToPanelRequested?.Invoke(this, new SearchFeedEventArgs(
+                visibleItems.ToArray(),
+                DisplayLocation));
+        }
+
+        private void ResultView_MouseDown(object sender, MouseEventArgs e)
+        {
+            if (e.Button != MouseButtons.Right)
+                return;
+
+            ListViewItem hit = resultView.GetItemAt(e.X, e.Y);
+            if (hit == null || hit.Selected)
+                return;
+
+            foreach (ListViewItem selected in resultView.SelectedItems.Cast<ListViewItem>().ToArray())
+                selected.Selected = false;
+            hit.Selected = true;
+            hit.Focused = true;
+        }
+
         private void ResultView_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Escape)
@@ -308,7 +390,31 @@ namespace DotNetCommander
                     LeaveRequested?.Invoke(this, EventArgs.Empty);
                 e.Handled = true;
             }
+            else if (e.Control && e.KeyCode == Keys.G)
+            {
+                GoToLocation();
+                e.Handled = true;
+                e.SuppressKeyPress = true;
+            }
+            else if (e.Control && e.KeyCode == Keys.F)
+            {
+                FeedToPanel();
+                e.Handled = true;
+                e.SuppressKeyPress = true;
+            }
         }
+    }
+
+    internal sealed class SearchFeedEventArgs : EventArgs
+    {
+        public SearchFeedEventArgs(IReadOnlyList<BrowserItemInfo> items, string description)
+        {
+            Items = items ?? Array.Empty<BrowserItemInfo>();
+            Description = description;
+        }
+
+        public IReadOnlyList<BrowserItemInfo> Items { get; }
+        public string Description { get; }
     }
 
     internal sealed class SearchResultActivatedEventArgs : EventArgs

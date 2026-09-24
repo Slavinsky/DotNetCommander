@@ -18,6 +18,9 @@ namespace DotNetCommander
         private readonly ComboBox comboModel;
         private readonly ComboBox comboContext;
         private readonly ComboBox comboTaskMode;
+        private readonly CheckBox checkIncludeImages;
+        private readonly Button buttonChooseImages;
+        private readonly Label labelSelectedImages;
         private readonly Label labelModelInfo;
         private readonly DataGridView gridPlan;
         private readonly TextBox textSummary;
@@ -25,9 +28,12 @@ namespace DotNetCommander
         private readonly ProgressBar progressBar;
         private readonly Button buttonAnalyze;
         private readonly Button buttonExecute;
+        private readonly Button buttonViewImage;
         private readonly Button buttonCancel;
         private readonly System.Windows.Forms.Timer progressTimer;
         private IReadOnlyList<OllamaModelDescriptor> availableModels = Array.Empty<OllamaModelDescriptor>();
+        private IReadOnlyList<string> selectedImagePaths = Array.Empty<string>();
+        private IReadOnlyList<AiPreparedImage> lastPreparedImages = Array.Empty<AiPreparedImage>();
         private CancellationTokenSource cancellation;
         private CancellationTokenSource modelLoadingCancellation;
         private DateTime analysisStarted;
@@ -91,7 +97,7 @@ namespace DotNetCommander
                 Dock = DockStyle.Top,
                 AutoSize = true,
                 ColumnCount = 4,
-                RowCount = 3,
+                RowCount = 4,
                 Margin = new Padding(0, 10, 0, 10)
             };
             settingsPanel.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
@@ -146,8 +152,44 @@ namespace DotNetCommander
             };
             settingsPanel.Controls.Add(labelModelInfo, 0, 2);
             settingsPanel.SetColumnSpan(labelModelInfo, 4);
+            checkIncludeImages = new CheckBox
+            {
+                AutoSize = true,
+                Text = Language.getString("aiOrganizerVisionImages"),
+                Enabled = false,
+                Margin = new Padding(0, 6, 0, 0)
+            };
+            buttonChooseImages = CreateButton(Language.getString("aiOrganizerVisionChooseImages"));
+            buttonChooseImages.Enabled = false;
+            buttonChooseImages.Click += (_, __) => ChooseImages();
+            labelSelectedImages = new Label
+            {
+                AutoSize = true,
+                Text = string.Format(Language.getString("aiOrganizerVisionSelectedCountFormat"), 0),
+                ForeColor = SystemColors.GrayText,
+                Margin = new Padding(8, 9, 0, 0)
+            };
+            var imageSelectionPanel = new FlowLayoutPanel
+            {
+                AutoSize = true,
+                Dock = DockStyle.Fill,
+                FlowDirection = FlowDirection.LeftToRight,
+                WrapContents = false,
+                Margin = new Padding(0)
+            };
+            imageSelectionPanel.Controls.Add(checkIncludeImages);
+            imageSelectionPanel.Controls.Add(buttonChooseImages);
+            imageSelectionPanel.Controls.Add(labelSelectedImages);
+            settingsPanel.Controls.Add(imageSelectionPanel, 0, 3);
+            settingsPanel.SetColumnSpan(imageSelectionPanel, 4);
 
             gridPlan = CreatePlanGrid();
+            gridPlan.SelectionChanged += (_, __) => UpdateImagePreviewButton();
+            gridPlan.CellDoubleClick += (_, e) =>
+            {
+                if (e.RowIndex >= 0)
+                    ShowSelectedImageEvidence(gridPlan.Rows[e.RowIndex]);
+            };
             textSummary = new TextBox
             {
                 Dock = DockStyle.Fill,
@@ -179,10 +221,14 @@ namespace DotNetCommander
             buttonExecute = CreateButton(Language.getString("aiOrganizerExecute"));
             buttonExecute.Enabled = false;
             buttonExecute.Click += async (_, __) => await ExecuteSelectedAsync();
+            buttonViewImage = CreateButton(Language.getString("aiOrganizerViewImageEvidence"));
+            buttonViewImage.Enabled = false;
+            buttonViewImage.Click += (_, __) => ShowSelectedImageEvidence();
             buttonAnalyze = CreateButton(Language.getString("aiOrganizerAnalyze"));
             buttonAnalyze.Click += async (_, __) => await AnalyzeAsync();
             buttons.Controls.Add(buttonCancel);
             buttons.Controls.Add(buttonExecute);
+            buttons.Controls.Add(buttonViewImage);
             buttons.Controls.Add(buttonAnalyze);
 
             root.Controls.Add(labelTitle, 0, 0);
@@ -335,8 +381,38 @@ namespace DotNetCommander
                 return;
             }
 
+            IReadOnlyList<AiPreparedImage> preparedImages = null;
+            if (checkIncludeImages.Checked)
+            {
+                using var previewDialog = new FormAiImagePreview(selectedImagePaths);
+                if (previewDialog.ShowDialog(this) != DialogResult.OK)
+                    return;
+
+                preparedImages = previewDialog.PreparedImages;
+                if (preparedImages.Count == 0)
+                {
+                    MessageBox.Show(this, Language.getString("aiOrganizerVisionNoPreviewImages"), Language.getString("Info"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    return;
+                }
+
+                string selectedNames = string.Join(Environment.NewLine, preparedImages.Select(image => image.FileName));
+                string confirmation = string.Format(
+                    Language.getString("aiOrganizerVisionConfirmSendFormat"),
+                    comboModel.Text.Trim(),
+                    textEndpoint.Text.Trim(),
+                    selectedNames);
+                if (MessageBox.Show(
+                    this,
+                    confirmation,
+                    Language.getString("aiOrganizerTitle"),
+                    MessageBoxButtons.YesNo,
+                    MessageBoxIcon.Warning) != DialogResult.Yes)
+                    return;
+            }
+
             modelLoadingCancellation?.Cancel();
             gridPlan.Rows.Clear();
+            lastPreparedImages = preparedImages ?? Array.Empty<AiPreparedImage>();
             textSummary.Text = string.Empty;
             analysisStarted = DateTime.Now;
             progressReceived = analysisStarted;
@@ -354,17 +430,23 @@ namespace DotNetCommander
                     comboModel.Text,
                     SelectedContextMode,
                     SelectedTaskMode,
+                    checkIncludeImages.Checked ? selectedImagePaths : Array.Empty<string>(),
                     progress,
-                    cancellation.Token);
+                    cancellation.Token,
+                    checkIncludeImages.Checked ? preparedImages : null);
 
                 foreach (AiOrganizationAction action in plan.Actions)
                 {
                     string explanation = action.Reason;
                     if (!string.IsNullOrWhiteSpace(action.Evidence))
                     {
-                        explanation += "  " + string.Format(Language.getString("aiOrganizerEvidenceFormat"), action.Evidence);
+                        string evidenceFormat = string.Equals(action.EvidenceBasis, "image", StringComparison.OrdinalIgnoreCase)
+                            ? Language.getString("aiOrganizerImageEvidenceFormat")
+                            : Language.getString("aiOrganizerEvidenceFormat");
+                        explanation += "  " + string.Format(evidenceFormat, action.Evidence);
                     }
-                    int index = gridPlan.Rows.Add(true, action.SourceDisplay, action.DestinationDisplay, explanation);
+                    bool checkedByDefault = !string.Equals(action.EvidenceBasis, "image", StringComparison.OrdinalIgnoreCase);
+                    int index = gridPlan.Rows.Add(checkedByDefault, action.SourceDisplay, action.DestinationDisplay, explanation);
                     gridPlan.Rows[index].Tag = action;
                 }
 
@@ -416,9 +498,12 @@ namespace DotNetCommander
                         plan.ContentFilesIncluded,
                         plan.ContentCharactersIncluded);
                 }
+                if (plan.ImagesIncluded > 0 || plan.ImagesSkipped > 0)
+                    textSummary.Text += Environment.NewLine + string.Format(Language.getString("aiOrganizerImagesIncludedFormat"), plan.ImagesIncluded, plan.ImagesSkipped);
                 if (plan.EvidenceRejectedSuggestions > 0)
                     textSummary.Text += Environment.NewLine + string.Format(Language.getString("aiOrganizerEvidenceRejectedFormat"), plan.EvidenceRejectedSuggestions);
                 buttonExecute.Enabled = plan.TaskMode == AiOrganizerTaskMode.FilePlan && plan.Actions.Count > 0;
+                UpdateImagePreviewButton();
             }
             catch (OperationCanceledException)
             {
@@ -517,12 +602,76 @@ namespace DotNetCommander
             return availableModels.FirstOrDefault(item => string.Equals(item.Name, selectedName, StringComparison.OrdinalIgnoreCase));
         }
 
+        private void ChooseImages()
+        {
+            if (busy || FindSelectedModel()?.HasCapability("vision") != true)
+                return;
+
+            using var dialog = new OpenFileDialog
+            {
+                CheckFileExists = true,
+                InitialDirectory = Directory.Exists(rootPath) ? rootPath : Environment.GetFolderPath(Environment.SpecialFolder.MyPictures),
+                Multiselect = true,
+                Title = Language.getString("aiOrganizerVisionImageDialogTitle"),
+                Filter = Language.getString("aiOrganizerVisionImageDialogFilter"),
+                RestoreDirectory = true
+            };
+            if (dialog.ShowDialog(this) != DialogResult.OK)
+                return;
+
+            string normalizedRoot = Path.TrimEndingDirectorySeparator(Path.GetFullPath(rootPath));
+            string[] paths = dialog.FileNames
+                .Select(Path.GetFullPath)
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .Where(path => string.Equals(
+                    Path.TrimEndingDirectorySeparator(Path.GetDirectoryName(path)),
+                    normalizedRoot,
+                    StringComparison.OrdinalIgnoreCase))
+                .Where(AiOrganizationService.IsSupportedImagePath)
+                .Where(File.Exists)
+                .ToArray();
+
+            if (dialog.FileNames.Length > paths.Length)
+            {
+                MessageBox.Show(
+                    this,
+                    string.Format(Language.getString("aiOrganizerVisionImagesOutsideFolderFormat"), dialog.FileNames.Length - paths.Length),
+                    Language.getString("Info"),
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Information);
+            }
+            if (paths.Length > 12)
+            {
+                MessageBox.Show(
+                    this,
+                    string.Format(Language.getString("aiOrganizerVisionTooManySelectedFormat"), 12),
+                    Language.getString("Info"),
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Information);
+                return;
+            }
+
+            selectedImagePaths = paths;
+            labelSelectedImages.Text = string.Format(Language.getString("aiOrganizerVisionSelectedCountFormat"), paths.Length);
+            checkIncludeImages.Enabled = paths.Length > 0;
+            checkIncludeImages.Checked = paths.Length > 0;
+        }
+
         private void UpdateModelInfo()
         {
             if (labelModelInfo == null)
                 return;
 
             OllamaModelDescriptor model = FindSelectedModel();
+            bool supportsVision = model?.HasCapability("vision") == true;
+            if (checkIncludeImages != null)
+            {
+                checkIncludeImages.Enabled = supportsVision && selectedImagePaths.Count > 0;
+                if (!supportsVision)
+                    checkIncludeImages.Checked = false;
+            }
+            if (buttonChooseImages != null)
+                buttonChooseImages.Enabled = supportsVision;
             if (model == null)
             {
                 labelModelInfo.Text = Language.getString("aiOrganizerModelInfoUnknown");
@@ -727,6 +876,7 @@ namespace DotNetCommander
             gridPlan.Enabled = !value;
             buttonAnalyze.Enabled = !value;
             buttonExecute.Enabled = !value && gridPlan.Rows.Cast<DataGridViewRow>().Any(row => row.Tag is AiOrganizationAction);
+            buttonViewImage.Enabled = !value && FindSelectedImageEvidence() != null;
             buttonCancel.Text = value ? Language.getString("cancel") : Language.getString("close");
             progressBar.Visible = value;
             if (value)
@@ -740,6 +890,37 @@ namespace DotNetCommander
                 }
             }
             labelStatus.Text = status ?? string.Empty;
+        }
+
+        private AiPreparedImage FindSelectedImageEvidence()
+        {
+            return FindImageEvidence(gridPlan?.CurrentRow);
+        }
+
+        private AiPreparedImage FindImageEvidence(DataGridViewRow row)
+        {
+            if (row?.Tag is not AiOrganizationAction action
+                || !string.Equals(action.EvidenceBasis, "image", StringComparison.OrdinalIgnoreCase))
+                return null;
+
+            return lastPreparedImages.FirstOrDefault(image =>
+                string.Equals(image.FullPath, action.SourcePath, StringComparison.OrdinalIgnoreCase));
+        }
+
+        private void UpdateImagePreviewButton()
+        {
+            if (buttonViewImage != null)
+                buttonViewImage.Enabled = !busy && FindSelectedImageEvidence() != null;
+        }
+
+        private void ShowSelectedImageEvidence(DataGridViewRow row = null)
+        {
+            AiPreparedImage image = FindImageEvidence(row ?? gridPlan.CurrentRow);
+            if (image == null)
+                return;
+
+            using var dialog = new FormAiPreparedImageView(image);
+            dialog.ShowDialog(this);
         }
 
         private void ButtonCancel_Click(object sender, EventArgs e)
@@ -763,6 +944,299 @@ namespace DotNetCommander
             modelLoadingCancellation?.Cancel();
             labelStatus.Text = Language.getString("aiOrganizerCancelling");
             e.Cancel = true;
+        }
+    }
+
+    internal sealed class FormAiPreparedImageView : Form
+    {
+        public FormAiPreparedImageView(AiPreparedImage image)
+        {
+            Text = string.Format(Language.getString("aiOrganizerImageEvidenceTitleFormat"), image.FileName);
+            StartPosition = FormStartPosition.CenterParent;
+            MinimumSize = new Size(720, 420);
+            Size = new Size(1100, 760);
+            ShowIcon = false;
+            KeyPreview = true;
+
+            var content = new TableLayoutPanel
+            {
+                Dock = DockStyle.Fill,
+                ColumnCount = 1,
+                RowCount = 3,
+                Padding = new Padding(8)
+            };
+            content.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
+            content.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+            content.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+            var comparison = CreateImageComparisonPanel(image.SourcePreviewJpegBytes, image.JpegBytes);
+            var metadata = new Label
+            {
+                AutoSize = true,
+                Dock = DockStyle.Fill,
+                Text = FormatImageMetadata(image),
+                Padding = new Padding(4, 8, 4, 4)
+            };
+            var closeButton = new Button
+            {
+                AutoSize = true,
+                MinimumSize = new Size(124, 38),
+                Text = Language.getString("close"),
+                DialogResult = DialogResult.Cancel
+            };
+            var footer = new FlowLayoutPanel
+            {
+                Dock = DockStyle.Fill,
+                AutoSize = true,
+                FlowDirection = FlowDirection.RightToLeft,
+                Padding = new Padding(8)
+            };
+            footer.Controls.Add(closeButton);
+            content.Controls.Add(comparison, 0, 0);
+            content.Controls.Add(metadata, 0, 1);
+            content.Controls.Add(footer, 0, 2);
+            Controls.Add(content);
+            CancelButton = closeButton;
+        }
+
+        internal static string FormatImageMetadata(AiPreparedImage image)
+        {
+            return string.Format(
+                Language.getString("aiOrganizerImageMetadataFormat"),
+                image.SourceWidth,
+                image.SourceHeight,
+                image.SourceBytes,
+                image.PreparedWidth,
+                image.PreparedHeight,
+                image.JpegBytes.LongLength);
+        }
+
+        internal static Control CreateImageComparisonPanel(byte[] sourcePreviewBytes, byte[] uploadBytes)
+        {
+            var comparison = new TableLayoutPanel
+            {
+                Dock = DockStyle.Fill,
+                ColumnCount = 2,
+                RowCount = 2,
+                Padding = new Padding(4)
+            };
+            comparison.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50));
+            comparison.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50));
+            comparison.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+            comparison.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
+            comparison.Controls.Add(CreatePreviewCaption(Language.getString("aiOrganizerImageSourcePreview")), 0, 0);
+            comparison.Controls.Add(CreatePreviewCaption(Language.getString("aiOrganizerImageUploadPreview")), 1, 0);
+            comparison.Controls.Add(CreatePreviewPicture(sourcePreviewBytes), 0, 1);
+            comparison.Controls.Add(CreatePreviewPicture(uploadBytes), 1, 1);
+            return comparison;
+        }
+
+        internal static Label CreatePreviewCaption(string text)
+        {
+            return new Label
+            {
+                AutoSize = true,
+                Dock = DockStyle.Fill,
+                Text = text,
+                TextAlign = ContentAlignment.MiddleCenter,
+                Padding = new Padding(4)
+            };
+        }
+
+        private static PictureBox CreatePreviewPicture(byte[] bytes)
+        {
+            using var stream = new MemoryStream(bytes, writable: false);
+            using Image decoded = Image.FromStream(stream, useEmbeddedColorManagement: false, validateImageData: true);
+            var image = new Bitmap(decoded);
+            var picture = new PictureBox
+            {
+                Dock = DockStyle.Fill,
+                Image = image,
+                SizeMode = PictureBoxSizeMode.Zoom,
+                BackColor = Color.FromArgb(32, 32, 32)
+            };
+            picture.Disposed += (_, __) => image.Dispose();
+            return picture;
+        }
+
+        protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
+        {
+            if (keyData == Keys.Escape)
+            {
+                Close();
+                return true;
+            }
+            if (keyData == Keys.F1)
+            {
+                using var helpForm = new FormKeyboardHelp(
+                    Language.getString("aiOrganizerImageEvidenceHelpTitle"),
+                    Language.getString("aiOrganizerImageEvidenceHelpSubtitle"),
+                    new[] { new KeyboardHelpItem("Esc", Language.getString("aiOrganizerImageEvidenceHelpClose")) });
+                helpForm.ShowDialog(this);
+                return true;
+            }
+            return base.ProcessCmdKey(ref msg, keyData);
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            base.Dispose(disposing);
+        }
+    }
+
+    internal sealed class FormAiImagePreview : Form
+    {
+        private readonly IReadOnlyList<string> paths;
+        private readonly CancellationTokenSource cancellation = new CancellationTokenSource();
+        private readonly FlowLayoutPanel imagePanel;
+        private readonly Label statusLabel;
+        private readonly Button continueButton;
+        private bool loading = true;
+
+        public IReadOnlyList<AiPreparedImage> PreparedImages { get; private set; } = Array.Empty<AiPreparedImage>();
+
+        public FormAiImagePreview(IReadOnlyList<string> paths)
+        {
+            this.paths = paths ?? Array.Empty<string>();
+            Text = Language.getString("aiOrganizerVisionPreviewTitle");
+            StartPosition = FormStartPosition.CenterParent;
+            MinimumSize = new Size(640, 420);
+            Size = new Size(920, 620);
+            ShowIcon = false;
+
+            imagePanel = new FlowLayoutPanel
+            {
+                Dock = DockStyle.Fill,
+                AutoScroll = true,
+                Padding = new Padding(12),
+                WrapContents = true
+            };
+            statusLabel = new Label
+            {
+                AutoSize = true,
+                Dock = DockStyle.Fill,
+                Text = Language.getString("aiOrganizerVisionPreviewPreparing"),
+                TextAlign = ContentAlignment.MiddleLeft,
+                Margin = new Padding(8)
+            };
+            continueButton = new Button
+            {
+                AutoSize = true,
+                MinimumSize = new Size(124, 38),
+                Text = Language.getString("aiOrganizerVisionPreviewContinue"),
+                Enabled = false,
+                DialogResult = DialogResult.OK
+            };
+            var cancelButton = new Button
+            {
+                AutoSize = true,
+                MinimumSize = new Size(124, 38),
+                Text = Language.getString("cancel"),
+                DialogResult = DialogResult.Cancel
+            };
+            var footer = new FlowLayoutPanel
+            {
+                Dock = DockStyle.Bottom,
+                AutoSize = true,
+                FlowDirection = FlowDirection.LeftToRight,
+                Padding = new Padding(8)
+            };
+            footer.Controls.Add(statusLabel);
+            footer.Controls.Add(continueButton);
+            footer.Controls.Add(cancelButton);
+            Controls.Add(imagePanel);
+            Controls.Add(footer);
+            AcceptButton = continueButton;
+            CancelButton = cancelButton;
+            Shown += async (_, __) => await LoadPreviewsAsync();
+            FormClosing += (_, __) =>
+            {
+                if (loading)
+                    cancellation.Cancel();
+            };
+        }
+
+        private async Task LoadPreviewsAsync()
+        {
+            try
+            {
+                IReadOnlyList<AiPreparedImage> prepared = await AiOrganizationService.PrepareImagesForPreviewAsync(paths, cancellation.Token);
+                if (IsDisposed || cancellation.IsCancellationRequested)
+                    return;
+
+                PreparedImages = prepared;
+                foreach (AiPreparedImage item in prepared)
+                    AddPreview(item);
+
+                int skipped = Math.Max(0, paths.Count - prepared.Count);
+                statusLabel.Text = skipped > 0
+                    ? string.Format(Language.getString("aiOrganizerVisionPreviewSkippedFormat"), prepared.Count, skipped)
+                    : string.Format(Language.getString("aiOrganizerVisionPreviewReadyFormat"), prepared.Count);
+                continueButton.Enabled = prepared.Count > 0;
+            }
+            catch (OperationCanceledException)
+            {
+                if (!IsDisposed)
+                    DialogResult = DialogResult.Cancel;
+            }
+            catch (Exception ex)
+            {
+                LogService.LogException("FormAiImagePreview.Load", ex);
+                if (!IsDisposed)
+                {
+                    statusLabel.Text = Language.getString("aiOrganizerVisionPreviewFailed");
+                    MessageBox.Show(this, ex.Message, Language.getString("aiOrganizerTitle"), MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+            finally
+            {
+                loading = false;
+                cancellation.Dispose();
+            }
+        }
+
+        private void AddPreview(AiPreparedImage item)
+        {
+            var card = new Panel
+            {
+                Width = 420,
+                Height = 300,
+                BorderStyle = BorderStyle.FixedSingle,
+                Margin = new Padding(6)
+            };
+            Control comparison = FormAiPreparedImageView.CreateImageComparisonPanel(item.SourcePreviewJpegBytes, item.JpegBytes);
+            var name = new Label
+            {
+                Dock = DockStyle.Bottom,
+                Height = 28,
+                Text = item.FileName,
+                TextAlign = ContentAlignment.MiddleLeft,
+                AutoEllipsis = true,
+                Padding = new Padding(4, 0, 4, 0)
+            };
+            var metadata = new Label
+            {
+                Dock = DockStyle.Bottom,
+                Height = 42,
+                Text = FormAiPreparedImageView.FormatImageMetadata(item),
+                TextAlign = ContentAlignment.MiddleLeft,
+                Padding = new Padding(4, 0, 4, 0)
+            };
+            card.Controls.Add(comparison);
+            card.Controls.Add(metadata);
+            card.Controls.Add(name);
+            imagePanel.Controls.Add(card);
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                if (loading && !cancellation.IsCancellationRequested)
+                    cancellation.Cancel();
+                if (!loading)
+                    cancellation.Dispose();
+            }
+            base.Dispose(disposing);
         }
     }
 }

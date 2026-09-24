@@ -9,7 +9,7 @@ Namespace: `DotNetCommander`
 
 Поточна активна збірка:
 - `Commander.NET.csproj` — `net8.0-windows10.0.22621.0`
-- Версія: `1.9.2`
+- Версія: `1.9.16`
 
 Історична збірка:
 - `DotNetCommander.csproj` — оригінальний .NET Framework-проєкт
@@ -40,18 +40,18 @@ Namespace: `DotNetCommander`
 - `Dialogs/Legacy/` — legacy допоміжні діалоги (`InputBox`, `frmOptions`, `frmWait`) зі збереженим старим API, але вже зі спільною типографікою та візуальним стилем актуальних службових форм
 
 ## Ключові компоненти
-- `Browsers/FileSystem/FileBrowser.cs` — основна файлова панель на `ListView`
+- `Browsers/FileSystem/FileBrowser.cs` — основна файлова панель на `ListView`; watcher-події коалесцяться через `DirectoryRefreshCoalescer` (refresh після 350 мс тиші, максимум раз на 1.5 с під час storm, re-arm на `FileSystemWatcher.Error`)
 - `Browsers/BrowserPanelBase.cs` — базовий контракт для фізичних і майбутніх віртуальних панелей: location, items, selection, capabilities, navigation, refresh
 - `Browsers/Archives/` — read-only archive panel, читання entries, сортування за колонками та матеріалізація окремих файлів для Quick View / `F3`
 - `Browsers/Gedcom/` — ієрархічна GEDCOM-панель для всіх level-0 tags (`INDI`, `FAM`, `NOTE` та інші), типізовані каталоги персон/сімей, generic records, `F3` повного запису, груповий export через `F5`, Quick View родинного графа та векторні піктограми статі
 - `Browsers/DataSets/` — read-only DataSet-панель для `.dsx`: таблиці, рядки, schema relations і безпечне XML-читання зі strict-first fallback для невалідних XML 1.0 символів
 - `Browsers/Search/` — панель результатів асинхронного пошуку за маскою/regex та вмістом із прогресом і скасуванням
-- `Browsers/Compound/` — read-only CFBF/OLE2 provider: storages, streams, класифікація документа та безпечна матеріалізація окремих потоків
+- `Browsers/Compound/` — read-only CFBF/OLE2 provider: storages, streams, класифікація документа та безпечна матеріалізація окремих потоків; embedded streams (`ObjectPool`, CLSID) вважаються ненадійними: `Enter` не запускає їх через системну асоціацію, зовнішнє відкриття — лише явна дія «Open externally...» з попередженням
 - `ThirdParty/OpenMcdf/` — локальний source snapshot OpenMcdf, який компілюється безпосередньо в `DotNetCommander.dll`; upstream commit зафіксований, MPL-2.0 збережено, окрема DLL і NuGet не використовуються
 - `Controls/Preview/` — загальний Quick View та інтерактивний перегляд зображень
 - `Controls/Navigation/` — breadcrumb-навігація та її сегментні кнопки
-- `Services/Operations/FileOperationService.cs` — планування та виконання `copy/move/delete`
-- `Services/AI/AiOrganizationService.cs` — локальний Ollama-клієнт для безпечного JSON-планування впорядкування файлів за метаданими й обмеженими фрагментами текстового вмісту; модель не виконує файлові операції напряму
+- `Services/Operations/FileOperationService.cs` — планування та виконання `copy/move/delete`; енумерація не спускається в reparse points (junction-лінки пропускаються при копіюванні й знімаються як лінки при `move`/`delete`), read-only атрибути знімаються перед delete/overwrite, при копіюванні зберігаються `Hidden`/`System`/`ReadOnly`-атрибути джерела; ACL-відмова під час обходу дерева дає `DirectoryAccessDeniedException` → структурований `CompletedWithErrors` без виконаних дій, conflict-скан не падає, deny-окремого файла йде через failure handler
+- `Services/AI/AiOrganizationService.cs` — локальний Ollama-клієнт для безпечного JSON-планування впорядкування файлів за метаданими, обмеженими фрагментами тексту й явно вибраними зменшеними зображеннями для vision-моделей; модель не виконує файлові операції напряму
 - `Services/AI/VectorStore.cs`, `VectorStoreRegistry.cs`, `VectorIndexService.cs` — binary snapshot format v2, настраюване центральне сховище окремих per-root індексів, Ollama embeddings, incremental indexing, linear top-K і RAG glue
 - `Services/Archives/ArchiveService.cs` — виконання створення й безпечного розпакування архівів на стандартних API .NET 8; визначення типу делеговано `FileTypeClassifier`
 - `Application/CommandService.cs` — виконання основних commander-команд і відкриття внутрішніх viewer/editor форм
@@ -59,16 +59,18 @@ Namespace: `DotNetCommander`
 - `Services/UI/DialogStyleService.cs` — типографіка та спільний стиль службових діалогів
 - `Infrastructure/Platform/Windows/WinContextMenu.cs` — shell-дії `Open`, `Open with...`, `Properties`, запуск у persistent console
 - `Infrastructure/Platform/Windows/WinCommandLine.cs` — виконання введених команд через Windows command processor у каталозі активної панелі
+- `Infrastructure/Platform/Windows/LongPathPolicy.cs` — політика extended-length (`\\?\`) префіксів для Win32/shell-викликів; застосовується на `SHGetFileInfo`, `ShellExecuteEx` і запусках процесів через failure-retry; `app.manifest` декларує `longPathAware`
 - `Infrastructure/Settings/SettingsStorage.cs` — допоміжний доступ до шляху `user.config`
 - `Infrastructure/Diagnostics/PerfTrace.cs` — вимкнена за замовчуванням допоміжна трасировка продуктивності
 - `LogService` — централізоване логування (застосовується поступово в критичних сценаріях)
 
 ## Поточні можливості
 - двопанельна навігація по файловій системі з адресним рядком і панеллю дисків;
-- `Tools -> AI folder organizer...` формує через Ollama перевірюваний план переміщення/перейменування файлів верхнього рівня активної фізичної папки пакетами настроюваного розміру; контракт вимагає `move/skip/need_content` для кожного файла, один раз повторює запит для пропущених елементів і показує progress/elapsed/ETA. Режими `Auto`, metadata-only і metadata+content керують контекстом; окремий summary-only режим описує папку без файлових дій. `/api/tags` постачає список, параметри й capabilities моделей, у planner-комбо потрапляють completion-моделі, а розширена таблиця доступна з `Options -> AI organizer -> Models`. Кожна дія має дослівну підставу з даних свого файла; виконання лише після підтвердження через `FileOperationService`, без видалення, перезапису та виходу за межі папки;
+- `Tools -> AI folder organizer...` формує через Ollama перевірюваний план переміщення/перейменування файлів верхнього рівня активної фізичної папки пакетами настроюваного розміру; контракт вимагає `move/skip/need_content` для кожного файла, один раз повторює запит для пропущених елементів і показує progress/elapsed/ETA. Режими `Auto`, metadata-only і metadata+content керують контекстом; окремий summary-only режим описує папку без файлових дій. Для vision-моделі користувач явно вибирає до 12 зображень, переглядає зменшені JPEG-копії й підтверджує надсилання. `/api/tags` постачає список, параметри й capabilities моделей, у planner-комбо потрапляють completion-моделі, а розширена таблиця доступна з `Options -> AI organizer -> Models`. Підстави з метаданих і тексту перевіряються локально; опис зображення є твердженням моделі й потребує перевірки користувачем, тому відповідні дії початково не вибрані. Виконання лише після підтвердження через `FileOperationService`, без видалення, перезапису та виходу за межі папки;
 - `Tools -> Index folder...`, `Semantic search...` і `Ask indexed files...` створюють/оновлюють локальні per-root vector indexes через Ollama `/api/embed`, виконують linear top-K та формують обмежений RAG-контекст для `/api/chat`; формат v2 фіксує model digest і vector dimension, а шлях, окремий embedding endpoint, embedding-модель, типи файлів і ліміти доступні в `Options`;
-- `Alt+F7` запускає фоновий пошук у каталозі за маскою/regex та текстом; результати відображаються як `SearchBrowser` і підтримують preview, copy/move/delete;
+- `Alt+F7` запускає фоновий пошук у каталозі за маскою/regex, текстом, розміром і датою зміни; результати відображаються як `SearchBrowser`, підтримують preview, copy/move/delete та перехід до розташування знахідки через `Ctrl+G` або контекстне меню; `Ctrl+F` фіксує поточні результати й показує їх у пасивній панелі як read-only перелік («Feed to passive panel»); діалог пошуку показує сесійну історію останніх 10 запитів із повним відновленням полів і кнопкою очищення;
 - Файлова, GEDCOM та DataSet-панелі використовують `AddressBar` із компактними breadcrumb-сегментами та mouse-friendly кнопками `Back`, `Up` і `Refresh`, що викликають ті самі команди, що `Backspace`, `Ctrl+PgUp` і `Ctrl+R`;
+- фізична панель підтримує інверсію виділення (`Num *`), вибір і зняття вибору за маскою (`Num +`/`Num -`) та копіювання повних шляхів, імен і відносних шляхів у буфер як текст; помилки метаданих одного елемента не скасовують список усього каталогу;
 - commander-style командний рядок під панелями: запуск програм і команд із параметрами в каталозі активної панелі, історія через `Up/Down`, фокус через `Ctrl+L`, `Ctrl+Enter` вставляє назву поточного елемента, `Shift+Enter` залишає консоль відкритою;
 - `Quick View` для тексту, зображень і невеликих CSV-подібних файлів;
 - Quick View асинхронно показує text, formatted RTF/Markdown, image, CSV, GEDCOM graph і Word Binary plain text; text/RTF fonts та size limits беруться з `Options`, для plain text видно визначене кодування;
@@ -107,7 +109,7 @@ Namespace: `DotNetCommander`
 - налаштування шрифтів, ширин колонок, CSV preview, directory watching, мови інтерфейсу, окремо `RtfEdit` / Markdown preview і типографіки службових діалогів;
 - запам'ятовування останнього шляху для кожного диска окремо по кожній панелі;
 - локалізація `EN`, `DE`, `UK`;
-- Windows-специфіка: іконки, `.lnk`, список дисків, безпечніший shell API без `x86-only` interop-залежності.
+- Windows-специфіка: іконки, `.lnk`, список дисків, безпечніший shell API без `x86-only` interop-залежності; long-path hardening: `longPathAware`-маніфест, `LongPathPolicy`-ретраї на shell-межах, BCL-операції покриті можливостями .NET 8.
 
 ## Архітектурні орієнтири
 - UI-логіка поки що зосереджена переважно в `AppForm` і `FileBrowser`.
@@ -136,7 +138,7 @@ DotNetCMD/
 │   └── CommandService.cs
 ├── Browsers/
 │   ├── BrowserPanelBase.cs
-│   ├── FileSystem/       # FileBrowser + designer/resources
+│   ├── FileSystem/       # FileBrowser + watcher coalescer + designer/resources
 │   ├── Archives/         # ArchiveBrowser + catalog
 │   ├── Gedcom/           # browser, catalog, graph, icons
 │   └── DataSets/         # DataSet XML loader, tables and relations browser
@@ -170,25 +172,43 @@ DotNetCMD/
 │   ├── Language.de-DE.resx
 │   ├── Language.uk.resx
 │   └── icon.ico / icon512.ico
-└── Properties/
-    ├── Settings.settings
-    ├── Settings.Designer.cs
-    ├── Resources.resx
-    └── Resources.Designer.cs
+├── Properties/
+│   ├── Settings.settings
+│   ├── Settings.Designer.cs
+│   ├── Resources.resx
+│   └── Resources.Designer.cs
+└── Tests/                      # тестовий проєкт (xUnit)
+    ├── DotNetCommander.Tests.csproj
+    ├── TemporaryDirectory.cs
+    ├── FileTypeClassifierTests.cs
+    ├── TextFileEncodingServiceTests.cs
+    ├── SearchServiceTests.cs
+    ├── SearchQueryHistoryTests.cs
+    ├── FileOperationServiceTests.cs
+    ├── CsvTableLoaderTests.cs
+    ├── DataSetCatalogServiceTests.cs
+    ├── GedcomCatalogServiceTests.cs
+    ├── LongPathPolicyTests.cs
+    ├── DirectoryRefreshCoalescerTests.cs
+    ├── ArchiveExtractionSafetyTests.cs
+    ├── CompoundSecurityTests.cs
+    ├── CompoundParsingTests.cs
+    ├── AiImagePreparationTests.cs
+    └── FileSystemServiceTests.cs
 ```
 
 ## Збірка
 - Базова команда: `dotnet build Commander.NET.csproj`
+- Тести: `dotnet test Tests/DotNetCommander.Tests.csproj` (182 тести; `Tests\**` виключено з компіляції основного проєкту, доступ до internal-типів — через `InternalsVisibleTo`)
 - Платформа: Windows / WinForms
 - Активна збірка працює в `AnyCPU/x64` режимі без обов'язкової `x86-only` shell-залежності
 
 ## Відомі поточні обмеження
 
-- немає long-path hardening;
-- немає автоматичних тестів;
+- автоматичні тести є лише для частини сервісів (`Tests/`: classifier, encoding, search filters, search query history, archive extraction safety, compound embedded-stream classification, `FileOperationService` copy/move/delete/conflicts включно з junction/reparse, атрибутами та ACL-відмовами, path helpers, CSV loader, DataSet XML reader, GEDCOM catalog parser, CFBF parsing/container path safety, `LongPathPolicy`); UI покриті тестами відсутні;
 - немає CI;
 - drag-and-drop shell integration ще не доведений до повного Explorer-like рівня;
-- автооновлення каталогу ще не перевірене на edge-case shell-сценаріях і масових серіях подій;
+- автооновлення каталогу стабілізовано через `DirectoryRefreshCoalescer`, але edge-case shell-сценарії масових зовнішніх змін ще не перевірялися вручну;
 - UI-консистентність між viewer/editor формами ще не доведена до спільного стандарту help/hotkeys/menus;
 - `Dialogs/Legacy/` зберігає legacy API і структуру, хоча його візуальний стиль уже узгоджено з актуальними діалогами.
 - архівна панель поки read-only: доступні навігація, preview/open і copy-out через `F5`; rename/delete/create/paste всередині архіву не підтримуються, reparse points під час пакування навмисно пропускаються.
@@ -200,6 +220,7 @@ DotNetCMD/
 - Якщо змінюєш архівні формати або сигнатури, роби це у `FileTypeClassifier`; виконання pack/unpack і перевірки extraction paths лишаються в `ArchiveService`, захист від виходу за каталог призначення не послаблюй.
 - Нові типи панелей будуй від `BrowserPanelBase` і описуй дозволені операції через `BrowserPanelCapabilities`, а не через перевірки конкретного UI-класу.
 - Якщо змінюєш shell-інтеграцію, тестуй окремо файли, папки, `.lnk`, `.bat/.cmd` і сценарії без файлової асоціації.
+- Після змін у `Services/` запускай `dotnet test Tests/DotNetCommander.Tests.csproj` і додавай нові випадки до наявних тестових класів замість окремих одноразових перевірок.
 - Для форм типу `Viewer` і `Editor` бажано підтримувати `F1` як коротку довідку про доступні дії та їхні гарячі клавіші саме в цій формі.
 - Зараз проєкт переважно відповідає цим орієнтирам, але в коді ще залишилися структурні legacy-острівці: API класів у `Dialogs/Legacy/`, старий EXIF-код у `Viewers/Images/` і частина UI-рядків без повної локалізації.
 - Плани, етапи й майбутні фічі — дивись `ROADMAP.md`, а не сюди; цей файл описує лише те, що вже реально є в коді.

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -110,7 +111,16 @@ namespace DotNetCommander
                 Verb = "open"
             };
 
-            Process.Start(startInfo);
+            try
+            {
+                Process.Start(startInfo);
+            }
+            catch (Win32Exception) when (LongPathPolicy.NeedsExtendedPrefix(path))
+            {
+                startInfo.FileName = LongPathPolicy.Apply(path);
+                startInfo.WorkingDirectory = LongPathPolicy.Apply(workingDirectory);
+                Process.Start(startInfo);
+            }
         }
 
         private static void OpenWith(string path)
@@ -180,7 +190,16 @@ namespace DotNetCommander
                 };
             }
 
-            Process.Start(startInfo);
+            try
+            {
+                Process.Start(startInfo);
+            }
+            catch (Win32Exception) when (LongPathPolicy.NeedsExtendedPrefix(workingDirectory))
+            {
+                startInfo.WorkingDirectory = LongPathPolicy.Apply(workingDirectory);
+                Process.Start(startInfo);
+            }
+
             return true;
         }
         
@@ -194,19 +213,40 @@ namespace DotNetCommander
 
         private static void ShowProperties(string path)
         {
+            string workingDirectory = ResolveWorkingDirectory(path);
             SHELLEXECUTEINFO executeInfo = new SHELLEXECUTEINFO
             {
                 cbSize = (uint)Marshal.SizeOf<SHELLEXECUTEINFO>(),
                 lpFile = path,
                 lpVerb = "properties",
-                lpDirectory = ResolveWorkingDirectory(path),
+                lpDirectory = workingDirectory,
                 nShow = 5,
                 fMask = 0x0000000C
             };
 
             if (!ShellExecuteEx(ref executeInfo))
             {
-                ThrowShellExecuteError();
+                bool pathNeedsPrefix = LongPathPolicy.NeedsExtendedPrefix(path);
+                bool directoryNeedsPrefix = LongPathPolicy.NeedsExtendedPrefix(workingDirectory);
+                if (!pathNeedsPrefix && !directoryNeedsPrefix)
+                {
+                    ThrowShellExecuteError();
+                }
+
+                if (pathNeedsPrefix)
+                {
+                    executeInfo.lpFile = LongPathPolicy.Apply(path);
+                }
+
+                if (directoryNeedsPrefix)
+                {
+                    executeInfo.lpDirectory = LongPathPolicy.Apply(workingDirectory);
+                }
+
+                if (!ShellExecuteEx(ref executeInfo))
+                {
+                    ThrowShellExecuteError();
+                }
             }
         }
 

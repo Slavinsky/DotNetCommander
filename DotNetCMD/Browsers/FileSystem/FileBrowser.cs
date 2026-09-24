@@ -8,8 +8,10 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using System.IO;
+using System.IO.Enumeration;
 using System.Collections.Specialized;
 using System.Diagnostics;
+using System.Security;
 using System.Threading.Tasks;
 using Timer = System.Windows.Forms.Timer;
 
@@ -27,8 +29,8 @@ namespace DotNetCommander
     private bool sortAscending = true;
     private int browseGeneration = 0;
     private readonly Timer directoryRefreshTimer;
+    private readonly DirectoryRefreshCoalescer directoryRefreshCoalescer;
     private FileSystemWatcher directoryWatcher;
-    private bool pendingDirectoryRefresh;
     private readonly ArchiveBrowser archiveBrowser;
     private bool archiveMode;
     private string archiveReturnFileName;
@@ -47,6 +49,7 @@ namespace DotNetCommander
     private int navigationHistoryIndex = -1;
     private bool navigatingHistory;
     private bool suppressArchiveHistory;
+    private bool suppressSelectionChanged;
     private List<ListViewItem> selectionBeforeMouseDown = new List<ListViewItem>();
     private ListViewItem focusedItemBeforeMouseDown;
     private bool dragInProgress;
@@ -55,8 +58,10 @@ namespace DotNetCommander
     public event PathChangeHandler PathChange;
     public event EventHandler AdjacentPanelRequested;
     internal event EventHandler<ArchiveDeviceChangedEventArgs> ArchiveDeviceChanged;
+    internal event EventHandler<SearchFeedEventArgs> FeedToPanelRequested;
 
     public String CurrentPath;
+    internal bool IsPhysicalFileListFocused => !IsVirtualMode && browserView.Focused;
 
     FormCopy CopyWindow = null;
 
@@ -106,6 +111,8 @@ namespace DotNetCommander
       searchBrowser.BrowserLocationChanged += SearchBrowser_LocationChanged;
       searchBrowser.LeaveRequested += (_, __) => ExitSearch();
       searchBrowser.ResultActivated += SearchBrowser_ResultActivated;
+      searchBrowser.GoToLocationRequested += SearchBrowser_GoToLocationRequested;
+      searchBrowser.FeedToPanelRequested += SearchBrowser_FeedToPanelRequested;
       searchBrowser.SetImageLists(fileImages, fileImagesLarge);
       Controls.Add(searchBrowser);
 
@@ -121,8 +128,11 @@ namespace DotNetCommander
       Controls.Add(compoundBrowser);
 
       directoryRefreshTimer = new Timer();
-      directoryRefreshTimer.Interval = 350;
+      directoryRefreshTimer.Interval = 150;
       directoryRefreshTimer.Tick += DirectoryRefreshTimer_Tick;
+      directoryRefreshCoalescer = new DirectoryRefreshCoalescer(
+        quietMilliseconds: 350,
+        maxLatencyMilliseconds: 1500);
 
       editBox.Size = new System.Drawing.Size(0, 0);
       editBox.Location = new System.Drawing.Point(0, 0);
@@ -593,6 +603,7 @@ namespace DotNetCommander
       ListViewItem Item;
       List<ListViewItem> pendingItems = new List<ListViewItem>();
       List<IconLoadRequest> iconRequests = new List<IconLoadRequest>();
+      HashSet<string> metadataFailurePaths = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
       int currentBrowseGeneration = ++browseGeneration;
 
       path = NormalizeEnteredPath(path);
@@ -652,15 +663,24 @@ namespace DotNetCommander
           }
 
           foreach (DirectoryInfo dir in dirArray) {
-            if ((dir.Attributes & FileAttributes.ReparsePoint) > 0) {
+            if (!TryReadEntryMetadata(dir.FullName, "attributes", () => dir.Attributes, metadataFailurePaths, out FileAttributes attributes))
+            {
               continue;
             }
+            if ((attributes & FileAttributes.ReparsePoint) > 0) {
+              continue;
+            }
+            DateTime? lastWriteTime = TryReadEntryMetadata(dir.FullName, "last-write time", () => dir.LastWriteTime, metadataFailurePaths, out DateTime value)
+              ? value
+              : null;
             Item = new ListViewItem("", 0);
             Item.ImageIndex = -1;
             Item.SubItems.Add(dir.Name);
             Item.SubItems.Add("");
             Item.SubItems.Add("");
-            Item.SubItems.Add(dir.LastWriteTime.ToShortDateString() + " " + dir.LastWriteTime.ToShortTimeString());
+            Item.SubItems.Add(lastWriteTime.HasValue
+              ? lastWriteTime.Value.ToShortDateString() + " " + lastWriteTime.Value.ToShortTimeString()
+              : "");
             Item.Tag = dir.FullName;
 
             Item.Group = browserView.Groups[0];
@@ -669,15 +689,27 @@ namespace DotNetCommander
           }
 
           foreach (FileInfo file in fileArray) {
+            if (!TryReadEntryMetadata(file.FullName, "attributes", () => file.Attributes, metadataFailurePaths, out FileAttributes attributes))
+            {
+              continue;
+            }
+            DateTime? lastWriteTime = TryReadEntryMetadata(file.FullName, "last-write time", () => file.LastWriteTime, metadataFailurePaths, out DateTime value)
+              ? value
+              : null;
+            long? length = TryReadEntryMetadata(file.FullName, "length", () => file.Length, metadataFailurePaths, out long fileLength)
+              ? fileLength
+              : null;
             Item = new ListViewItem("", 0);
             Item.ImageIndex = -1;
             Item.SubItems.Add(file.Name);
             Item.SubItems.Add(file.Extension.Replace(".", ""));
-            Item.SubItems.Add(String.Format("{0:0,0}", file.Length));
-            Item.SubItems.Add(file.LastWriteTime.ToShortDateString() + " " + file.LastWriteTime.ToShortTimeString());
+            Item.SubItems.Add(length.HasValue ? String.Format("{0:0,0}", length.Value) : "");
+            Item.SubItems.Add(lastWriteTime.HasValue
+              ? lastWriteTime.Value.ToShortDateString() + " " + lastWriteTime.Value.ToShortTimeString()
+              : "");
             Item.Group = browserView.Groups[1];
             Item.Tag = file.FullName;
-            if ((file.Attributes & FileAttributes.ReparsePoint) > 0) {
+            if ((attributes & FileAttributes.ReparsePoint) > 0) {
               String targetPath = null;
               if ((targetPath = OS.ShortcutGetTargetPath(file.FullName)) != null)
                 Item.Tag = targetPath;
@@ -712,6 +744,16 @@ namespace DotNetCommander
 
         PathChange?.Invoke(this, curDir.FullName);
         RaiseLocationChanged(curDir.FullName);
+        if (metadataFailurePaths.Count > 0)
+        {
+          LogService.LogInfo("FileBrowser.browseTo", $"Displayed a partial listing for '{curDir.FullName}'; metadata failed for {metadataFailurePaths.Count} item(s).");
+          MessageBox.Show(
+            FindForm(),
+            string.Format(Language.getString("browseMetadataPartialFormat"), metadataFailurePaths.Count),
+            Language.getString("browseMetadataPartialTitle"),
+            MessageBoxButtons.OK,
+            MessageBoxIcon.Warning);
+        }
         return curDir.FullName;
       }
       catch (UnauthorizedAccessException ex)
@@ -736,6 +778,27 @@ namespace DotNetCommander
       }
 
       return null;
+    }
+
+    private static bool TryReadEntryMetadata<T>(
+      string path,
+      string fieldName,
+      Func<T> readValue,
+      HashSet<string> failedPaths,
+      out T value)
+    {
+      try
+      {
+        value = readValue();
+        return true;
+      }
+      catch (Exception ex) when (ex is IOException || ex is UnauthorizedAccessException || ex is SecurityException)
+      {
+        failedPaths.Add(path);
+        LogService.LogException("FileBrowser.browseTo.metadata " + fieldName + " " + path, ex);
+        value = default!;
+        return false;
+      }
     }
 
     /**
@@ -829,6 +892,9 @@ namespace DotNetCommander
     }
 
     private void browserView_SelectedIndexChanged(object sender, EventArgs e) {
+      if (suppressSelectionChanged)
+        return;
+
       selectedFiles = new String[browserView.SelectedItems.Count];
       int i = 0;
       foreach (ListViewItem selectedItem in browserView.SelectedItems) {
@@ -838,6 +904,80 @@ namespace DotNetCommander
 
       UpdateCurrentHistorySelection();
       RaiseSelectionChanged();
+    }
+
+    internal bool InvertPhysicalSelection()
+    {
+      if (IsVirtualMode)
+        return false;
+
+      browserView.BeginUpdate();
+      suppressSelectionChanged = true;
+      try
+      {
+        foreach (ListViewItem item in browserView.Items)
+        {
+          if (IsParentNavigationItem(item))
+          {
+            item.Selected = false;
+            continue;
+          }
+
+          item.Selected = !item.Selected;
+        }
+      }
+      finally
+      {
+        suppressSelectionChanged = false;
+        browserView.EndUpdate();
+      }
+
+      browserView_SelectedIndexChanged(browserView, EventArgs.Empty);
+      return true;
+    }
+
+    internal int ApplyPhysicalSelectionMask(string mask, bool selectMatches)
+    {
+      if (IsVirtualMode || string.IsNullOrWhiteSpace(mask) || mask.Length > 256)
+        return 0;
+
+      if (string.Equals(mask, "*.*", StringComparison.Ordinal))
+        mask = "*";
+
+      int changedItems = 0;
+      browserView.BeginUpdate();
+      suppressSelectionChanged = true;
+      try
+      {
+        foreach (ListViewItem item in browserView.Items)
+        {
+          if (IsParentNavigationItem(item))
+          {
+            if (item.Selected)
+            {
+              item.Selected = false;
+              changedItems++;
+            }
+            continue;
+          }
+
+          if (!FileSystemName.MatchesSimpleExpression(mask, item.SubItems[1].Text.AsSpan(), ignoreCase: true)
+              || item.Selected == selectMatches)
+            continue;
+
+          item.Selected = selectMatches;
+          changedItems++;
+        }
+      }
+      finally
+      {
+        suppressSelectionChanged = false;
+        browserView.EndUpdate();
+      }
+
+      if (changedItems > 0)
+        browserView_SelectedIndexChanged(browserView, EventArgs.Empty);
+      return changedItems;
     }
 
     private void browserView_BeforeLabelEdit(object sender, LabelEditEventArgs e) {
@@ -1581,6 +1721,47 @@ editBox.Focus();*/
       }
     }
 
+    internal void EnterResultsSnapshot(IReadOnlyList<BrowserItemInfo> items, string description)
+    {
+      if (archiveMode)
+      {
+        ExitArchive(false, false);
+      }
+      if (gedcomMode)
+      {
+        ExitGedcom(false, false);
+      }
+      if (dataSetMode)
+      {
+        ExitDataSet(false, false);
+      }
+      if (compoundMode)
+      {
+        ExitCompound(false, false);
+      }
+
+      searchMode = true;
+      selectedFiles = Array.Empty<string>();
+      browserView.Visible = false;
+      addressBarCurrentPath.Visible = false;
+      searchBrowser.Visible = true;
+      searchBrowser.BringToFront();
+      ConfigureDirectoryWatcher();
+      searchBrowser.ShowFrozenResults(items, description);
+      PathChange?.Invoke(this, searchBrowser.DisplayLocation);
+      RaiseLocationChanged(searchBrowser.DisplayLocation);
+      RaiseSelectionChanged();
+      searchBrowser.FocusItems();
+    }
+
+    private void SearchBrowser_FeedToPanelRequested(object sender, SearchFeedEventArgs e)
+    {
+      if (searchMode)
+      {
+        FeedToPanelRequested?.Invoke(this, e);
+      }
+    }
+
     private void SearchBrowser_SelectionChanged(object sender, EventArgs e)
     {
       selectedFiles = searchBrowser.SelectedItems
@@ -1610,6 +1791,28 @@ editBox.Focus();*/
       else if (File.Exists(e.Path))
       {
         WinContextMenu.Open(e.Path);
+      }
+    }
+
+    private void SearchBrowser_GoToLocationRequested(object sender, SearchResultActivatedEventArgs e)
+    {
+      if (searchMode)
+      {
+        ExitSearch(false);
+      }
+
+      if (TryBrowseToFilePath(e.Path))
+      {
+        browserView.Focus();
+      }
+      else
+      {
+        MessageBox.Show(
+          FindForm(),
+          string.Format(System.Globalization.CultureInfo.CurrentCulture, Language.getString("searchGoToLocationMissing"), e.Path),
+          Language.getString("error"),
+          MessageBoxButtons.OK,
+          MessageBoxIcon.Warning);
       }
     }
 
@@ -2616,7 +2819,7 @@ editBox.Focus();*/
         }
 
         directoryRefreshTimer.Stop();
-        pendingDirectoryRefresh = false;
+        directoryRefreshCoalescer.Reset();
         return;
       }
 
@@ -2640,36 +2843,33 @@ editBox.Focus();*/
 
       directoryWatcher.Path = CurrentPath;
       directoryWatcher.EnableRaisingEvents = true;
+      directoryRefreshTimer.Start();
     }
 
     private void DirectoryWatcher_Changed(object sender, FileSystemEventArgs e)
     {
-      ScheduleDirectoryRefresh();
+      directoryRefreshCoalescer.NotifyEvent(Environment.TickCount64);
     }
 
     private void DirectoryWatcher_Renamed(object sender, RenamedEventArgs e)
     {
-      ScheduleDirectoryRefresh();
+      directoryRefreshCoalescer.NotifyEvent(Environment.TickCount64);
     }
 
     private void DirectoryWatcher_Error(object sender, ErrorEventArgs e)
     {
-      ScheduleDirectoryRefresh();
+      directoryRefreshCoalescer.NotifyEvent(Environment.TickCount64);
+      ReArmDirectoryWatcher();
     }
 
-    private void ScheduleDirectoryRefresh()
+    private void ReArmDirectoryWatcher()
     {
-      pendingDirectoryRefresh = true;
-      if (!IsHandleCreated)
-        return;
-
       try
       {
-        BeginInvoke(new Action(() =>
-        {
-          directoryRefreshTimer.Stop();
-          directoryRefreshTimer.Start();
-        }));
+        if (!IsHandleCreated)
+          return;
+
+        BeginInvoke(new Action(() => ConfigureDirectoryWatcher()));
       }
       catch (InvalidOperationException)
       {
@@ -2678,11 +2878,9 @@ editBox.Focus();*/
 
     private void DirectoryRefreshTimer_Tick(object sender, EventArgs e)
     {
-      directoryRefreshTimer.Stop();
-      if (!pendingDirectoryRefresh)
+      if (!directoryRefreshCoalescer.TryFire(Environment.TickCount64))
         return;
 
-      pendingDirectoryRefresh = false;
       if (!Properties.Settings.Default.FileBrowserWatchDirectoryChanges)
         return;
 

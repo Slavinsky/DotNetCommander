@@ -116,7 +116,16 @@ namespace DotNetCommander
                 TotalBytes = 0
             });
 
-            FileOperationPlan plan = BuildCopyOrMovePlan(sources, destination, operationType, overwriteExistingFiles, conflictResolutions, cancellationToken);
+            FileOperationPlan plan;
+            try
+            {
+                plan = BuildCopyOrMovePlan(sources, destination, operationType, overwriteExistingFiles, conflictResolutions, cancellationToken);
+            }
+            catch (Exception ex) when (ex is DirectoryAccessDeniedException || ex is UnauthorizedAccessException)
+            {
+                return CreateAccessDeniedResult(sources, ex);
+            }
+
             return ExecutePlan(plan, progress, failureHandler, cancellationToken);
         }
 
@@ -135,14 +144,22 @@ namespace DotNetCommander
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
-                string target = ResolveTargetPath(source, destination, singleSource);
-                if (FileSystemService.DirectoryExists(source))
+                try
                 {
-                    CollectDirectoryConflicts(conflicts, seenTargets, source, target, operationType, cancellationToken);
+                    string target = ResolveTargetPath(source, destination, singleSource);
+                    if (FileSystemService.DirectoryExists(source))
+                    {
+                        CollectDirectoryConflicts(conflicts, seenTargets, source, target, operationType, cancellationToken);
+                    }
+                    else if (FileSystemService.FileExists(source))
+                    {
+                        CollectFileConflict(conflicts, seenTargets, source, target);
+                    }
                 }
-                else if (FileSystemService.FileExists(source))
+                catch (DirectoryAccessDeniedException ex)
                 {
-                    CollectFileConflict(conflicts, seenTargets, source, target);
+                    LogService.LogException("FileOperationService.CollectCopyOrMoveConflicts", ex);
+                    return conflicts;
                 }
             }
 
@@ -163,8 +180,35 @@ namespace DotNetCommander
                 TotalBytes = 0
             });
 
-            FileOperationPlan plan = BuildDeletePlan(sources, cancellationToken);
+            FileOperationPlan plan;
+            try
+            {
+                plan = BuildDeletePlan(sources, cancellationToken);
+            }
+            catch (Exception ex) when (ex is DirectoryAccessDeniedException || ex is UnauthorizedAccessException)
+            {
+                return CreateAccessDeniedResult(sources, ex);
+            }
+
             return ExecutePlan(plan, progress, failureHandler, cancellationToken);
+        }
+
+        private static FileOperationResult CreateAccessDeniedResult(string[] sources, Exception exception)
+        {
+            LogService.LogException("FileOperationService.BuildPlan", exception);
+
+            string sourcePath = exception is DirectoryAccessDeniedException denied
+                ? denied.Path
+                : sources != null && sources.Length > 0 ? sources[0] : null;
+
+            FileOperationResult result = new FileOperationResult
+            {
+                RunResult = FileOperationRunResult.CompletedWithErrors,
+                TotalEntries = 1,
+                FailedEntries = 1
+            };
+            result.Failures.Add(new FileOperationFailure(sourcePath, null, exception, 1));
+            return result;
         }
 
         private static FileOperationPlan BuildCopyOrMovePlan(
@@ -216,14 +260,14 @@ namespace DotNetCommander
                 if (!FileSystemService.DirectoryExists(source))
                     continue;
 
-                foreach (string file in FileSystemService.EnumerateFiles(source, "*", SearchOption.AllDirectories))
+                foreach (string file in FileSystemService.CollectFiles(source))
                 {
                     if (cancellationToken.IsCancellationRequested)
                         return plan;
                     plan.Add(new FileOperationEntry(FileOperationAction.DeleteFile, file, null, SafeGetFileLength(file)));
                 }
 
-                List<string> directories = new List<string>(FileSystemService.EnumerateDirectories(source, "*", SearchOption.AllDirectories))
+                List<string> directories = FileSystemService.CollectDirectories(source)
                     .OrderByDescending(path => path.Length)
                     .ToList();
 
@@ -261,9 +305,11 @@ namespace DotNetCommander
 
             plan.Add(new FileOperationEntry(FileOperationAction.CreateDirectory, sourceDirectory, targetDirectory, 0));
 
-            List<string> directories = new List<string>(FileSystemService.EnumerateDirectories(sourceDirectory, "*", SearchOption.AllDirectories));
+            List<string> directories = FileSystemService.CollectDirectories(sourceDirectory);
             foreach (string directory in directories)
             {
+                if (FileSystemService.IsReparsePoint(directory))
+                    continue;
                 if (cancellationToken.IsCancellationRequested)
                     return;
                 plan.Add(new FileOperationEntry(
@@ -273,7 +319,7 @@ namespace DotNetCommander
                     0));
             }
 
-            List<string> files = new List<string>(FileSystemService.EnumerateFiles(sourceDirectory, "*", SearchOption.AllDirectories));
+            List<string> files = FileSystemService.CollectFiles(sourceDirectory);
             foreach (string file in files)
             {
                 if (cancellationToken.IsCancellationRequested)
@@ -302,10 +348,22 @@ namespace DotNetCommander
             {
                 if (cancellationToken.IsCancellationRequested)
                     return;
-                plan.Add(new FileOperationEntry(FileOperationAction.DeleteDirectoryIfEmpty, directory, null, 0));
+                plan.Add(new FileOperationEntry(
+                    FileSystemService.IsReparsePoint(directory)
+                        ? FileOperationAction.DeleteDirectory
+                        : FileOperationAction.DeleteDirectoryIfEmpty,
+                    directory,
+                    null,
+                    0));
             }
 
-            plan.Add(new FileOperationEntry(FileOperationAction.DeleteDirectoryIfEmpty, sourceDirectory, null, 0));
+            plan.Add(new FileOperationEntry(
+                FileSystemService.IsReparsePoint(sourceDirectory)
+                    ? FileOperationAction.DeleteDirectory
+                    : FileOperationAction.DeleteDirectoryIfEmpty,
+                sourceDirectory,
+                null,
+                0));
         }
 
         private static void AppendFileEntry(
@@ -398,7 +456,7 @@ namespace DotNetCommander
                 return;
             }
 
-            foreach (string file in FileSystemService.EnumerateFiles(sourceDirectory, "*", SearchOption.AllDirectories))
+            foreach (string file in FileSystemService.CollectFiles(sourceDirectory))
             {
                 cancellationToken.ThrowIfCancellationRequested();
                 string destinationFile = MapNestedTargetPath(sourceDirectory, targetDirectory, file);
@@ -601,6 +659,7 @@ namespace DotNetCommander
                 }
 
                 FileSystemService.CommitTemporaryFile(temporaryPath, entry.DestinationPath, entry.AllowOverwrite);
+                FileSystemService.CopyAttributes(entry.SourcePath, entry.DestinationPath);
                 completedBytes += bytesWrittenThisAttempt;
                 entry.CopyCommitted = true;
                 if (!entry.DeleteSourceAfterCopy)
@@ -650,8 +709,11 @@ namespace DotNetCommander
 
         private static string ResolveTargetPath(string sourcePath, string destinationPath, bool singleSource)
         {
-            if (singleSource)
+            if (singleSource
+                && !(FileSystemService.FileExists(sourcePath) && FileSystemService.DirectoryExists(destinationPath)))
+            {
                 return destinationPath;
+            }
 
             return Path.Combine(destinationPath, Path.GetFileName(sourcePath));
         }
@@ -672,7 +734,7 @@ namespace DotNetCommander
         private static long CalculateDirectoryBytes(string directoryPath, CancellationToken cancellationToken)
         {
             long total = 0;
-            foreach (string file in FileSystemService.EnumerateFiles(directoryPath, "*", SearchOption.AllDirectories))
+            foreach (string file in FileSystemService.CollectFiles(directoryPath))
             {
                 if (cancellationToken.IsCancellationRequested)
                     return total;
