@@ -933,7 +933,9 @@
   <data name="compoundEmbeddedEnterBlocked" xml:space="preserve"><value>Цей вбудований об'єкт вважають ненадійним, і система його не відкрила. Скористайтеся «Відкрити зовні...» у контекстному меню, якщо джерело заслуговує довіри.</value></data>
   <data name="compoundStorage" xml:space="preserve"><value>Сховище</value></data>
   <data name="compoundStream" xml:space="preserve"><value>Потік</value></data>
-  <data name="compoundCopyRequiresFilePanel" xml:space="preserve"><value>Потоки складеного файла можна копіювати лише у фізичну файлову панель.</value></data>
+  <data name="compoundCopyRequiresFilePanel" xml:space="preserve"><value>Елементи складеного файла можна копіювати лише у фізичну файлову панель.</value></data>
+  <data name="compoundExportNameCollision" xml:space="preserve"><value>Елементи вибраного складеного файла після очищення мають однакові імена у Windows. Експортуйте їх окремо або перейменуйте елемент у вихідному документі.</value></data>
+  <data name="compoundExportLimitExceeded" xml:space="preserve"><value>Вибраний вміст складеного файла перевищує безпечний ліміт експорту.</value></data>
   <data name="rtfEditorTitle" xml:space="preserve"><value>Редактор RTF</value></data>
   <data name="rtfEditorTitleFormat" xml:space="preserve"><value>{0} - Редактор RTF</value></data>
   <data name="rtfPreviewTitleFormat" xml:space="preserve"><value>{0} - Перегляд</value></data>
@@ -1250,14 +1252,96 @@ Esc - Закрити редактор</value></data>
   <data name="aiOrganizerVisionPreviewReadyFormat" xml:space="preserve"><value>Готово до надсилання: {0} зменшених JPEG-копій</value></data>
   <data name="aiOrganizerVisionPreviewFailed" xml:space="preserve"><value>Не вдалося підготувати попередній перегляд зображень.</value></data>
   <data name="aiOrganizerVisionNoPreviewImages" xml:space="preserve"><value>Не вдалося підготувати жодне вибране зображення до надсилання.</value></data>
-  <data name="aiOrganizerViewImageEvidence" xml:space="preserve"><value>Переглянути зображення-підставу</value></data>
-  <data name="aiOrganizerImageEvidenceTitleFormat" xml:space="preserve"><value>Підготовлене зображення-підстава — {0}</value></data>
-  <data name="aiOrganizerImageEvidenceHelpTitle" xml:space="preserve"><value>Перегляд зображення-підстави</value></data>
-  <data name="aiOrganizerImageEvidenceHelpSubtitle" xml:space="preserve"><value>Перегляньте зменшену JPEG-копію, підготовлену для запиту організатора.</value></data>
-  <data name="aiOrganizerImageEvidenceHelpClose" xml:space="preserve"><value>Закрити перегляд зображення</value></data>
-  <data name="aiOrganizerImageMetadataFormat" xml:space="preserve"><value>Оригінал: {0} × {1}, {2:N0} байт   →   JPEG для надсилання: {3} × {4}, {5:N0} байт</value></data>
-  <data name="aiOrganizerImageSourcePreview" xml:space="preserve"><value>Перегляд джерела</value></data>
-  <data name="aiOrganizerImageUploadPreview" xml:space="preserve"><value>JPEG для моделі</value></data>
   <data name="aiOrganizerImagesIncludedFormat" xml:space="preserve"><value>Моделі надіслано зображень: {0}; пропущено через ліміти або помилки читання: {1}</value></data>
   <data name="aiOrganizerImageEvidenceFormat" xml:space="preserve"><value>Спостереження моделі за зображенням (перевірте файл): «{0}»</value></data>
+<data name="aiOrganizerViewImageEvidence" xml:space="preserve"><value>Переглянути зображення-підставу</value></data>
+<data name="aiOrganizerImageEvidenceTitleFormat" xml:space="preserve"><value>Підготовлене зображення-підстава — {0}</value></data>
+<data name="aiOrganizerImageEvidenceHelpTitle" xml:space="preserve"><value>Перегляд зображення-підстави</value></data>
+<data name="aiOrganizerImageEvidenceHelpSubtitle" xml:space="preserve"><value>Перегляньте зменшену JPEG-копію, підготовлену для запиту організатора.</value></data>
+<data name="aiOrganizerImageEvidenceHelpClose" xml:space="preserve"><value>Закрити перегляд зображення</value></data>
+<data name="aiOrganizerImageMetadataFormat" xml:space="preserve"><value>Оригінал: {0} × {1}, {2:N0} байт   →   JPEG для надсилання: {3} × {4}, {5:N0} байт</value></data>
+<data name="aiOrganizerImageSourcePreview" xml:space="preserve"><value>Перегляд джерела</value></data>
+<data name="aiOrganizerImageUploadPreview" xml:space="preserve"><value>JPEG для моделі</value></data>
+<data name="compoundOpenExternallyTitle" xml:space="preserve"><value>Відкрити вбудований потік зовні?</value></data>
+<data name="compoundOpenExternallyWarningFormat" xml:space="preserve"><value>Вбудований потік «{0}» буде матеріалізовано й відкрито пов’язаною програмою. Вбудований вміст є недовіреним і може виконати код. Продовжити?</value></data>
+<data name="compoundMetadataMenu" xml:space="preserve"><value>Метадані документа...</value></data>
+<data name="compoundMetadataTitle" xml:space="preserve"><value>Метадані складеного документа</value></data>
+<data name="compoundMetadataHeading" xml:space="preserve"><value>Огляд</value></data>
+<data name="compoundMetadataDocumentType" xml:space="preserve"><value>Визначений формат</value></data>
+<data name="compoundMetadataRootClsid" xml:space="preserve"><value>Кореневий CLSID</value></data>
+<data name="compoundMetadataProperties" xml:space="preserve"><value>Властивості документа</value></data>
+<data name="compoundMetadataProperty" xml:space="preserve"><value>Властивість</value></data>
+<data name="compoundMetadataValue" xml:space="preserve"><value>Значення</value></data>
+<data name="compoundMetadataEntries" xml:space="preserve"><value>Елементи та CLSID</value></data>
+<data name="compoundMetadataPath" xml:space="preserve"><value>Шлях</value></data>
+<data name="compoundMetadataKind" xml:space="preserve"><value>Тип</value></data>
+<data name="compoundMetadataSize" xml:space="preserve"><value>Розмір (байти)</value></data>
+<data name="compoundMetadataClsid" xml:space="preserve"><value>CLSID</value></data>
+<data name="compoundMetadataEncryption" xml:space="preserve"><value>Маркери зашифрованого OOXML</value></data>
+<data name="compoundMetadataMacro" xml:space="preserve"><value>Маркери проєкту VBA</value></data>
+<data name="compoundMetadataEmbedded" xml:space="preserve"><value>Маркери потоків OLE native/Package</value></data>
+<data name="compoundMetadataReadWarning" xml:space="preserve"><value>Потоки метаданих не прочитано</value></data>
+<data name="compoundMetadataNoEvidence" xml:space="preserve"><value>Відповідних маркерів або доступних властивостей не знайдено.</value></data>
+<data name="compoundMetadataProtection" xml:space="preserve"><value>Заявлені прапорці захисту (SummaryInformation PID 19)</value></data>
+<data name="compoundMetadataSecurityPassword" xml:space="preserve"><value>Прапорець захисту паролем</value></data>
+<data name="compoundMetadataSecurityReadOnlyRecommended" xml:space="preserve"><value>Рекомендовано режим лише читання</value></data>
+<data name="compoundMetadataSecurityReadOnlyEnforced" xml:space="preserve"><value>Примусово встановлено режим лише читання</value></data>
+<data name="compoundMetadataSecurityAnnotationsLocked" xml:space="preserve"><value>Заблоковано для приміток</value></data>
+<data name="compoundMetadataDetectionNote" xml:space="preserve"><value>Значення PID 19 — це заявлені застосунком прапорці доступу, а не доказ шифрування. Відсутність структурних маркерів не доводить, що документ не зашифрований або не містить активного вмісту. Назви потоків OLE native/Package не доводять, що payload є виконуваним. Потік Package експортується цілком лише за ZIP-сигнатури; структуру архіву не перевірено. Імена користувацьких властивостей не розбираються.</value></data>
+<data name="compoundMetadataEntriesTruncated" xml:space="preserve"><value>У цьому поданні пропущено ще елементів: {0:N0}.</value></data>
+<data name="compoundMetadataStorage" xml:space="preserve"><value>Сховище</value></data>
+<data name="compoundMetadataStream" xml:space="preserve"><value>Потік</value></data>
+<data name="compoundMetadataReading" xml:space="preserve"><value>Читання метаданих документа...</value></data>
+<data name="compoundMetadataFailed" xml:space="preserve"><value>Не вдалося прочитати метадані складеного документа.</value></data>
+<data name="compoundExportPayload" xml:space="preserve"><value>Експортувати payload Ole10Native / потік Package із ZIP-сигнатурою до іншої панелі...</value></data>
+<data name="compoundPayloadNotRecognized" xml:space="preserve"><value>Обгортка вкладеного вмісту пошкоджена або не розпізнана достатньо надійно. Використайте F5 для копіювання сирого потоку.</value></data>
+<data name="compoundIntegrityMenu" xml:space="preserve"><value>Перевірити структуру й читання потоків...</value></data>
+<data name="compoundIntegrityTitle" xml:space="preserve"><value>Звіт про цілісність складеного файла</value></data>
+<data name="compoundIntegrityStrict" xml:space="preserve"><value>Сувора перевірка</value></data>
+<data name="compoundIntegrityLenient" xml:space="preserve"><value>Перевірка з послабленими правилами</value></data>
+<data name="compoundIntegrityPass" xml:space="preserve"><value>Прохід</value></data>
+<data name="compoundIntegrityStage" xml:space="preserve"><value>Етап</value></data>
+<data name="compoundIntegrityStatusPassed" xml:space="preserve"><value>Пройдено в межах зазначених лімітів</value></data>
+<data name="compoundIntegrityStatusIssuesFound" xml:space="preserve"><value>Виявлено проблеми читання</value></data>
+<data name="compoundIntegrityStatusIncomplete" xml:space="preserve"><value>Не завершено через ліміт</value></data>
+<data name="compoundIntegrityStatusFailed" xml:space="preserve"><value>Не вдалося завершити</value></data>
+<data name="compoundIntegrityStatusCancelled" xml:space="preserve"><value>Скасовано</value></data>
+<data name="compoundIntegrityStatusNotRun" xml:space="preserve"><value>Не запускалось</value></data>
+<data name="compoundIntegrityCounts" xml:space="preserve"><value>Записи: {0:N0}; повністю прочитані потоки: {1:N0}; частково: {2:N0}; байтів: {3:N0}</value></data>
+<data name="compoundIntegrityProgress" xml:space="preserve"><value>Перевірка: {0} — записів {1:N0}, потоків прочитано {2:N0}, байтів {3:N0}</value></data>
+<data name="compoundIntegrityDisclaimer" xml:space="preserve"><value>Це обмежена перевірка структури й читання без запису. Вона не ремонтує файл і не перевіряє цифровий підпис. Перевірка та перелік OpenMcdf синхронні й можуть затримати скасування. Успіх стосується лише даних, указаних вище.</value></data>
+<data name="compoundIntegrityNoIssues" xml:space="preserve"><value>У межах зазначених лімітів проблем не виявлено.</value></data>
+<data name="compoundIntegrityUnexpectedFailure" xml:space="preserve"><value>Не вдалося показати результат перевірки:</value></data>
+<data name="compoundIntegrityOmittedIssues" xml:space="preserve"><value>У цьому поданні пропущено ще проблем: {0:N0}.</value></data>
+<data name="compoundIntegrityStrictCatalog" xml:space="preserve"><value>Суворе відкриття каталогу</value></data>
+<data name="compoundIntegrityFile" xml:space="preserve"><value>Файл</value></data>
+<data name="compoundIntegrityOpen" xml:space="preserve"><value>Відкриття контейнера</value></data>
+<data name="compoundIntegrityStorage" xml:space="preserve"><value>Перелік сховища</value></data>
+<data name="compoundIntegrityStreamOpen" xml:space="preserve"><value>Відкриття потоку</value></data>
+<data name="compoundIntegrityStreamRead" xml:space="preserve"><value>Читання потоку</value></data>
+<data name="compoundIntegrityLimit" xml:space="preserve"><value>Ліміт перевірки</value></data>
+<data name="compoundIntegrityFileLimit" xml:space="preserve"><value>Розмір файла перевищує ліміт перевірки 256 MiB.</value></data>
+<data name="compoundIntegrityDepthLimit" xml:space="preserve"><value>Глибина сховищ перевищує ліміт 256 рівнів.</value></data>
+<data name="compoundIntegrityEntryLimit" xml:space="preserve"><value>Кількість записів перевищує ліміт 200 000.</value></data>
+<data name="compoundIntegrityStreamCountLimit" xml:space="preserve"><value>Кількість потоків перевищує ліміт 4 096.</value></data>
+<data name="compoundIntegrityStreamLimit" xml:space="preserve"><value>Досягнуто ліміт читання потоку або суми (64 MiB на потік, 256 MiB загалом).</value></data>
+<data name="compoundIntegrityInvalidSize" xml:space="preserve"><value>Потік має некоректну заявлену довжину.</value></data>
+<data name="compoundIntegrityShortRead" xml:space="preserve"><value>Потік завершився раніше за заявлену довжину.</value></data>
+<data name="compoundIntegrityTimeLimit" xml:space="preserve"><value>Досягнуто часовий ліміт перевірки 10 секунд.</value></data>
+<data name="compoundRecoveryExportButton" xml:space="preserve"><value>Експортувати доступні дані...</value></data>
+<data name="compoundRecoveryChooseDestination" xml:space="preserve"><value>Виберіть каталог для експорту доступних даних.</value></data>
+<data name="compoundRecoveryConfirmFormat" xml:space="preserve"><value>Експортувати лише повністю прочитані потоки, доступні у цьому CFBF-файлі?{2}Джерело: {0}{2}Призначення: {1}{2}Пошкоджені потоки буде пропущено. Недоступні записи не буде знайдено; файл не ремонтується, цифрові підписи не перевіряються. Ліміти: 256 MiB на потік, 1 GiB загалом, 200 000 записів, 4 096 потоків, глибина 256, 30 секунд. OpenMcdf читає синхронно й може затримати скасування.</value></data>
+<data name="compoundRecoveryStarting" xml:space="preserve"><value>Підготовка обмеженого експорту доступних даних...</value></data>
+<data name="compoundRecoveryProgress" xml:space="preserve"><value>Записів {0:N0}; повних потоків {1:N0}; прочитано байтів {2:N0}; {3}</value></data>
+<data name="compoundRecoverySummaryFormat" xml:space="preserve"><value>Підготовлено повних потоків: {0:N0}; пропущено: {1:N0}; прочитано байтів: {2:N0}. Сканування: {3}. Деталі — у звіті експорту; діалог копіювання може пропускати файли через конфлікти.</value></data>
+<data name="compoundRecoveryNoStreams" xml:space="preserve"><value>У межах лімітів не вдалося експортувати жодного повного доступного потоку.</value></data>
+<data name="compoundRecoveryFailed" xml:space="preserve"><value>Не вдалося експортувати доступні дані:</value></data>
+<data name="compoundRecoveryCleanupFailed" xml:space="preserve"><value>Не вдалося видалити неповний тимчасовий потік; підготовлений експорт не буде передано.</value></data>
+<data name="compoundRecoveryWriteFailed" xml:space="preserve"><value>Не вдалося записати відновлений потік у тимчасовий експорт: {0}</value></data>
+<data name="compoundRecoveryDestinationCopyFormat" xml:space="preserve"><value>Копіювання до призначення: {0}</value></data>
+<data name="compoundRecoveryDestinationCopySuccess" xml:space="preserve"><value>завершено</value></data>
+<data name="compoundRecoveryDestinationCopyPartial" xml:space="preserve"><value>виконано частково</value></data>
+<data name="compoundRecoveryDestinationCopyCancelled" xml:space="preserve"><value>скасовано</value></data>
+<data name="compoundRecoveryDestinationCopyNotStarted" xml:space="preserve"><value>не запущено</value></data>
+  <data name="aboutExecutablePath" xml:space="preserve"><value>Виконуваний файл</value></data>
 </root>

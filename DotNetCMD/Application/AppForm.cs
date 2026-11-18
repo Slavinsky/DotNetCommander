@@ -52,6 +52,8 @@ namespace DotNetCommander
             fileBrowserRight.SelectionChanged += FileBrowser_SelectionChanged;
             fileBrowserLeft.AdjacentPanelRequested += FileBrowser_AdjacentPanelRequested;
             fileBrowserRight.AdjacentPanelRequested += FileBrowser_AdjacentPanelRequested;
+            fileBrowserLeft.CompoundPayloadExportRequested += FileBrowser_CompoundPayloadExportRequested;
+            fileBrowserRight.CompoundPayloadExportRequested += FileBrowser_CompoundPayloadExportRequested;
             fileBrowserLeft.ArchiveDeviceChanged += FileBrowser_ArchiveDeviceChanged;
             fileBrowserRight.ArchiveDeviceChanged += FileBrowser_ArchiveDeviceChanged;
             fileBrowserLeft.FeedToPanelRequested += FileBrowser_FeedToPanelRequested;
@@ -607,6 +609,14 @@ namespace DotNetCommander
             ActivateAdjacentPanel();
         }
 
+        private void FileBrowser_CompoundPayloadExportRequested(object sender, EventArgs e)
+        {
+            if (!(sender is FileBrowser source))
+                return;
+            lastFileBrowser = source;
+            commandService.ExportCompoundPayloadSelection(source, GetPassiveBrowser(source), CopyComplete, this);
+        }
+
     /*
      * Comand Buttons (e.g.: Copy, Paste)
      */
@@ -1025,19 +1035,24 @@ namespace DotNetCommander
 
             int generation = ++quickViewGeneration;
             FileBrowser sourceBrowser = lastFileBrowser ?? fileBrowserLeft;
+            string compoundStreamPath = null;
             if (sourceBrowser?.IsGedcomMode == true)
             {
                 quickViewControl.DisplayGedcomPerson(sourceBrowser.SelectedGedcomPerson);
                 return;
             }
 
-            if (sourceBrowser?.IsCompoundMode == true &&
-                sourceBrowser.SelectedCompoundStreamPaths.Length == 1 &&
-                string.Equals(sourceBrowser.SelectedCompoundStreamPaths[0], "WordDocument", StringComparison.OrdinalIgnoreCase))
+            string[] selectedCompoundStreams = sourceBrowser?.IsCompoundMode == true
+                ? sourceBrowser.SelectedCompoundStreamPaths
+                : Array.Empty<string>();
+            if (selectedCompoundStreams.Length == 1 &&
+                string.Equals(selectedCompoundStreams[0], "WordDocument", StringComparison.OrdinalIgnoreCase))
             {
                 quickViewControl.DisplayWordBinaryDocument(sourceBrowser.OpenVirtualSourcePath);
                 return;
             }
+            if (selectedCompoundStreams.Length == 1)
+                compoundStreamPath = selectedCompoundStreams[0];
 
             string fileToPreview;
             try
@@ -1061,7 +1076,10 @@ namespace DotNetCommander
                 return;
             }
 
-            quickViewControl.DisplayFile(fileToPreview);
+            if (compoundStreamPath == null)
+                quickViewControl.DisplayFile(fileToPreview);
+            else
+                quickViewControl.DisplayCompoundStream(fileToPreview, compoundStreamPath);
         }
 
         private void FileBrowser_SelectionChanged(object sender, EventArgs e)

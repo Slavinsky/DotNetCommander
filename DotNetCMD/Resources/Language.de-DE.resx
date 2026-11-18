@@ -934,7 +934,9 @@ Element erneut versuchen, ignorieren und fortfahren oder Vorgang abbrechen?</val
   <data name="compoundEmbeddedEnterBlocked" xml:space="preserve"><value>Dieses eingebettete Objekt gilt als nicht vertrauenswürdig und wurde nicht geöffnet. Verwenden Sie «Extern öffnen...» im Kontextmenü, wenn Sie der Quelle vertrauen.</value></data>
   <data name="compoundStorage" xml:space="preserve"><value>Speicher</value></data>
   <data name="compoundStream" xml:space="preserve"><value>Datenstrom</value></data>
-  <data name="compoundCopyRequiresFilePanel" xml:space="preserve"><value>Verbunddatei-Datenströme können nur in eine physische Dateiansicht kopiert werden.</value></data>
+  <data name="compoundCopyRequiresFilePanel" xml:space="preserve"><value>Elemente aus Verbunddateien können nur in eine physische Dateiansicht kopiert werden.</value></data>
+  <data name="compoundExportNameCollision" xml:space="preserve"><value>Die ausgewählten Verbunddatei-Einträge ergeben nach der Bereinigung denselben Windows-Dateinamen. Exportieren Sie sie einzeln oder benennen Sie einen Eintrag im Quelldokument um.</value></data>
+  <data name="compoundExportLimitExceeded" xml:space="preserve"><value>Der ausgewählte Inhalt der Verbunddatei überschreitet das sichere Exportlimit.</value></data>
   <data name="rtfEditorTitle" xml:space="preserve"><value>RTF-Editor</value></data>
   <data name="rtfEditorTitleFormat" xml:space="preserve"><value>{0} - RTF-Editor</value></data>
   <data name="rtfPreviewTitleFormat" xml:space="preserve"><value>{0} - Vorschau</value></data>
@@ -1251,14 +1253,96 @@ Esc - Editor schließen</value></data>
   <data name="aiOrganizerVisionPreviewReadyFormat" xml:space="preserve"><value>Bereit zum Senden: {0} verkleinerte JPEG-Kopien</value></data>
   <data name="aiOrganizerVisionPreviewFailed" xml:space="preserve"><value>Bildvorschauen konnten nicht vorbereitet werden.</value></data>
   <data name="aiOrganizerVisionNoPreviewImages" xml:space="preserve"><value>Keines der ausgewählten Bilder konnte für den Upload vorbereitet werden.</value></data>
-  <data name="aiOrganizerViewImageEvidence" xml:space="preserve"><value>Belegbild anzeigen</value></data>
-  <data name="aiOrganizerImageEvidenceTitleFormat" xml:space="preserve"><value>Vorbereitetes Belegbild — {0}</value></data>
-  <data name="aiOrganizerImageEvidenceHelpTitle" xml:space="preserve"><value>Belegbildvorschau</value></data>
-  <data name="aiOrganizerImageEvidenceHelpSubtitle" xml:space="preserve"><value>Prüfen Sie die verkleinerte JPEG-Kopie für die Anfrage des Organizers.</value></data>
-  <data name="aiOrganizerImageEvidenceHelpClose" xml:space="preserve"><value>Bildvorschau schließen</value></data>
-  <data name="aiOrganizerImageMetadataFormat" xml:space="preserve"><value>Original: {0} × {1}, {2:N0} Byte   →   Upload-JPEG: {3} × {4}, {5:N0} Byte</value></data>
-  <data name="aiOrganizerImageSourcePreview" xml:space="preserve"><value>Quellvorschau</value></data>
-  <data name="aiOrganizerImageUploadPreview" xml:space="preserve"><value>JPEG für das Modell</value></data>
   <data name="aiOrganizerImagesIncludedFormat" xml:space="preserve"><value>An das Modell gesendete Bilder: {0}; wegen Größenlimits oder Lesefehlern übersprungen: {1}</value></data>
   <data name="aiOrganizerImageEvidenceFormat" xml:space="preserve"><value>Bildbeobachtung des Modells (Bild prüfen): „{0}“</value></data>
+<data name="aiOrganizerViewImageEvidence" xml:space="preserve"><value>Belegbild anzeigen</value></data>
+<data name="aiOrganizerImageEvidenceTitleFormat" xml:space="preserve"><value>Vorbereitetes Belegbild — {0}</value></data>
+<data name="aiOrganizerImageEvidenceHelpTitle" xml:space="preserve"><value>Belegbildvorschau</value></data>
+<data name="aiOrganizerImageEvidenceHelpSubtitle" xml:space="preserve"><value>Prüfen Sie die verkleinerte JPEG-Kopie für die Anfrage des Organizers.</value></data>
+<data name="aiOrganizerImageEvidenceHelpClose" xml:space="preserve"><value>Bildvorschau schließen</value></data>
+<data name="aiOrganizerImageMetadataFormat" xml:space="preserve"><value>Original: {0} × {1}, {2:N0} Byte   →   Upload-JPEG: {3} × {4}, {5:N0} Byte</value></data>
+<data name="aiOrganizerImageSourcePreview" xml:space="preserve"><value>Quellvorschau</value></data>
+<data name="aiOrganizerImageUploadPreview" xml:space="preserve"><value>JPEG für das Modell</value></data>
+<data name="compoundOpenExternallyTitle" xml:space="preserve"><value>Eingebetteten Datenstrom extern öffnen?</value></data>
+<data name="compoundOpenExternallyWarningFormat" xml:space="preserve"><value>Der eingebettete Datenstrom „{0}“ wird materialisiert und mit der zugeordneten Anwendung geöffnet. Eingebettete Inhalte sind nicht vertrauenswürdig und können Code ausführen. Fortfahren?</value></data>
+<data name="compoundMetadataMenu" xml:space="preserve"><value>Dokumentmetadaten...</value></data>
+<data name="compoundMetadataTitle" xml:space="preserve"><value>Metadaten der Verbunddatei</value></data>
+<data name="compoundMetadataHeading" xml:space="preserve"><value>Übersicht</value></data>
+<data name="compoundMetadataDocumentType" xml:space="preserve"><value>Erkanntes Format</value></data>
+<data name="compoundMetadataRootClsid" xml:space="preserve"><value>CLSID des Stammverzeichnisses</value></data>
+<data name="compoundMetadataProperties" xml:space="preserve"><value>Dokumenteigenschaften</value></data>
+<data name="compoundMetadataProperty" xml:space="preserve"><value>Eigenschaft</value></data>
+<data name="compoundMetadataValue" xml:space="preserve"><value>Wert</value></data>
+<data name="compoundMetadataEntries" xml:space="preserve"><value>Einträge und CLSIDs</value></data>
+<data name="compoundMetadataPath" xml:space="preserve"><value>Pfad</value></data>
+<data name="compoundMetadataKind" xml:space="preserve"><value>Typ</value></data>
+<data name="compoundMetadataSize" xml:space="preserve"><value>Größe (Bytes)</value></data>
+<data name="compoundMetadataClsid" xml:space="preserve"><value>CLSID</value></data>
+<data name="compoundMetadataEncryption" xml:space="preserve"><value>Markerpaar für verschlüsseltes OOXML</value></data>
+<data name="compoundMetadataMacro" xml:space="preserve"><value>VBA-Projektmarker</value></data>
+<data name="compoundMetadataEmbedded" xml:space="preserve"><value>OLE-Native-/Package-Datenstrommarker</value></data>
+<data name="compoundMetadataReadWarning" xml:space="preserve"><value>Metadatenstreams nicht gelesen</value></data>
+<data name="compoundMetadataNoEvidence" xml:space="preserve"><value>Keine passenden Marker oder lesbaren Eigenschaften gefunden.</value></data>
+<data name="compoundMetadataProtection" xml:space="preserve"><value>Gemeldete Schutzflags (SummaryInformation PID 19)</value></data>
+<data name="compoundMetadataSecurityPassword" xml:space="preserve"><value>Flag „Kennwortgeschützt“</value></data>
+<data name="compoundMetadataSecurityReadOnlyRecommended" xml:space="preserve"><value>Flag „Schreibgeschützt empfohlen“</value></data>
+<data name="compoundMetadataSecurityReadOnlyEnforced" xml:space="preserve"><value>Flag „Schreibgeschützt erzwungen“</value></data>
+<data name="compoundMetadataSecurityAnnotationsLocked" xml:space="preserve"><value>Flag „Für Anmerkungen gesperrt“</value></data>
+<data name="compoundMetadataDetectionNote" xml:space="preserve"><value>PID-19-Werte sind von der Anwendung gemeldete Zugriffsflags und kein Beweis für Verschlüsselung. Das Fehlen von Strukturmarkern beweist nicht, dass ein Dokument unverschlüsselt ist oder keinen aktiven Inhalt enthält. OLE-Native-/Package-Streamnamen beweisen nicht, dass Nutzdaten ausführbar sind. Ein Stream namens Package wird nur bei ZIP-Signatur vollständig exportiert; die Archivstruktur wird nicht geprüft. Namen benutzerdefinierter Eigenschaften werden nicht decodiert.</value></data>
+<data name="compoundMetadataEntriesTruncated" xml:space="preserve"><value>Weitere Einträge in dieser Ansicht ausgelassen: {0:N0}.</value></data>
+<data name="compoundMetadataStorage" xml:space="preserve"><value>Speicher</value></data>
+<data name="compoundMetadataStream" xml:space="preserve"><value>Datenstrom</value></data>
+<data name="compoundMetadataReading" xml:space="preserve"><value>Dokumentmetadaten werden gelesen...</value></data>
+<data name="compoundMetadataFailed" xml:space="preserve"><value>Metadaten der Verbunddatei konnten nicht gelesen werden.</value></data>
+<data name="compoundExportPayload" xml:space="preserve"><value>Ole10Native-Payload / Package-Datenstrom mit ZIP-Signatur in andere Ansicht exportieren...</value></data>
+<data name="compoundPayloadNotRecognized" xml:space="preserve"><value>Die eingebettete Nutzdatenstruktur ist fehlerhaft oder nicht eindeutig erkennbar. Mit F5 kann der Datenstrom unverändert kopiert werden.</value></data>
+<data name="compoundIntegrityMenu" xml:space="preserve"><value>Struktur und Stream-Lesbarkeit prüfen...</value></data>
+<data name="compoundIntegrityTitle" xml:space="preserve"><value>Integritätsbericht der Verbunddatei</value></data>
+<data name="compoundIntegrityStrict" xml:space="preserve"><value>Strenge Prüfung</value></data>
+<data name="compoundIntegrityLenient" xml:space="preserve"><value>Best-Effort-Prüfung</value></data>
+<data name="compoundIntegrityPass" xml:space="preserve"><value>Durchlauf</value></data>
+<data name="compoundIntegrityStage" xml:space="preserve"><value>Phase</value></data>
+<data name="compoundIntegrityStatusPassed" xml:space="preserve"><value>Innerhalb der angegebenen Limits bestanden</value></data>
+<data name="compoundIntegrityStatusIssuesFound" xml:space="preserve"><value>Lesefehler festgestellt</value></data>
+<data name="compoundIntegrityStatusIncomplete" xml:space="preserve"><value>Wegen eines Limits unvollständig</value></data>
+<data name="compoundIntegrityStatusFailed" xml:space="preserve"><value>Nicht abgeschlossen</value></data>
+<data name="compoundIntegrityStatusCancelled" xml:space="preserve"><value>Abgebrochen</value></data>
+<data name="compoundIntegrityStatusNotRun" xml:space="preserve"><value>Nicht ausgeführt</value></data>
+<data name="compoundIntegrityCounts" xml:space="preserve"><value>Einträge: {0:N0}; vollständig gelesene Streams: {1:N0}; teilweise: {2:N0}; gelesene Bytes: {3:N0}</value></data>
+<data name="compoundIntegrityProgress" xml:space="preserve"><value>{0} wird geprüft — Einträge {1:N0}, gelesene Streams {2:N0}, Bytes {3:N0}</value></data>
+<data name="compoundIntegrityDisclaimer" xml:space="preserve"><value>Dies ist eine begrenzte schreibgeschützte Struktur- und Lesbarkeitsprüfung, keine Reparatur oder Signaturprüfung. Die OpenMcdf-Prüfung und Auflistung sind synchron und können den Abbruch verzögern. Ein Erfolg gilt nur für die oben aufgeführten Daten.</value></data>
+<data name="compoundIntegrityNoIssues" xml:space="preserve"><value>Innerhalb der angegebenen Limits wurden keine Probleme festgestellt.</value></data>
+<data name="compoundIntegrityUnexpectedFailure" xml:space="preserve"><value>Der Prüfbericht konnte nicht angezeigt werden:</value></data>
+<data name="compoundIntegrityOmittedIssues" xml:space="preserve"><value>Weitere Probleme in dieser Ansicht ausgelassen: {0:N0}.</value></data>
+<data name="compoundIntegrityStrictCatalog" xml:space="preserve"><value>Strenge Katalogöffnung</value></data>
+<data name="compoundIntegrityFile" xml:space="preserve"><value>Datei</value></data>
+<data name="compoundIntegrityOpen" xml:space="preserve"><value>Container öffnen</value></data>
+<data name="compoundIntegrityStorage" xml:space="preserve"><value>Speicher auflisten</value></data>
+<data name="compoundIntegrityStreamOpen" xml:space="preserve"><value>Datenstrom öffnen</value></data>
+<data name="compoundIntegrityStreamRead" xml:space="preserve"><value>Datenstrom lesen</value></data>
+<data name="compoundIntegrityLimit" xml:space="preserve"><value>Prüflimit</value></data>
+<data name="compoundIntegrityFileLimit" xml:space="preserve"><value>Datei überschreitet das Prüflimit von 256 MiB.</value></data>
+<data name="compoundIntegrityDepthLimit" xml:space="preserve"><value>Speichertiefe überschreitet das Limit von 256 Ebenen.</value></data>
+<data name="compoundIntegrityEntryLimit" xml:space="preserve"><value>Eintragszahl überschreitet das Limit von 200.000.</value></data>
+<data name="compoundIntegrityStreamCountLimit" xml:space="preserve"><value>Stream-Anzahl überschreitet das Limit von 4.096.</value></data>
+<data name="compoundIntegrityStreamLimit" xml:space="preserve"><value>Stream- oder Gesamtleselimit erreicht (64 MiB pro Stream, 256 MiB insgesamt).</value></data>
+<data name="compoundIntegrityInvalidSize" xml:space="preserve"><value>Stream hat eine ungültige deklarierte Länge.</value></data>
+<data name="compoundIntegrityShortRead" xml:space="preserve"><value>Stream endete vor der deklarierten Länge.</value></data>
+<data name="compoundIntegrityTimeLimit" xml:space="preserve"><value>Das Zeitlimit von 10 Sekunden wurde erreicht.</value></data>
+<data name="compoundRecoveryExportButton" xml:space="preserve"><value>Erreichbare Daten exportieren...</value></data>
+<data name="compoundRecoveryChooseDestination" xml:space="preserve"><value>Wählen Sie einen Zielordner für den Best-Effort-Export.</value></data>
+<data name="compoundRecoveryConfirmFormat" xml:space="preserve"><value>Nur vollständig lesbare, in dieser CFBF-Datei erreichbare Streams exportieren?{2}Quelle: {0}{2}Ziel: {1}{2}Nicht lesbare Streams werden ausgelassen. Nicht verknüpfte Daten sind nicht auffindbar; die Datei wird nicht repariert und Signaturen werden nicht geprüft. Limits: 256 MiB pro Stream, 1 GiB insgesamt, 200.000 Einträge, 4.096 Streams, Tiefe 256, 30 Sekunden. OpenMcdf liest synchron und kann den Abbruch verzögern.</value></data>
+<data name="compoundRecoveryStarting" xml:space="preserve"><value>Begrenzter Best-Effort-Export wird vorbereitet...</value></data>
+<data name="compoundRecoveryProgress" xml:space="preserve"><value>Einträge {0:N0}; vollständige Streams {1:N0}; gelesene Bytes {2:N0}; {3}</value></data>
+<data name="compoundRecoverySummaryFormat" xml:space="preserve"><value>{0:N0} vollständige Streams vorbereitet; {1:N0} ausgelassen; {2:N0} Bytes gelesen. Scan: {3}. Details stehen im Wiederherstellungsbericht; der Kopierdialog kann Dateien bei Konflikten auslassen.</value></data>
+<data name="compoundRecoveryNoStreams" xml:space="preserve"><value>Innerhalb der Limits konnte kein vollständiger erreichbarer Stream exportiert werden.</value></data>
+<data name="compoundRecoveryFailed" xml:space="preserve"><value>Der Best-Effort-Export ist fehlgeschlagen:</value></data>
+<data name="compoundRecoveryCleanupFailed" xml:space="preserve"><value>Ein unvollständiger temporärer Stream konnte nicht gelöscht werden; der vorbereitete Export wird nicht übergeben.</value></data>
+<data name="compoundRecoveryWriteFailed" xml:space="preserve"><value>Ein wiederhergestellter Stream konnte nicht in den temporären Export geschrieben werden: {0}</value></data>
+<data name="compoundRecoveryDestinationCopyFormat" xml:space="preserve"><value>Kopieren zum Ziel: {0}</value></data>
+<data name="compoundRecoveryDestinationCopySuccess" xml:space="preserve"><value>abgeschlossen</value></data>
+<data name="compoundRecoveryDestinationCopyPartial" xml:space="preserve"><value>teilweise abgeschlossen</value></data>
+<data name="compoundRecoveryDestinationCopyCancelled" xml:space="preserve"><value>abgebrochen</value></data>
+<data name="compoundRecoveryDestinationCopyNotStarted" xml:space="preserve"><value>nicht gestartet</value></data>
+  <data name="aboutExecutablePath" xml:space="preserve"><value>Ausführbare Datei</value></data>
 </root>

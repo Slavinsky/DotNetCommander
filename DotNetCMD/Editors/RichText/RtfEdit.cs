@@ -572,7 +572,7 @@ namespace View
                 caretColumn);
         }
 
-        public async void LoadFile(string filePath, bool preview = false)
+        public async void LoadFile(string filePath, bool preview = false, bool forceRtf = false)
         {
             try
             {
@@ -588,14 +588,14 @@ namespace View
                 UpdateWindowTitle();
 
                 string extension = Path.GetExtension(filePath)?.ToLowerInvariant() ?? string.Empty;
-                if (previewMode && string.Equals(extension, ".md", StringComparison.OrdinalIgnoreCase))
+                if (!forceRtf && previewMode && string.Equals(extension, ".md", StringComparison.OrdinalIgnoreCase))
                 {
                     markdownPreviewSource = DotNetCommander.TextFileEncodingService.ReadAllText(filePath, out currentTextEncoding);
                     markdownPreviewHasTables = ContainsMarkdownTable(markdownPreviewSource);
                     richTextBox.ReadOnly = true;
                     await RenderMarkdownPreviewAsync(showWaitAfterDelay: true);
                 }
-                else if (string.Equals(extension, ".rtf", StringComparison.OrdinalIgnoreCase))
+                else if (forceRtf || string.Equals(extension, ".rtf", StringComparison.OrdinalIgnoreCase))
                 {
                     LoadRtfDocument(filePath);
                 }

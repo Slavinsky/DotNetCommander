@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -57,6 +57,7 @@ namespace DotNetCommander
     public delegate void PathChangeHandler(Object sender, String newPath);
     public event PathChangeHandler PathChange;
     public event EventHandler AdjacentPanelRequested;
+    internal event EventHandler CompoundPayloadExportRequested;
     internal event EventHandler<ArchiveDeviceChangedEventArgs> ArchiveDeviceChanged;
     internal event EventHandler<SearchFeedEventArgs> FeedToPanelRequested;
 
@@ -123,6 +124,7 @@ namespace DotNetCommander
       };
       compoundBrowser.SelectionChanged += CompoundBrowser_SelectionChanged;
       compoundBrowser.BrowserLocationChanged += CompoundBrowser_LocationChanged;
+      compoundBrowser.EmbeddedPayloadExportRequested += (_, __) => CompoundPayloadExportRequested?.Invoke(this, EventArgs.Empty);
       compoundBrowser.LeaveCompoundRequested += (_, __) => ExitCompound(true);
       compoundBrowser.NavigateBackRequested += (_, __) => _ = NavigateBackAsync();
       Controls.Add(compoundBrowser);
@@ -1648,9 +1650,24 @@ editBox.Focus();*/
       return compoundMode ? compoundBrowser.MaterializeSelectedStreamAsync() : Task.FromResult<string>(null);
     }
 
-    public Task<string[]> MaterializeSelectedCompoundStreamsAsync()
+    public Task<string[]> MaterializeSelectedCompoundItemsAsync()
     {
-      return compoundMode ? compoundBrowser.MaterializeSelectedStreamsAsync() : Task.FromResult(Array.Empty<string>());
+      return compoundMode ? compoundBrowser.MaterializeSelectedEntriesAsync() : Task.FromResult(Array.Empty<string>());
+    }
+
+    public Task<string> MaterializeSelectedCompoundPayloadAsync()
+    {
+      return compoundMode ? compoundBrowser.MaterializeSelectedEmbeddedPayloadAsync() : Task.FromResult<string>(null);
+    }
+
+    public IDisposable RetainCompoundExportSession()
+    {
+      return compoundMode ? compoundBrowser.RetainExportSession() : null;
+    }
+
+    public void ReleaseCompoundExportFiles(IEnumerable<string> paths)
+    {
+      compoundBrowser?.ReleaseExportFiles(paths);
     }
 
     internal async Task EnterSearchAsync(SearchQuery query)

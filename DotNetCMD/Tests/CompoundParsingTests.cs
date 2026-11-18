@@ -278,6 +278,8 @@ namespace DotNetCommander.Tests
                 Assert.Equal(new byte[] { 0x01, 0x02, 0x03 }, File.ReadAllBytes(target));
             }
 
+            for (int attempt = 0; attempt < 100 && Directory.Exists(Path.GetDirectoryName(target)); attempt++)
+                await Task.Delay(50);
             Assert.False(Directory.Exists(Path.GetDirectoryName(target)));
         }
 

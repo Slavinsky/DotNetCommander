@@ -29,6 +29,7 @@ namespace DotNetCommander
         private bool isRunning;
         private bool isCancelling;
         private bool allowClose;
+        private readonly bool allowOverwrite;
 
         public enum Type
         {
@@ -43,8 +44,9 @@ namespace DotNetCommander
         public delegate void ActionCompleteHandler(int result);
         public event ActionCompleteHandler ActionComplete;
 
-        public FormCopy(string[] sources, string destination, Type type = Type.Copy)
+        public FormCopy(string[] sources, string destination, Type type = Type.Copy, bool allowOverwrite = true)
         {
+            this.allowOverwrite = allowOverwrite;
             InitializeComponent();
             panelProgress = CreateProgressPanel();
             progressRevealTimer = new System.Windows.Forms.Timer { Interval = ProgressRevealDelayMs };
@@ -55,8 +57,9 @@ namespace DotNetCommander
             InitializeFormState(sources, destination, type);
         }
 
-        public FormCopy(StringCollection sources, string destination, Type type = Type.Copy)
+        public FormCopy(StringCollection sources, string destination, Type type = Type.Copy, bool allowOverwrite = true)
         {
+            this.allowOverwrite = allowOverwrite;
             InitializeComponent();
             panelProgress = CreateProgressPanel();
             progressRevealTimer = new System.Windows.Forms.Timer { Interval = ProgressRevealDelayMs };
@@ -135,7 +138,8 @@ namespace DotNetCommander
             type = operationType;
             Items = sources ?? Array.Empty<string>();
             destPath = destination ?? string.Empty;
-            checkBoxOverwriteExisting.Checked = Properties.Settings.Default.OverwriteExistingFiles;
+            checkBoxOverwriteExisting.Checked = allowOverwrite && Properties.Settings.Default.OverwriteExistingFiles;
+            checkBoxOverwriteExisting.Enabled = allowOverwrite;
 
             ApplyLocalization();
 
@@ -305,8 +309,11 @@ namespace DotNetCommander
             isCancelling = false;
             allowClose = false;
             operationCancellation = new CancellationTokenSource();
-            Properties.Settings.Default.OverwriteExistingFiles = checkBoxOverwriteExisting.Checked;
-            Properties.Settings.Default.Save();
+            if (allowOverwrite)
+            {
+                Properties.Settings.Default.OverwriteExistingFiles = checkBoxOverwriteExisting.Checked;
+                Properties.Settings.Default.Save();
+            }
 
             SetIdleControlsEnabled(false);
             ResetProgressState();
@@ -320,14 +327,16 @@ namespace DotNetCommander
                     Items,
                     destPath,
                     type,
-                    checkBoxOverwriteExisting.Checked,
+                    allowOverwrite && checkBoxOverwriteExisting.Checked,
                     conflictResolutions,
                     progress,
                     PromptForFailure,
                     operationCancellation.Token);
                 progressRevealTimer.Stop();
                 FileOperationDialogService.ShowSummary(this, result);
-                ActionComplete?.Invoke(result.RunResult == FileOperationRunResult.Cancelled ? -2 : result.FailedEntries > 0 ? -1 : 0);
+                ActionComplete?.Invoke(result.RunResult == FileOperationRunResult.Cancelled
+                    ? -2
+                    : result.FailedEntries > 0 || result.SkippedEntries > 0 ? -1 : 0);
                 allowClose = true;
                 Close();
             }
@@ -478,14 +487,14 @@ namespace DotNetCommander
         private void SetIdleControlsEnabled(bool enabled)
         {
             textPathDest.Enabled = enabled;
-            checkBoxOverwriteExisting.Enabled = enabled;
+            checkBoxOverwriteExisting.Enabled = enabled && allowOverwrite;
             buttonOK.Enabled = enabled && Items != null && Items.Length > 0;
             buttonCancel.Enabled = true;
         }
 
         private Dictionary<string, FileConflictResolution> ResolveConflicts(string destinationPath)
         {
-            if (checkBoxOverwriteExisting.Checked)
+            if (allowOverwrite && checkBoxOverwriteExisting.Checked)
             {
                 return new Dictionary<string, FileConflictResolution>(StringComparer.OrdinalIgnoreCase);
             }

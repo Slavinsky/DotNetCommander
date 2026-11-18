@@ -109,6 +109,24 @@ namespace DotNetCommander
             AddDetailRow(detailsLayout, Language.getString("aboutDescription"), Language.getString("aboutCredits"));
             AddDetailRow(detailsLayout, Language.getString("aboutApplication"), "DotNetCommander");
 
+            var executableCaptionLabel = new Label
+            {
+                AutoSize = true,
+                Font = DialogStyleService.CreateCaptionFont(),
+                ForeColor = SystemColors.GrayText,
+                Text = Language.getString("aboutExecutablePath"),
+                Margin = new Padding(0, 12, 0, 4)
+            };
+
+            var executablePathTextBox = new TextBox
+            {
+                ReadOnly = true,
+                Width = 530,
+                Font = DialogStyleService.CreateBodyFont(),
+                Text = Environment.ProcessPath ?? Application.ExecutablePath,
+                Margin = new Padding(0, 0, 0, 8)
+            };
+
             var storageCaptionLabel = new Label
             {
                 AutoSize = true,
@@ -147,6 +165,8 @@ namespace DotNetCommander
             };
             contentFlow.Controls.Add(descriptionLabel);
             contentFlow.Controls.Add(detailsLayout);
+            contentFlow.Controls.Add(executableCaptionLabel);
+            contentFlow.Controls.Add(executablePathTextBox);
             contentFlow.Controls.Add(storageCaptionLabel);
             contentFlow.Controls.Add(storagePathTextBox);
             contentFlow.Controls.Add(storageHintLabel);

@@ -130,6 +130,7 @@ namespace DotNetCommander
         {
             try
             {
+                string compoundStreamPath = null;
                 if (source?.TryGetSelectedGedcomRecordText(out string gedcomText, out string gedcomTitle, out _) == true)
                 {
                     View.TextEdit preview = new View.TextEdit();
@@ -138,13 +139,21 @@ namespace DotNetCommander
                     return;
                 }
 
-                if (source?.IsCompoundMode == true && IsSelectedWordDocumentStream(source))
+                if (source?.IsCompoundMode == true)
                 {
-                    string wordText = await WordBinaryTextExtractor.TryExtractMainTextAsync(source.OpenVirtualSourcePath);
-                    if (wordText != null)
+                    string[] selectedStreams = source.SelectedCompoundStreamPaths;
+                    if (selectedStreams.Length == 1)
                     {
-                        ShowWordTextPreview(wordText, source.OpenVirtualSourcePath, owner);
-                        return;
+                        compoundStreamPath = selectedStreams[0];
+                        if (IsSelectedWordDocumentStream(selectedStreams))
+                        {
+                            string wordText = await WordBinaryTextExtractor.TryExtractMainTextAsync(source.OpenVirtualSourcePath);
+                            if (wordText != null)
+                            {
+                                ShowWordTextPreview(wordText, source.OpenVirtualSourcePath, owner);
+                                return;
+                            }
+                        }
                     }
                 }
 
@@ -158,7 +167,7 @@ namespace DotNetCommander
                     return;
                 }
 
-                if (FileTypeClassifier.IsCompoundFile(filePath))
+                if (compoundStreamPath == null && FileTypeClassifier.IsCompoundFile(filePath))
                 {
                     string wordText = await WordBinaryTextExtractor.TryExtractMainTextAsync(filePath);
                     if (wordText != null)
@@ -168,7 +177,9 @@ namespace DotNetCommander
                     }
                 }
 
-                FileContentKind kind = FileTypeClassifier.Classify(filePath);
+                FileContentKind kind = compoundStreamPath == null
+                    ? FileTypeClassifier.Classify(filePath)
+                    : CompoundStreamPreviewClassifier.Classify(filePath, compoundStreamPath);
 
                 if (kind == FileContentKind.Csv)
                 {
@@ -212,7 +223,7 @@ namespace DotNetCommander
                 if (kind == FileContentKind.RichText)
                 {
                     View.RtfEdit preview = new View.RtfEdit();
-                    preview.LoadFile(filePath, true);
+                    preview.LoadFile(filePath, true, forceRtf: compoundStreamPath != null);
                     ShowOwned(preview, owner);
                     return;
                 }
@@ -234,9 +245,8 @@ namespace DotNetCommander
             }
         }
 
-        private static bool IsSelectedWordDocumentStream(FileBrowser source)
+        private static bool IsSelectedWordDocumentStream(string[] selected)
         {
-            string[] selected = source?.SelectedCompoundStreamPaths;
             return selected?.Length == 1 &&
                 string.Equals(selected[0], "WordDocument", StringComparison.OrdinalIgnoreCase);
         }
@@ -327,7 +337,7 @@ namespace DotNetCommander
             }
             if (source?.IsCompoundMode == true)
             {
-                ExtractCompoundSelection(source, destination, onComplete, owner);
+                ExtractCompoundSelection(source, destination, onComplete, owner, payloadOnly: false);
                 return;
             }
             if ((source?.IsVirtualMode == true && source.IsSearchMode != true) || destination?.IsVirtualMode == true)
@@ -773,7 +783,18 @@ namespace DotNetCommander
             }
         }
 
-        private async void ExtractCompoundSelection(FileBrowser source, FileBrowser destination, Action<int> onComplete, IWin32Window owner)
+        public void ExportCompoundPayloadSelection(FileBrowser source, FileBrowser destination, Action<int> onComplete, IWin32Window owner)
+        {
+            if (source?.IsCompoundMode == true)
+                ExtractCompoundSelection(source, destination, onComplete, owner, payloadOnly: true);
+        }
+
+        private async void ExtractCompoundSelection(
+            FileBrowser source,
+            FileBrowser destination,
+            Action<int> onComplete,
+            IWin32Window owner,
+            bool payloadOnly)
         {
             if (destination == null || destination.IsVirtualMode || string.IsNullOrWhiteSpace(destination.CurrentPath))
             {
@@ -781,9 +802,20 @@ namespace DotNetCommander
                 return;
             }
 
+            IDisposable exportSession = null;
+            string[] streams = Array.Empty<string>();
             try
             {
-                string[] streams = await source.MaterializeSelectedCompoundStreamsAsync();
+                exportSession = source.RetainCompoundExportSession();
+                if (payloadOnly)
+                {
+                    string payload = await source.MaterializeSelectedCompoundPayloadAsync();
+                    streams = string.IsNullOrWhiteSpace(payload) ? Array.Empty<string>() : new[] { payload };
+                }
+                else
+                {
+                    streams = await source.MaterializeSelectedCompoundItemsAsync();
+                }
                 if (streams.Length == 0)
                     return;
                 FormCopy copyWindow = new FormCopy(streams, destination.CurrentPath, FormCopy.Type.Copy);
@@ -794,6 +826,11 @@ namespace DotNetCommander
             {
                 LogService.LogException("CommandService.ExtractCompoundSelection", ex);
                 MessageBox.Show(owner, ex.Message, Language.getString("error"), MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            finally
+            {
+                source.ReleaseCompoundExportFiles(streams);
+                exportSession?.Dispose();
             }
         }
 

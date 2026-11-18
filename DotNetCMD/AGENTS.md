@@ -9,7 +9,7 @@ Namespace: `DotNetCommander`
 
 Поточна активна збірка:
 - `Commander.NET.csproj` — `net8.0-windows10.0.22621.0`
-- Версія: `1.9.16`
+- Версія: `1.10.0`
 
 Історична збірка:
 - `DotNetCommander.csproj` — оригінальний .NET Framework-проєкт
@@ -27,7 +27,7 @@ Namespace: `DotNetCommander`
 - `Dialogs/Common/FormAiModels.cs` — каталог моделей вибраного Ollama endpoint із фільтрами capabilities, розширеними параметрами та вибором моделі за замовчуванням
 - `Dialogs/Common/FormVectorIndex.cs` — асинхронна індексація активної фізичної папки у локальний per-root VectorStore з прогресом і скасуванням
 - `Dialogs/Common/FormSemanticSearch.cs` — semantic search та мінімальний RAG-діалог за індексованими файлами з top-K джерелами, форматованим Markdown-відображенням відповіді й відкриттям її в окремому вікні для збереження
-- `Dialogs/Common/FormAbout.cs` — `About` з версією, описом і шляхом до `user.config`
+- `Dialogs/Common/FormAbout.cs` — `About` з версією, описом, шляхами до виконуваного файла і `user.config`
 - `Dialogs/Common/FormKeyboardHelp.cs` — спільне commander-style вікно клавіатурної довідки з локалізованою таблицею shortcut/action
 - `Dialogs/Common/FormNewFile.cs` — commander-style створення нового файла з вибором редактора
 - `Dialogs/Common/FormNewFolder.cs` — commander-style створення каталогів і підкаталогів
@@ -199,7 +199,7 @@ DotNetCMD/
 
 ## Збірка
 - Базова команда: `dotnet build Commander.NET.csproj`
-- Тести: `dotnet test Tests/DotNetCommander.Tests.csproj` (182 тести; `Tests\**` виключено з компіляції основного проєкту, доступ до internal-типів — через `InternalsVisibleTo`)
+- Тести: `dotnet test Tests/DotNetCommander.Tests.csproj` (183 тести; `Tests\**` виключено з компіляції основного проєкту, доступ до internal-типів — через `InternalsVisibleTo`)
 - Платформа: Windows / WinForms
 - Активна збірка працює в `AnyCPU/x64` режимі без обов'язкової `x86-only` shell-залежності
 
@@ -224,3 +224,8 @@ DotNetCMD/
 - Для форм типу `Viewer` і `Editor` бажано підтримувати `F1` як коротку довідку про доступні дії та їхні гарячі клавіші саме в цій формі.
 - Зараз проєкт переважно відповідає цим орієнтирам, але в коді ще залишилися структурні legacy-острівці: API класів у `Dialogs/Legacy/`, старий EXIF-код у `Viewers/Images/` і частина UI-рядків без повної локалізації.
 - Плани, етапи й майбутні фічі — дивись `ROADMAP.md`, а не сюди; цей файл описує лише те, що вже реально є в коді.
+
+## Інтегровані можливості CFBF/OLE2
+
+- Експорт потоків і сховищ, bounded export вкладених payload, метадані OLE та звіт цілісності доступні в CompoundBrowser. Best-effort експорт відновлює лише доступні потоки, не ремонтує файл і не перевіряє підписи.
+- Тимчасові сесії мають блокування та асинхронне очищення. Пошук усередині потоків CFBF не інтегровано.

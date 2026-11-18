@@ -125,7 +125,13 @@ namespace DotNetCommander
         /// <summary>Starts a preview for a physical or materialized file path.</summary>
         public void DisplayFile(string path)
         {
-            _ = DisplayFileAsync(path);
+            _ = DisplayFileAsync(path, null);
+        }
+
+        /// <summary>Classifies a materialized CFBF stream by its payload instead of its entry name.</summary>
+        internal void DisplayCompoundStream(string path, string logicalStreamPath)
+        {
+            _ = DisplayFileAsync(path, logicalStreamPath);
         }
 
         /// <summary>Starts plain-text extraction for a Word Binary CFBF document.</summary>
@@ -184,7 +190,7 @@ namespace DotNetCommander
         // Dispatch
         // ---------------------------------------------------------------
 
-        private async Task DisplayFileAsync(string path)
+        private async Task DisplayFileAsync(string path, string compoundStreamPath)
         {
             requestedPath = path;
             CancelPreviewWork();
@@ -203,13 +209,15 @@ namespace DotNetCommander
                     return;
                 }
 
-                if (FileTypeClassifier.IsCompoundFile(path))
+                if (compoundStreamPath == null && FileTypeClassifier.IsCompoundFile(path))
                 {
                     await DisplayWordBinaryDocumentAsync(path);
                     return;
                 }
 
-                FileContentKind kind = FileTypeClassifier.Classify(path);
+                FileContentKind kind = compoundStreamPath == null
+                    ? FileTypeClassifier.Classify(path)
+                    : CompoundStreamPreviewClassifier.Classify(path, compoundStreamPath);
                 CancellationTokenSource cts = BeginPreviewOperation();
                 try
                 {

@@ -1101,7 +1101,40 @@ Retry the item, ignore it and continue, or abort the operation?</value></data>
   <data name="compoundEmbeddedEnterBlocked" xml:space="preserve"><value>This embedded object is treated as untrusted and was not opened with the system. Use "Open externally..." from the context menu if you trust the source.</value></data>
   <data name="compoundStorage" xml:space="preserve"><value>Storage</value></data>
   <data name="compoundStream" xml:space="preserve"><value>Stream</value></data>
-  <data name="compoundCopyRequiresFilePanel" xml:space="preserve"><value>Compound streams can only be copied to a physical file panel.</value></data>
+  <data name="compoundCopyRequiresFilePanel" xml:space="preserve"><value>Compound entries can only be copied to a physical file panel.</value></data>
+  <data name="compoundExportNameCollision" xml:space="preserve"><value>Selected compound entries map to the same Windows file name after sanitization. Export them separately or rename one in the source document.</value></data>
+  <data name="compoundExportLimitExceeded" xml:space="preserve"><value>The selected compound content exceeds the safe export size limit.</value></data>
+  <data name="compoundMetadataMenu" xml:space="preserve"><value>Document metadata...</value></data>
+  <data name="compoundMetadataTitle" xml:space="preserve"><value>Compound document metadata</value></data>
+  <data name="compoundMetadataHeading" xml:space="preserve"><value>Overview</value></data>
+  <data name="compoundMetadataDocumentType" xml:space="preserve"><value>Detected format</value></data>
+  <data name="compoundMetadataRootClsid" xml:space="preserve"><value>Root CLSID</value></data>
+  <data name="compoundMetadataProperties" xml:space="preserve"><value>Document properties</value></data>
+  <data name="compoundMetadataProperty" xml:space="preserve"><value>Property</value></data>
+  <data name="compoundMetadataValue" xml:space="preserve"><value>Value</value></data>
+  <data name="compoundMetadataEntries" xml:space="preserve"><value>Entries and CLSIDs</value></data>
+  <data name="compoundMetadataPath" xml:space="preserve"><value>Path</value></data>
+  <data name="compoundMetadataKind" xml:space="preserve"><value>Kind</value></data>
+  <data name="compoundMetadataSize" xml:space="preserve"><value>Size (bytes)</value></data>
+  <data name="compoundMetadataClsid" xml:space="preserve"><value>CLSID</value></data>
+  <data name="compoundMetadataEncryption" xml:space="preserve"><value>Encrypted OOXML marker pair</value></data>
+  <data name="compoundMetadataMacro" xml:space="preserve"><value>VBA project markers</value></data>
+  <data name="compoundMetadataEmbedded" xml:space="preserve"><value>OLE native/package stream markers</value></data>
+  <data name="compoundMetadataReadWarning" xml:space="preserve"><value>Metadata streams not read</value></data>
+  <data name="compoundMetadataNoEvidence" xml:space="preserve"><value>No matching marker or readable property found.</value></data>
+  <data name="compoundMetadataProtection" xml:space="preserve"><value>Reported protection flags (SummaryInformation PID 19)</value></data>
+  <data name="compoundMetadataSecurityPassword" xml:space="preserve"><value>Password-protected flag</value></data>
+  <data name="compoundMetadataSecurityReadOnlyRecommended" xml:space="preserve"><value>Read-only recommended flag</value></data>
+  <data name="compoundMetadataSecurityReadOnlyEnforced" xml:space="preserve"><value>Read-only enforced flag</value></data>
+  <data name="compoundMetadataSecurityAnnotationsLocked" xml:space="preserve"><value>Locked for annotations flag</value></data>
+  <data name="compoundMetadataDetectionNote" xml:space="preserve"><value>PID 19 values are application-reported access-control flags, not proof of encryption. Structural marker absence does not prove that a document is unencrypted or contains no active content. OLE native/package stream names do not prove that a payload is executable. A stream named Package is exported whole only when it starts with a ZIP signature; its archive structure is not validated. Custom property names are not decoded.</value></data>
+  <data name="compoundMetadataEntriesTruncated" xml:space="preserve"><value>{0:N0} additional entries omitted from this view.</value></data>
+  <data name="compoundMetadataStorage" xml:space="preserve"><value>Storage</value></data>
+  <data name="compoundMetadataStream" xml:space="preserve"><value>Stream</value></data>
+  <data name="compoundMetadataReading" xml:space="preserve"><value>Reading document metadata...</value></data>
+  <data name="compoundMetadataFailed" xml:space="preserve"><value>Could not read compound document metadata.</value></data>
+  <data name="compoundExportPayload" xml:space="preserve"><value>Export Ole10Native payload / Package stream (ZIP signature) to other panel...</value></data>
+  <data name="compoundPayloadNotRecognized" xml:space="preserve"><value>The embedded payload wrapper is malformed or not confidently recognized. Use F5 to copy the raw stream.</value></data>
   <data name="rtfEditorTitle" xml:space="preserve"><value>RTF Editor</value></data>
   <data name="rtfEditorTitleFormat" xml:space="preserve"><value>{0} - RTF Editor</value></data>
   <data name="rtfPreviewTitleFormat" xml:space="preserve"><value>{0} - Preview</value></data>
@@ -1372,4 +1405,55 @@ Esc - Close editor</value></data>
   <data name="aiOrganizerImageSourcePreview" xml:space="preserve"><value>Source preview</value></data>
   <data name="aiOrganizerImageUploadPreview" xml:space="preserve"><value>JPEG sent to model</value></data>
   <data name="aiOrganizerImagesIncludedFormat" xml:space="preserve"><value>Images sent to the model: {0}; skipped by safety limits or unreadable: {1}</value></data>
+<data name="compoundIntegrityMenu" xml:space="preserve"><value>Check structure and stream readability...</value></data>
+<data name="compoundIntegrityTitle" xml:space="preserve"><value>Compound file integrity report</value></data>
+<data name="compoundIntegrityStrict" xml:space="preserve"><value>Strict scan</value></data>
+<data name="compoundIntegrityLenient" xml:space="preserve"><value>Best-effort scan</value></data>
+<data name="compoundIntegrityPass" xml:space="preserve"><value>Pass</value></data>
+<data name="compoundIntegrityStage" xml:space="preserve"><value>Stage</value></data>
+<data name="compoundIntegrityStatusPassed" xml:space="preserve"><value>Passed within the reported limits</value></data>
+<data name="compoundIntegrityStatusIssuesFound" xml:space="preserve"><value>Issues encountered</value></data>
+<data name="compoundIntegrityStatusIncomplete" xml:space="preserve"><value>Incomplete due to a limit</value></data>
+<data name="compoundIntegrityStatusFailed" xml:space="preserve"><value>Could not complete</value></data>
+<data name="compoundIntegrityStatusCancelled" xml:space="preserve"><value>Cancelled</value></data>
+<data name="compoundIntegrityStatusNotRun" xml:space="preserve"><value>Not run</value></data>
+<data name="compoundIntegrityCounts" xml:space="preserve"><value>Entries: {0:N0}; streams fully read: {1:N0}; partial: {2:N0}; bytes read: {3:N0}</value></data>
+<data name="compoundIntegrityProgress" xml:space="preserve"><value>Scanning {0} — entries {1:N0}, streams read {2:N0}, bytes {3:N0}</value></data>
+<data name="compoundIntegrityDisclaimer" xml:space="preserve"><value>This is a bounded read-only structural/readability check, not a repair or digital-signature verification. OpenMcdf validation and enumeration are synchronous and can delay cancellation. A pass only covers the data listed above.</value></data>
+<data name="compoundIntegrityNoIssues" xml:space="preserve"><value>No issue was encountered within the reported limits.</value></data>
+<data name="compoundIntegrityUnexpectedFailure" xml:space="preserve"><value>The integrity scan could not be displayed:</value></data>
+<data name="compoundIntegrityOmittedIssues" xml:space="preserve"><value>Additional issues omitted from this view: {0:N0}.</value></data>
+<data name="compoundIntegrityStrictCatalog" xml:space="preserve"><value>Strict catalog open</value></data>
+<data name="compoundIntegrityFile" xml:space="preserve"><value>File</value></data>
+<data name="compoundIntegrityOpen" xml:space="preserve"><value>Open container</value></data>
+<data name="compoundIntegrityStorage" xml:space="preserve"><value>Enumerate storage</value></data>
+<data name="compoundIntegrityStreamOpen" xml:space="preserve"><value>Open stream</value></data>
+<data name="compoundIntegrityStreamRead" xml:space="preserve"><value>Read stream</value></data>
+<data name="compoundIntegrityLimit" xml:space="preserve"><value>Scan limit</value></data>
+<data name="compoundIntegrityFileLimit" xml:space="preserve"><value>Container exceeds the 256 MiB scan limit.</value></data>
+<data name="compoundIntegrityDepthLimit" xml:space="preserve"><value>Storage depth exceeds the 256-level limit.</value></data>
+<data name="compoundIntegrityEntryLimit" xml:space="preserve"><value>Entry count exceeds the 200,000-entry limit.</value></data>
+<data name="compoundIntegrityStreamCountLimit" xml:space="preserve"><value>Stream count exceeds the 4,096-stream limit.</value></data>
+<data name="compoundIntegrityStreamLimit" xml:space="preserve"><value>Stream or aggregate read limit reached (64 MiB per stream, 256 MiB total).</value></data>
+<data name="compoundIntegrityInvalidSize" xml:space="preserve"><value>Stream has an invalid declared size.</value></data>
+<data name="compoundIntegrityShortRead" xml:space="preserve"><value>Stream ended before its declared length.</value></data>
+<data name="compoundIntegrityTimeLimit" xml:space="preserve"><value>10-second scan budget reached.</value></data>
+<data name="compoundOpenExternallyTitle" xml:space="preserve"><value>Open embedded stream externally?</value></data>
+<data name="compoundOpenExternallyWarningFormat" xml:space="preserve"><value>The embedded stream "{0}" will be materialized and opened with its associated application. Embedded content is untrusted and may execute code. Continue?</value></data>
+<data name="compoundRecoveryExportButton" xml:space="preserve"><value>Export reachable data...</value></data>
+<data name="compoundRecoveryChooseDestination" xml:space="preserve"><value>Select a destination folder for the best-effort export.</value></data>
+<data name="compoundRecoveryConfirmFormat" xml:space="preserve"><value>Export only complete streams reachable in this CFBF file?{2}Source: {0}{2}Destination: {1}{2}Unreadable streams are skipped. Unlinked data cannot be found; this does not repair the file or verify signatures. Limits: 256 MiB per stream, 1 GiB total, 200,000 entries, 4,096 streams, depth 256, 30 seconds. OpenMcdf reads are synchronous and may delay cancellation.</value></data>
+<data name="compoundRecoveryStarting" xml:space="preserve"><value>Preparing a bounded best-effort export...</value></data>
+<data name="compoundRecoveryProgress" xml:space="preserve"><value>Entries {0:N0}; complete streams {1:N0}; bytes read {2:N0}; {3}</value></data>
+<data name="compoundRecoverySummaryFormat" xml:space="preserve"><value>Prepared {0:N0} complete streams; skipped {1:N0}; read {2:N0} bytes. Scan: {3}. See the recovery manifest; the copy dialog may skip files due to conflicts.</value></data>
+<data name="compoundRecoveryNoStreams" xml:space="preserve"><value>No complete reachable stream could be exported within the limits.</value></data>
+<data name="compoundRecoveryFailed" xml:space="preserve"><value>Best-effort export failed:</value></data>
+<data name="compoundRecoveryCleanupFailed" xml:space="preserve"><value>An incomplete temporary stream could not be removed; the staged recovery export was withheld.</value></data>
+<data name="compoundRecoveryWriteFailed" xml:space="preserve"><value>Could not write a recovered stream to the temporary export: {0}</value></data>
+<data name="compoundRecoveryDestinationCopyFormat" xml:space="preserve"><value>Destination copy: {0}</value></data>
+<data name="compoundRecoveryDestinationCopySuccess" xml:space="preserve"><value>completed</value></data>
+<data name="compoundRecoveryDestinationCopyPartial" xml:space="preserve"><value>partially completed</value></data>
+<data name="compoundRecoveryDestinationCopyCancelled" xml:space="preserve"><value>cancelled</value></data>
+<data name="compoundRecoveryDestinationCopyNotStarted" xml:space="preserve"><value>not started</value></data>
+  <data name="aboutExecutablePath" xml:space="preserve"><value>Executable file</value></data>
 </root>
